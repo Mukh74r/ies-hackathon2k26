@@ -10,10 +10,10 @@ import {
     Moon,
     FileText,
     Brain,
+    Presentation,
     ClipboardList,
-    BarChart3,
+    Shuffle,
     Layers,
-    FolderKanban,
     Download,
     Printer,
     FileSpreadsheet,
@@ -24,7 +24,10 @@ import {
     ScanText,
     Target,
     Workflow,
-    FileOutput
+    FileOutput,
+    Cpu,
+    BookOpen,
+    BarChart3
 } from 'lucide-react';
 import BrandLogo from '../assets/brand-logo-main.svg';
 import { useLanguage, INDIAN_LANGUAGES } from '../context/LanguageContext';
@@ -34,6 +37,11 @@ export default function Home() {
     const { currentLanguage, setLanguageByCode, theme, toggleTheme } = useLanguage();
     const isLight = theme === 'light';
     const [langOpen, setLangOpen] = useState(false);
+
+    // Interactive Blueprint State
+    const [selectedBoard, setSelectedBoard] = useState('CBSE');
+    const [selectedGrade, setSelectedGrade] = useState('10');
+    const [selectedSubject, setSelectedSubject] = useState('Physics');
 
     // Signature Hero Simulation: Runs strictly ONCE on page load (2.0s duration, never loops)
     const [animStage, setAnimStage] = useState<number>(0);
@@ -53,7 +61,46 @@ export default function Home() {
             clearTimeout(t4);
             clearTimeout(t5);
         };
-    }, []);
+    }, [selectedBoard, selectedGrade, selectedSubject]);
+
+    const MULTI_OUTPUTS = [
+        {
+            title: "Question Paper (50M & 80M)",
+            desc: "Standardized Section A, B, C structure formatted with LaTeX equations and school headers.",
+            icon: FileText,
+            badge: "Exam Ready"
+        },
+        {
+            title: "45-Minute Lesson Plan",
+            desc: "Minute-by-minute timeline with real-world engagement hooks and formative exit assessments.",
+            icon: Brain,
+            badge: "Pedagogy Mapped"
+        },
+        {
+            title: "Classroom Slide Deck (PPT)",
+            desc: "12-slide lecture presentations with learning objectives, diagrams, and speaker notes.",
+            icon: Presentation,
+            badge: "Smartboard"
+        },
+        {
+            title: "Step-by-Step Marking Scheme",
+            desc: "Evaluation manuals outlining exact score allocations and moderation guidelines per step.",
+            icon: ClipboardList,
+            badge: "Evaluation"
+        },
+        {
+            title: "Shuffled Quiz Sets (A, B, C, D)",
+            desc: "Permutated question and option banks with synchronized answer keys for secure testing.",
+            icon: Shuffle,
+            badge: "Anti-Copy"
+        },
+        {
+            title: "Evaluation Answer Key",
+            desc: "Complete numerical derivation proofs with SI unit checks and boxed final values.",
+            icon: CheckCircle2,
+            badge: "Solution Key"
+        }
+    ];
 
     const PIPELINE_STAGES = [
         { id: 1, title: 'Upload Curriculum', desc: 'NCERT & State Board PDFs', icon: Upload },
@@ -130,10 +177,10 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Nav Links */}
+                    {/* Nav Links Center */}
                     <nav className="hidden md:flex items-center gap-1">
                         <button onClick={() => navigate('/turbo')} className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-[#6B7280] hover:text-[#111827] hover:bg-[#F7F8FA] transition-colors">
-                            Turbo
+                            Turbo Workspace
                         </button>
                         <button onClick={() => navigate('/virtualbrain')} className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-[#6B7280] hover:text-[#111827] hover:bg-[#F7F8FA] transition-colors">
                             VirtualBrain
@@ -149,7 +196,7 @@ export default function Home() {
                         </button>
                     </nav>
 
-                    {/* Right Action Utilities */}
+                    {/* Right Utilities */}
                     <div className="flex items-center gap-2.5">
                         {/* Theme Toggle */}
                         <button
@@ -216,17 +263,17 @@ export default function Home() {
                             onClick={() => navigate('/turbo')}
                             className="px-4 py-1.5 rounded-md bg-[#2A3F8F] hover:bg-[#223377] text-white text-xs font-semibold tracking-wide transition-all shadow-xs active:scale-98"
                         >
-                            Generate Blueprint
+                            Generate First Paper
                         </button>
                     </div>
                 </div>
             </header>
 
-            {/* ── 1. HERO SECTION (55/45 Split Layout · Real Product Demonstration) ── */}
+            {/* ── 1. HERO SECTION (55/45 Split Layout · Real Software Demonstration) ── */}
             <section className="pt-16 pb-20 px-4 sm:px-8 max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
                     
-                    {/* LEFT COLUMN (55%): Institutional Problem & Concrete Output */}
+                    {/* LEFT COLUMN (55%): Core Proposition */}
                     <div className="lg:col-span-6 space-y-6 pt-2">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7F8FA] border border-[#E7EAF0] text-xs font-semibold text-[#2A3F8F]">
                             <ShieldCheck size={14} className="text-[#2A3F8F] flex-shrink-0" />
@@ -234,11 +281,11 @@ export default function Home() {
                         </div>
 
                         <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-bold font-display tracking-tight text-[#111827] leading-[1.16]">
-                            Curriculum-aligned Question Papers for Indian Schools
+                            From Curriculum to Classroom — Everything in One Platform.
                         </h1>
 
                         <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed font-sans-academic max-w-xl">
-                            Generate examination blueprints, question papers, lesson plans and marking schemes directly from your curriculum while maintaining board alignment.
+                            Generate examination blueprints, question papers, marking schemes, lesson plans and assessment material directly from your curriculum while maintaining board alignment.
                         </p>
 
                         {/* CTAs */}
@@ -247,14 +294,14 @@ export default function Home() {
                                 onClick={() => navigate('/turbo')}
                                 className="px-6 py-3 rounded-lg bg-[#2A3F8F] hover:bg-[#223377] text-white font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs active:scale-98"
                             >
-                                <span>Generate Blueprint</span>
+                                <span>Generate First Paper</span>
                                 <ArrowRight size={14} />
                             </button>
                             <a
                                 href="#blueprint-preview"
                                 className="px-5 py-3 rounded-lg bg-[#FFFFFF] border border-[#E7EAF0] hover:border-[#2A3F8F] text-[#111827] text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
                             >
-                                <span>View Sample Paper</span>
+                                <span>View Sample Blueprint</span>
                             </a>
                         </div>
 
@@ -262,11 +309,11 @@ export default function Home() {
                         <div className="pt-4 border-t border-[#E7EAF0] space-y-2 text-xs text-[#6B7280] font-medium font-sans-academic">
                             <div className="flex items-center gap-2">
                                 <Check size={14} className="text-[#2F7D5C] flex-shrink-0" />
-                                <span>CBSE / ICSE / State Board</span>
+                                <span>CBSE / ICSE / State Board Alignment</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Check size={14} className="text-[#2F7D5C] flex-shrink-0" />
-                                <span>11 Languages</span>
+                                <span>11 Indian Languages</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Check size={14} className="text-[#2F7D5C] flex-shrink-0" />
@@ -275,7 +322,7 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN (45%): Realistic Miniature Software Interface */}
+                    {/* RIGHT COLUMN (45%): Live Examination Blueprint Preview */}
                     <div id="blueprint-preview" className="lg:col-span-6">
                         <div className="rounded-[18px] bg-[#FFFFFF] border border-[#E7EAF0] p-5 sm:p-6 shadow-sm space-y-4">
                             
@@ -316,7 +363,7 @@ export default function Home() {
                                 </p>
                             </div>
 
-                            {/* Section C: 4 x 5M Case-Based HOTS */}
+                            {/* Section C: 4 x 5M */}
                             <div className={`p-3 rounded-lg border border-[#E7EAF0] bg-[#F7F8FA] transition-all duration-300 ${animStage >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
                                 <div className="flex items-center justify-between text-xs font-semibold mb-1.5">
                                     <span className="text-[#2A3F8F] font-mono-stamp uppercase">Section C (4 × 5M Case-Based Assessment)</span>
@@ -389,42 +436,46 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ── 2. CURRICULUM PIPELINE (Wide Horizontal Production Workflow) ── */}
-            <section className="py-20 px-4 sm:px-8 bg-[#F7F8FA] border-y border-[#E7EAF0]">
-                <div className="max-w-7xl mx-auto space-y-8">
-                    <div className="max-w-xl">
-                        <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold">Production Workflow</span>
+            {/* ── 2. ONE CURRICULUM ➔ MULTIPLE OUTPUTS ── */}
+            <section className="py-20 px-4 sm:px-8 bg-[#F0F3FA] border-y border-[#E7EAF0]">
+                <div className="max-w-7xl mx-auto space-y-10">
+                    <div className="max-w-2xl">
+                        <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold">Institutional Workflow</span>
                         <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#111827] mt-1">
-                            Curriculum to Examination Pipeline
+                            One Curriculum Framework ➔ Six Classroom Ready Outputs
                         </h2>
                         <p className="text-xs sm:text-sm text-[#6B7280] mt-1.5 font-sans-academic">
-                            A linear production workflow translating official syllabi into classroom examination materials.
+                            A single syllabus ingestion simultaneously structures papers, lesson timelines, presentation decks, and marking schemes.
                         </p>
                     </div>
 
-                    {/* Horizontal Step Nodes */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 relative">
-                        {PIPELINE_STAGES.map((step) => {
-                            const Icon = step.icon;
-                            const isActive = pipelineActiveStep === step.id;
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {MULTI_OUTPUTS.map((item, idx) => {
+                            const Icon = item.icon;
                             return (
                                 <div
-                                    key={step.id}
-                                    onClick={() => setPipelineActiveStep(step.id)}
-                                    className={`p-4 rounded-xl border bg-[#FFFFFF] transition-all cursor-pointer card-lift ${
-                                        isActive
-                                            ? 'border-[#2A3F8F] ring-1 ring-[#2A3F8F] shadow-xs'
-                                            : 'border-[#E7EAF0] hover:border-[#2A3F8F]/50'
-                                    }`}
+                                    key={idx}
+                                    onClick={() => navigate('/turbo')}
+                                    className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E7EAF0] hover:border-[#2A3F8F] transition-all cursor-pointer card-lift shadow-2xs flex flex-col justify-between"
                                 >
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className={`p-2 rounded-md ${isActive ? 'bg-[#2A3F8F] text-white' : 'bg-[#F7F8FA] text-[#6B7280]'}`}>
-                                            <Icon size={16} />
+                                    <div>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div className="p-2 rounded-md bg-[#2A3F8F]/10 text-[#2A3F8F]">
+                                                <Icon size={18} />
+                                            </div>
+                                            <span className="text-[10px] font-mono-stamp text-[#8C2D33] border border-[#8C2D33]/20 bg-[#8C2D33]/8 px-2 py-0.5 rounded-md">
+                                                {item.badge}
+                                            </span>
                                         </div>
-                                        <span className="text-[10px] font-mono-stamp text-[#6B7280]">0{step.id}</span>
+                                        <h3 className="text-sm font-bold text-[#111827] font-display mb-1.5">{item.title}</h3>
+                                        <p className="text-xs text-[#6B7280] leading-relaxed font-sans-academic">
+                                            {item.desc}
+                                        </p>
                                     </div>
-                                    <div className="text-xs font-bold text-[#111827] font-display mb-0.5">{step.title}</div>
-                                    <div className="text-[11px] text-[#6B7280] font-sans-academic">{step.desc}</div>
+                                    <div className="mt-4 pt-3 border-t border-[#E7EAF0] flex items-center justify-between text-xs font-semibold text-[#2A3F8F]">
+                                        <span>Open Tool</span>
+                                        <ArrowRight size={13} />
+                                    </div>
                                 </div>
                             );
                         })}
@@ -435,7 +486,7 @@ export default function Home() {
             {/* ── 3. PAPER SOLVER SHOWCASE (Transformation Panel: Before / After) ── */}
             <section className="py-20 px-4 sm:px-8 max-w-7xl mx-auto">
                 <div className="max-w-xl mb-10">
-                    <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold">Marking Scheme Transformation</span>
+                    <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold">Marking Scheme Automation</span>
                     <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#111827] mt-1">
                         Paper Solver Transformation Panel
                     </h2>
@@ -489,36 +540,42 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ── 4. LANGUAGE SECTION (Prominent Native Scripts Chip Grid) ── */}
-            <section className="py-20 px-4 sm:px-8 bg-[#F7F8FA] border-y border-[#E7EAF0] notranslate" translate="no">
-                <div className="max-w-7xl mx-auto space-y-8 notranslate" translate="no">
-                    <div className="max-w-xl notranslate" translate="no">
-                        <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold notranslate" translate="no">Vernacular Parity</span>
-                        <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#111827] mt-1 notranslate" translate="no">
-                            Native Synthesis in 11 Indian Languages
+            {/* ── 4. CURRICULUM PROCESSING WORKFLOW ── */}
+            <section className="py-20 px-4 sm:px-8 bg-[#F7F8FA] border-y border-[#E7EAF0]">
+                <div className="max-w-7xl mx-auto space-y-8">
+                    <div className="max-w-xl">
+                        <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold">Production Pipeline</span>
+                        <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#111827] mt-1">
+                            Curriculum Processing Workflow
                         </h2>
-                        <p className="text-xs sm:text-sm text-[#6B7280] mt-1.5 font-sans-academic notranslate" translate="no">
-                            Native scripts are prominent first-class typographic elements, eliminating translation artifacts.
+                        <p className="text-xs sm:text-sm text-[#6B7280] mt-1.5 font-sans-academic">
+                            A linear production pipeline translating official syllabi into classroom examination materials.
                         </p>
                     </div>
 
-                    {/* Chips */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 notranslate" translate="no">
-                        {INDIAN_LANGUAGE_CARDS.map((chip) => {
-                            const isCurrent = currentLanguage.code === chip.code;
+                    {/* Horizontal Step Nodes */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 relative">
+                        {PIPELINE_STAGES.map((step) => {
+                            const Icon = step.icon;
+                            const isActive = pipelineActiveStep === step.id;
                             return (
                                 <div
-                                    key={chip.code}
-                                    onClick={() => setLanguageByCode(chip.code)}
-                                    className={`p-4 rounded-xl border bg-[#FFFFFF] transition-all cursor-pointer card-lift notranslate ${
-                                        isCurrent
+                                    key={step.id}
+                                    onClick={() => setPipelineActiveStep(step.id)}
+                                    className={`p-4 rounded-xl border bg-[#FFFFFF] transition-all cursor-pointer card-lift ${
+                                        isActive
                                             ? 'border-[#2A3F8F] ring-1 ring-[#2A3F8F] shadow-xs'
-                                            : 'border-[#E7EAF0] hover:border-[#2A3F8F]'
+                                            : 'border-[#E7EAF0] hover:border-[#2A3F8F]/50'
                                     }`}
-                                    translate="no"
                                 >
-                                    <div className="text-lg font-bold text-[#111827] notranslate" translate="no">{chip.native}</div>
-                                    <div className="text-xs text-[#6B7280] font-medium mt-0.5 notranslate" translate="no">{chip.latin}</div>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className={`p-2 rounded-md ${isActive ? 'bg-[#2A3F8F] text-white' : 'bg-[#F7F8FA] text-[#6B7280]'}`}>
+                                            <Icon size={16} />
+                                        </div>
+                                        <span className="text-[10px] font-mono-stamp text-[#6B7280]">0{step.id}</span>
+                                    </div>
+                                    <div className="text-xs font-bold text-[#111827] font-display mb-0.5">{step.title}</div>
+                                    <div className="text-[11px] text-[#6B7280] font-sans-academic">{step.desc}</div>
                                 </div>
                             );
                         })}
@@ -526,111 +583,101 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ── 5. MODULES (Dashboard Previews Instead of Generic Icon Grids) ── */}
-            <section className="py-20 px-4 sm:px-8 max-w-7xl mx-auto">
-                <div className="max-w-xl mb-10">
-                    <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold">Institutional Workspace</span>
-                    <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#111827] mt-1">
-                        Purpose-Built Academic Modules
+            {/* ── 5. 11 INDIAN LANGUAGE SUPPORT ── */}
+            <section className="py-20 px-4 sm:px-8 max-w-7xl mx-auto notranslate" translate="no">
+                <div className="max-w-xl mb-8 notranslate" translate="no">
+                    <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold notranslate" translate="no">Vernacular Parity</span>
+                    <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#111827] mt-1 notranslate" translate="no">
+                        Native Synthesis in 11 Indian Languages
                     </h2>
-                    <p className="text-xs sm:text-sm text-[#6B7280] mt-1.5 font-sans-academic">
-                        Each module is calibrated to solve specific day-to-day administrative and teaching tasks.
+                    <p className="text-xs sm:text-sm text-[#6B7280] mt-1.5 font-sans-academic notranslate" translate="no">
+                        Native scripts are prominent first-class typographic elements, eliminating translation artifacts.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {[
-                        {
-                            title: 'Question Paper Generator',
-                            category: 'Examination Suite',
-                            preview: '50M / 80M Blueprint · Section A, B, C · LaTeX formulas',
-                            badge: 'CBSE / ICSE Aligned'
-                        },
-                        {
-                            title: 'Lesson Plan Builder',
-                            category: 'Pedagogy Suite',
-                            preview: '45-Min Timeline · 00:00 Engage · 00:08 Derive · 00:28 Exit Slip',
-                            badge: 'Bloom\'s Taxonomy'
-                        },
-                        {
-                            title: 'Paper Solver',
-                            category: 'Evaluation Suite',
-                            preview: 'Step-by-Step Scoring Guide · Right-aligned +0.5M, +1M badges',
-                            badge: 'Marking Scheme'
-                        },
-                        {
-                            title: 'Assessment Analytics',
-                            category: 'Administrative Suite',
-                            preview: 'Chapter weightage tracking · Item difficulty index · Learning gaps',
-                            badge: 'Academic Audit'
-                        },
-                        {
-                            title: 'Curriculum Manager',
-                            category: 'Syllabus Suite',
-                            preview: 'Chapter repository · Learning objectives · Board updates repository',
-                            badge: 'Framework Ingestion'
-                        },
-                        {
-                            title: 'VirtualBrain',
-                            category: 'Interactive Suite',
-                            preview: 'Neural curriculum visualization · Derivation graph inspector',
-                            badge: 'Cognitive Engine'
-                        }
-                    ].map((mod, idx) => (
+                {/* Chips */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 notranslate" translate="no">
+                    {INDIAN_LANGUAGE_CARDS.map((chip) => {
+                        const isCurrent = currentLanguage.code === chip.code;
+                        return (
+                            <div
+                                key={chip.code}
+                                onClick={() => setLanguageByCode(chip.code)}
+                                className={`p-4 rounded-xl border bg-[#FFFFFF] transition-all cursor-pointer card-lift notranslate ${
+                                    isCurrent
+                                        ? 'border-[#2A3F8F] ring-1 ring-[#2A3F8F] shadow-xs'
+                                        : 'border-[#E7EAF0] hover:border-[#2A3F8F]'
+                                }`}
+                                translate="no"
+                            >
+                                <div className="text-lg font-bold text-[#111827] notranslate" translate="no">{chip.native}</div>
+                                <div className="text-xs text-[#6B7280] font-medium mt-0.5 notranslate" translate="no">{chip.latin}</div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </section>
+
+            {/* ── 6. VIRTUALBRAIN & CIRCUITBRAIN SHOWCASE ── */}
+            <section className="py-20 px-4 sm:px-8 bg-[#F0F3FA] border-y border-[#E7EAF0]">
+                <div className="max-w-7xl mx-auto space-y-8">
+                    <div className="max-w-xl">
+                        <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold">Interactive Labs</span>
+                        <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#111827] mt-1">
+                            VirtualBrain &amp; CircuitBrain Modules
+                        </h2>
+                        <p className="text-xs sm:text-sm text-[#6B7280] mt-1.5 font-sans-academic">
+                            Interactive 3D physical models, neural curriculum mapping, and real-time electronic circuit simulations.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* VirtualBrain Card */}
                         <div
-                            key={idx}
-                            onClick={() => navigate('/turbo')}
-                            className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E7EAF0] hover:border-[#2A3F8F] transition-all cursor-pointer card-lift shadow-2xs flex flex-col justify-between"
+                            onClick={() => navigate('/virtualbrain')}
+                            className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E7EAF0] hover:border-[#2A3F8F] transition-all cursor-pointer card-lift shadow-2xs flex flex-col justify-between"
                         >
                             <div>
                                 <div className="flex items-center justify-between mb-3">
-                                    <span className="text-[10px] font-mono-stamp text-[#6B7280] uppercase">{mod.category}</span>
-                                    <span className="text-[10px] font-mono-stamp text-[#8C2D33] border border-[#8C2D33]/20 bg-[#8C2D33]/8 px-2 py-0.5 rounded-md">
-                                        {mod.badge}
-                                    </span>
+                                    <span className="text-[10px] font-mono-stamp text-[#2A3F8F] uppercase font-semibold">COGNITIVE ENGINE</span>
+                                    <span className="mark-badge text-[10px]">3D Simulation</span>
                                 </div>
-                                <h3 className="text-sm font-bold text-[#111827] font-display mb-1.5">{mod.title}</h3>
-                                <div className="p-3 rounded-lg bg-[#F7F8FA] border border-[#E7EAF0] text-[11px] font-mono-stamp text-[#6B7280]">
-                                    {mod.preview}
-                                </div>
+                                <h3 className="text-base font-bold text-[#111827] font-display mb-1.5">VirtualBrain Curriculum Explorer</h3>
+                                <p className="text-xs text-[#6B7280] leading-relaxed font-sans-academic">
+                                    Visualize multi-chapter physics and chemistry derivations as connected cognitive graphs with 3D kinematic models.
+                                </p>
                             </div>
-                            <div className="mt-4 pt-3 border-t border-[#E7EAF0] flex items-center justify-between text-xs font-semibold text-[#2A3F8F]">
-                                <span>Open Module</span>
+                            <div className="mt-5 pt-3 border-t border-[#E7EAF0] flex items-center justify-between text-xs font-semibold text-[#2A3F8F]">
+                                <span>Launch VirtualBrain</span>
                                 <ArrowRight size={13} />
                             </div>
                         </div>
-                    ))}
-                </div>
-            </section>
 
-            {/* ── 6. DATA VISUALIZATION (Real Educational Analytics) ── */}
-            <section className="py-20 px-4 sm:px-8 bg-[#F7F8FA] border-y border-[#E7EAF0]">
-                <div className="max-w-7xl mx-auto space-y-8">
-                    <div className="max-w-xl">
-                        <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold">Institutional Telemetry</span>
-                        <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#111827] mt-1">
-                            Educational Quality Analytics
-                        </h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {[
-                            { label: 'Question Generation', value: '100% Board Compliant', sub: 'Calibrated to circular mark schemes' },
-                            { label: 'Blueprint Completion', value: '50M & 80M Pre-Set', sub: 'Section-wise mark integrity' },
-                            { label: 'Language Usage', value: '11 Regional Languages', sub: 'Zero machine translation distortion' },
-                            { label: 'Difficulty Distribution', value: '30 / 50 / 20 Ratio', sub: 'Recall / Application / HOTS' },
-                        ].map((metric, i) => (
-                            <div key={i} className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E7EAF0] shadow-2xs space-y-1">
-                                <div className="text-[10px] font-mono-stamp uppercase text-[#6B7280] font-semibold">{metric.label}</div>
-                                <div className="text-base font-bold font-display text-[#111827]">{metric.value}</div>
-                                <div className="text-[11px] text-[#6B7280] font-sans-academic pt-1">{metric.sub}</div>
+                        {/* CircuitBrain Card */}
+                        <div
+                            onClick={() => navigate('/circuitbrain')}
+                            className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E7EAF0] hover:border-[#2A3F8F] transition-all cursor-pointer card-lift shadow-2xs flex flex-col justify-between"
+                        >
+                            <div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <span className="text-[10px] font-mono-stamp text-[#2A3F8F] uppercase font-semibold">ELECTRONICS LAB</span>
+                                    <span className="mark-badge text-[10px]">Logic Simulation</span>
+                                </div>
+                                <h3 className="text-base font-bold text-[#111827] font-display mb-1.5">CircuitBrain Schematic Builder</h3>
+                                <p className="text-xs text-[#6B7280] leading-relaxed font-sans-academic">
+                                    Interactive breadboards, logic gates, Ohm's law verifications, and robotic automation schematics for school laboratories.
+                                </p>
                             </div>
-                        ))}
+                            <div className="mt-5 pt-3 border-t border-[#E7EAF0] flex items-center justify-between text-xs font-semibold text-[#2A3F8F]">
+                                <span>Launch CircuitBrain</span>
+                                <ArrowRight size={13} />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* ── 7. TRUST SECTION (Clean Typography, No Fake Logos) ── */}
+            {/* ── 7. TRUST & BOARD ALIGNMENT SECTION ── */}
             <section className="py-18 px-4 sm:px-8 max-w-5xl mx-auto text-center space-y-3">
                 <div className="text-xs font-mono-stamp uppercase font-semibold text-[#2A3F8F]">
                     Curriculum Compliance Standard
@@ -639,7 +686,7 @@ export default function Home() {
                     Aligned with CBSE, ICSE, and State Board examination blueprints.
                 </h3>
                 <p className="text-xs sm:text-sm text-[#6B7280] max-w-2xl mx-auto font-sans-academic">
-                    Supports institutional academic workflows for schools, coaching centres, publishers, and educators.
+                    Designed for schools, coaching centres, publishers, academic coordinators, and educational institutions.
                 </p>
             </section>
 
@@ -657,7 +704,7 @@ export default function Home() {
                             onClick={() => navigate('/turbo')}
                             className="px-6 py-3 rounded-lg bg-white text-[#2A3F8F] font-semibold text-xs uppercase tracking-wider shadow-sm hover:bg-[#F7F8FA] transition-all"
                         >
-                            Open Turbo Studio
+                            Open Turbo Workspace
                         </button>
                         <button
                             onClick={() => navigate('/pricing')}
