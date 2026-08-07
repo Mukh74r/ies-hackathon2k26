@@ -187,130 +187,136 @@ export default function TurboChat() {
 
     const clearChat = () => {
         clearHistory();
-        setMessages([{ role: 'assistant', content: "Memory purged. Neural registers cleared." }]);
+        setMessages([{ role: 'assistant', content: "Memory purged. Conversation sheet reset." }]);
     };
 
     return (
-        <div className="flex flex-col w-full h-full bg-[#050608]/80 backdrop-blur-xl border border-white/5 rounded-[2rem] overflow-hidden shadow-2xl relative transition-all duration-500">
-
-            {/* Subtle Background Layer */}
-            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-                <motion.div
-                    animate={{
-                        x: [-20, 20, -20],
-                        y: [-20, 20, -20],
-                    }}
-                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute -top-1/4 -left-1/4 w-[600px] h-[600px] bg-cyan-500/5 blur-[120px] rounded-full"
-                />
-                <motion.div
-                    animate={{
-                        x: [20, -20, 20],
-                        y: [20, -20, 20],
-                    }}
-                    transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute -bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-indigo-500/5 blur-[120px] rounded-full"
-                />
-                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-            </div>
-
-            {/* Header */}
-            <div className="bg-white/[0.02] border-b border-white/5 px-8 h-16 flex items-center justify-between shrink-0 z-10">
-                <div className="flex items-center gap-4">
-                    <div className="w-9 h-9 flex items-center justify-center p-2 rounded-xl bg-white/[0.03] border border-white/10 shadow-lg">
-                        <img src={BrandLogo} alt="Turbo" className="w-full h-full object-contain" />
-                    </div>
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Turbo V4</h3>
-                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
-                        </div>
-                        <p className="text-[9px] text-white/30 font-medium uppercase tracking-[0.2em]">Neural Research Engine</p>
-                    </div>
+        <div className="flex flex-col h-full bg-[#FDFAF3] text-[#2B211A] relative font-sans-academic border border-[#D8CBB0] shadow-sm rounded-sm overflow-hidden">
+            {/* Studio Header */}
+            <div className="flex items-center justify-between px-6 py-3 border-b border-[#D8CBB0] bg-[#F7F1E3]">
+                <div className="flex items-center gap-3">
+                    <span className="text-xs font-mono-stamp px-2 py-0.5 border border-[#8A6D3B]/40 bg-[#8A6D3B]/10 text-[#8A6D3B] uppercase">
+                        Teacher AI Studio
+                    </span>
+                    <h2 className="text-sm font-bold font-serif-academic text-[#2B211A]">
+                        Academic Assistant Workspace
+                    </h2>
                 </div>
 
-                <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2">
-                        <Zap size={10} className="text-cyan-400 opacity-50" />
-                        <span className="text-[9px] text-white/40 font-bold uppercase tracking-widest">{provider === 'ollama' ? 'Deep Core' : '70B Precision'}</span>
-                    </div>
+                <div className="flex items-center gap-2">
                     <button
-                        onClick={clearChat}
-                        className="p-2 hover:bg-white/5 rounded-lg transition-colors group"
-                        title="Clear Chat"
+                        onClick={clearHistory}
+                        className="p-1.5 text-[#6B5D4F] hover:text-[#A6522C] hover:bg-[#EFE8D8] transition-colors rounded-sm"
+                        title="Clear Conversation Sheet"
                     >
-                        <Trash2 size={14} className="text-white/20 group-hover:text-red-400" />
+                        <Trash2 size={16} />
                     </button>
                 </div>
             </div>
 
-            {/* Messages */}
-            <div
-                ref={scrollRef}
-                className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 scrollbar-none z-10"
-            >
-                <AnimatePresence mode='popLayout'>
-                    {messages.map((msg, i) => (
+            {/* Main Chat Workspace / Canvas */}
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Empty State: ChatGPT-style quick starter pills */}
+                {messages.length <= 1 && (
+                    <div className="max-w-2xl mx-auto py-8 text-center">
+                        <div className="inline-block p-3 rounded-full bg-[#8A6D3B]/10 border border-[#8A6D3B]/30 text-[#8A6D3B] mb-3">
+                            <Zap size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold font-serif-academic text-[#2B211A] mb-2">
+                            What would you like to prepare today?
+                        </h3>
+                        <p className="text-xs text-[#6B5D4F] mb-6 max-w-md mx-auto">
+                            Generate question papers, build lesson plans, draft PPT slides, or grade student assignments across 11 regional languages.
+                        </p>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                            {[
+                                { title: "Generate Question Paper", prompt: "Create a 50-mark Class 10 CBSE Science Question Paper with Section A, B, and C." },
+                                { title: "45-Min Lesson Plan Builder", prompt: "Draft a 45-minute interactive lesson plan on Trigonometric Ratios for Class 9." },
+                                { title: "Slide Presentation PPT", prompt: "Outline a 10-slide PowerPoint presentation structure for Photosynthesis." },
+                                { title: "Solve Exam Paper", prompt: "Solve the following Physics question paper with detailed step-by-step mark schemes." }
+                            ].map((pill, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => {
+                                        setInput(pill.prompt);
+                                    }}
+                                    className="p-3 bg-[#F7F1E3] border border-[#D8CBB0] rounded-sm hover:border-[#A6522C] hover:bg-[#EFE8D8] transition-colors text-left group"
+                                >
+                                    <div className="text-xs font-bold font-serif-academic text-[#2B211A] group-hover:text-[#A6522C]">
+                                        {pill.title}
+                                    </div>
+                                    <div className="text-[11px] text-[#6B5D4F] line-clamp-2 mt-0.5">
+                                        {pill.prompt}
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <AnimatePresence initial={false}>
+                    {messages.map((msg: ChatMessage) => (
                         <motion.div
-                            key={i}
+                            key={msg.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
                             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                         >
-                            <div className={`
-                max-w-[85%] px-5 py-3 rounded-2xl text-[14px] leading-relaxed
-                ${msg.role === 'user'
-                                    ? 'bg-cyan-600 text-white rounded-tr-none shadow-lg shadow-cyan-900/20'
-                                    : 'bg-white/[0.04] text-gray-200 border border-white/5 rounded-tl-none backdrop-blur-sm'}
-              `}>
+                            <div
+                                className={`
+                                    max-w-[85%] sm:max-w-[75%] p-4 text-xs font-sans-academic leading-relaxed
+                                    ${msg.role === 'user'
+                                        ? 'bg-[#EFE8D8] border border-[#D8CBB0] text-[#2B211A] rounded-sm'
+                                        : 'bg-[#FDFAF3] border border-[#D8CBB0] border-l-4 border-l-[#A6522C] text-[#2B211A] shadow-sm rounded-sm'
+                                    }
+                                `}
+                            >
+                                <div className="flex items-center justify-between mb-2 text-[10px] font-mono-stamp text-[#8A6D3B] pb-1 border-b border-[#D8CBB0]">
+                                    <span>{msg.role === 'user' ? 'Educator Note' : 'DeepHub AI Studio'}</span>
+                                    {msg.role === 'assistant' && (
+                                        <span className="text-[#6B5D4F]">Verified Markdown</span>
+                                    )}
+                                </div>
+
                                 <ReactMarkdown
                                     remarkPlugins={[remarkMath]}
                                     rehypePlugins={[rehypeKatex]}
                                     components={{
-                                        code({ className, children, ...props }: any) {
-                                            const inline = !className;
+                                        code({ node, inline, className, children, ...props }: any) {
                                             const match = /language-(\w+)/.exec(className || '');
                                             const [copied, setCopied] = useState(false);
-
                                             const handleCopy = () => {
-                                                navigator.clipboard.writeText(String(children).replace(/\n$/, ''));
+                                                navigator.clipboard.writeText(String(children));
                                                 setCopied(true);
                                                 setTimeout(() => setCopied(false), 2000);
                                             };
 
                                             return !inline && match ? (
-                                                <div className="relative group my-4 rounded-xl overflow-hidden border border-white/10">
-                                                    <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/5 text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                                                <div className="relative group my-3 border border-[#D8CBB0] bg-[#F7F1E3] rounded-sm overflow-hidden">
+                                                    <div className="flex items-center justify-between px-3 py-1.5 bg-[#EFE8D8] border-b border-[#D8CBB0] text-[10px] font-mono-stamp text-[#8A6D3B]">
                                                         <span>{match[1]}</span>
                                                         <button
                                                             onClick={handleCopy}
-                                                            className="flex items-center gap-1.5 hover:text-white transition-colors"
+                                                            className="flex items-center gap-1 text-[#6B5D4F] hover:text-[#A6522C] transition-colors"
                                                         >
-                                                            {copied ? (
-                                                                <>
-                                                                    <Check size={10} className="text-emerald-400" />
-                                                                    <span className="text-emerald-400">Copied!</span>
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <Copy size={10} />
-                                                                    <span>Copy</span>
-                                                                </>
-                                                            )}
+                                                            {copied ? <Check size={10} className="text-[#A6522C]" /> : <Copy size={10} />}
+                                                            <span>{copied ? 'Copied!' : 'Copy'}</span>
                                                         </button>
                                                     </div>
                                                     <SyntaxHighlighter
                                                         style={vscDarkPlus as any}
                                                         language={match[1]}
                                                         PreTag="div"
-                                                        className="!bg-black/60 !m-0 !p-4 !text-xs"
+                                                        className="!bg-[#2B211A] !m-0 !p-3 !text-xs"
                                                         {...(props as any)}
                                                     >
                                                         {String(children).replace(/\n$/, '')}
                                                     </SyntaxHighlighter>
                                                 </div>
                                             ) : (
-                                                <code className="bg-white/10 px-1.5 py-0.5 rounded text-cyan-400 font-mono text-xs" {...props}>
+                                                <code className="bg-[#EFE8D8] px-1 py-0.5 text-[#A6522C] font-mono-stamp text-xs" {...props}>
                                                     {children}
                                                 </code>
                                             );
@@ -319,9 +325,8 @@ export default function TurboChat() {
                                         ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
                                         ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
                                         li: ({ children }) => <li>{children}</li>,
-                                        h1: ({ children }) => <h1 className="text-lg font-bold mb-2 text-white">{children}</h1>,
-                                        h2: ({ children }) => <h2 className="text-md font-bold mb-2 text-white">{children}</h2>,
-                                        a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">{children}</a>,
+                                        h1: ({ children }) => <h1 className="text-base font-bold font-serif-academic mb-2 text-[#2B211A]">{children}</h1>,
+                                        h2: ({ children }) => <h2 className="text-sm font-bold font-serif-academic mb-2 text-[#2B211A]">{children}</h2>,
                                     }}
                                 >
                                     {preprocessLatex(msg.content)}
@@ -333,94 +338,67 @@ export default function TurboChat() {
 
                 {isLoading && (
                     <div className="flex justify-start">
-                        <div className={`px-5 py-3 rounded-2xl flex items-center gap-3 ${provider === 'ollama' ? 'bg-cyan-500/10 border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.15)]' : 'bg-white/[0.03] border border-white/5'}`}>
-                            {provider === 'ollama' ? (
-                                <>
-                                    <div className="relative flex items-center justify-center">
-                                        <div className="absolute w-full h-full bg-cyan-400/20 rounded-full animate-ping" />
-                                        <Zap size={14} className="text-cyan-400 relative z-10" />
-                                    </div>
-                                    <span className="text-[10px] text-cyan-300 font-bold uppercase tracking-widest animate-pulse">
-                                        Conducting Deep Research...
-                                    </span>
-                                </>
-                            ) : (
-                                <>
-                                    <Loader2 size={12} className="text-cyan-400 animate-spin" />
-                                    <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">Thinking...</span>
-                                </>
-                            )}
+                        <div className="px-4 py-2.5 bg-[#FDFAF3] border border-[#A6522C] border-l-4 border-l-[#A6522C] rounded-sm flex items-center gap-2 text-xs font-mono-stamp text-[#A6522C]">
+                            <Loader2 size={14} className="animate-spin text-[#A6522C]" />
+                            <span>Drafting Academic Response...</span>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Input & Rate Limit */}
-            <div className="p-4 border-t border-cyan-900/30 bg-black/40 backdrop-blur-md z-10">
+            {/* ChatGPT-style Bottom Composer Bar */}
+            <div className="p-4 border-t border-[#D8CBB0] bg-[#F7F1E3]">
                 {/* Rate Limit Display */}
                 <AnimatePresence>
                     {rateLimitTime !== null && (
                         <motion.div 
                             initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-                            animate={{ opacity: 1, height: 'auto', marginBottom: 16 }}
+                            animate={{ opacity: 1, height: 'auto', marginBottom: 12 }}
                             exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                             className="overflow-hidden"
                         >
-                            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex flex-col gap-3 shadow-[0_0_20px_rgba(239,68,68,0.1)]">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2 text-red-400">
-                                        <AlertCircle size={18} className="animate-pulse" />
-                                        <span className="text-sm font-bold tracking-wider uppercase">Neural Depletion Detected</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-cyan-400 font-mono text-xs">
-                                        <Timer size={14} />
-                                        <span>REPLENISHING: {Math.floor(rateLimitTime / 60)}m {rateLimitTime % 60}s</span>
-                                    </div>
+                            <div className="bg-[#A6522C]/10 border border-[#A6522C]/30 p-3 rounded-sm flex items-center justify-between text-xs font-mono-stamp text-[#A6522C]">
+                                <div className="flex items-center gap-2">
+                                    <AlertCircle size={16} />
+                                    <span>Rate limit reached. Please wait.</span>
                                 </div>
-                                
-                                <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
-                                    <div 
-                                        className="h-full bg-gradient-to-r from-red-500 via-pink-500 to-red-500 transition-all duration-1000 ease-linear shadow-[0_0_10px_rgba(239,68,68,0.5)]"
-                                        style={{ width: `${(rateLimitTime / totalWait) * 100}%` }}
-                                    />
+                                <div className="flex items-center gap-1.5">
+                                    <Timer size={14} />
+                                    <span>REPLENISHING: {Math.floor(rateLimitTime / 60)}m {rateLimitTime % 60}s</span>
                                 </div>
-                                <p className="text-[10px] text-white/40 text-center uppercase tracking-[0.2em] font-medium">
-                                    Architectural resource allocation in progress...
-                                </p>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 <div className="max-w-3xl mx-auto flex gap-2">
-                    <div className="relative flex-1 flex items-center bg-white/[0.02] border border-white/5 rounded-xl p-2 pl-6 focus-within:border-cyan-500/30 transition-all duration-300">
+                    <div className="relative flex-1 flex items-center bg-[#FDFAF3] border border-[#D8CBB0] rounded-sm p-1.5 pl-4 focus-within:border-[#A6522C] transition-colors">
                         <input
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                            placeholder={rateLimitTime !== null ? "Neural Link Offline..." : "Ask Turbo anything..."}
+                            placeholder={rateLimitTime !== null ? "System replenishing..." : "Ask Turbo or type prompt (e.g. Generate 50-mark Class 10 exam paper)..."}
                             disabled={rateLimitTime !== null || isLoading}
-                            className="flex-1 bg-transparent border-none outline-none text-white text-[14px] placeholder:text-white/20 h-10 disabled:cursor-not-allowed"
+                            className="flex-1 bg-transparent border-none outline-none text-[#2B211A] text-xs font-sans-academic placeholder:text-[#6B5D4F] h-9 disabled:cursor-not-allowed"
                         />
-                        {/* Only show web search toggle for Groq/Gemini (Ollama doesn't use search) */}
                         {provider !== 'ollama' && (
-                            <div className="px-2">
+                            <div className="px-1">
                                 <button
                                     onClick={() => setIsSearchEnabled(!isSearchEnabled)}
-                                    className={`p-2 transition-colors ${isSearchEnabled ? 'text-cyan-400' : 'text-white/20 hover:text-white/40'}`}
+                                    className={`p-1.5 transition-colors ${isSearchEnabled ? 'text-[#A6522C]' : 'text-[#6B5D4F] hover:text-[#2B211A]'}`}
                                     title={isSearchEnabled ? "Web Search Active" : "Enable Web Search"}
                                 >
-                                    <Globe size={18} />
+                                    <Globe size={16} />
                                 </button>
                             </div>
                         )}
                         <button
                             onClick={handleSend}
                             disabled={!input.trim() || isLoading || rateLimitTime !== null}
-                            className="w-10 h-10 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-20 text-white rounded-lg flex items-center justify-center transition-all shadow-lg shadow-cyan-900/40"
+                            className="w-8 h-8 bg-[#A6522C] hover:bg-[#8e4423] disabled:opacity-30 text-[#FDFAF3] rounded-sm flex items-center justify-center transition-colors ml-1"
                         >
-                            <Send size={16} />
+                            <Send size={14} />
                         </button>
                     </div>
                 </div>
