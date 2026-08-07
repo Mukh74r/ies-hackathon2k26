@@ -15,11 +15,14 @@ import {
     Users,
     ExternalLink,
     TrendingUp,
-    Radio
+    Radio,
+    Command
 } from 'lucide-react';
 import BrandLogo from '../assets/brand-logo-main.svg';
 import GraphicalBackend from '../components/GraphicalBackend';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
+import HeroPlayground from '../components/HeroPlayground';
+import CommandPalette from '../components/CommandPalette';
 
 export default function Home() {
     const navigate = useNavigate();
@@ -120,6 +123,9 @@ export default function Home() {
 
     return (
         <div className="min-h-screen bg-[#000000] text-[#FFFFFF] font-sans-academic selection:bg-[#00A4E4]/25 transition-colors relative overflow-hidden">
+            {/* Global Quick Command Palette (Cmd + K) */}
+            <CommandPalette />
+
             {/* Interactive Graphical Starfield Backend */}
             <GraphicalBackend />
 
@@ -165,6 +171,16 @@ export default function Home() {
                     {/* Right Utilities */}
                     <div className="flex items-center gap-2.5">
                         <button
+                            onClick={() => {
+                                const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
+                                window.dispatchEvent(event);
+                            }}
+                            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0E1424] border border-[#1E2640] text-[#94A3B8] hover:text-white text-xs font-mono transition-colors"
+                        >
+                            <Command size={12} />
+                            <span>Cmd K</span>
+                        </button>
+                        <button
                             onClick={() => navigate('/turbo')}
                             className="px-4 py-1.5 rounded-md bg-[#FFFFFF] hover:bg-[#F1F5F9] text-black text-xs font-bold tracking-wide transition-all shadow-md active:scale-98"
                         >
@@ -174,7 +190,7 @@ export default function Home() {
                 </div>
             </header>
 
-            {/* ── 1. HERO SECTION ── */}
+            {/* ── 1. HERO SECTION & INTERACTIVE PLAYGROUND ── */}
             <section className="pt-24 pb-20 px-4 sm:px-8 max-w-6xl mx-auto text-center space-y-8 relative z-10">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0E1424]/90 backdrop-blur-sm border border-[#1E2640] text-xs font-semibold text-[#00A4E4] shadow-inner">
                     <Sparkles size={14} className="text-[#00A4E4]" />
@@ -210,7 +226,7 @@ export default function Home() {
                 </div>
 
                 {/* Sub Hero Badges */}
-                <div className="pt-10 flex flex-wrap items-center justify-center gap-6 text-xs text-[#94A3B8] font-mono-stamp">
+                <div className="pt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-[#94A3B8] font-mono-stamp">
                     <span className="flex items-center gap-1.5">
                         <CheckCircle2 size={14} className="text-[#00A4E4]" /> All-in-One AI Hub
                     </span>
@@ -220,6 +236,11 @@ export default function Home() {
                     <span className="flex items-center gap-1.5">
                         <CheckCircle2 size={14} className="text-[#00A4E4]" /> Real-time Breakthroughs
                     </span>
+                </div>
+
+                {/* Interactive Live Blueprint Sandbox in Hero */}
+                <div className="pt-8">
+                    <HeroPlayground />
                 </div>
             </section>
 
