@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     Zap,
@@ -8,12 +8,19 @@ import {
     ShieldCheck,
     Layers,
     ArrowUpRight,
+    ArrowDownRight,
     RefreshCcw,
-    ZapOff,
     BrainCircuit,
     TrendingUp,
     Clock,
-    Database
+    Database,
+    Sliders,
+    Award,
+    CheckCircle2,
+    AlertCircle,
+    Calendar,
+    Download,
+    Filter
 } from 'lucide-react';
 import {
     Area,
@@ -24,248 +31,316 @@ import {
     YAxis,
     BarChart,
     Bar,
-    Cell
+    Cell,
+    PieChart,
+    Pie,
+    LineChart,
+    Line
 } from 'recharts';
 
-const performanceData = [
-    { time: '10:00', tps: 45, latency: 120 },
-    { time: '10:05', tps: 52, latency: 98 },
-    { time: '10:10', tps: 48, latency: 110 },
-    { time: '10:15', tps: 65, latency: 85 },
-    { time: '10:20', tps: 58, latency: 92 },
-    { time: '10:25', tps: 72, latency: 78 },
-    { time: '10:30', tps: 68, latency: 82 },
-];
-
-const modelEfficiency = [
-    { name: 'Turbo V4 (70B)', value: 98, color: '#06b6d4' },
-    { name: 'Llama 3 (8B)', value: 82, color: '#8b5cf6' },
-    { name: 'GPT-3.5 Std', value: 74, color: '#6366f1' },
-    { name: 'Mixtral 8x7B', value: 88, color: '#ec4899' },
-];
-
-const toolUsage = [
-    { name: 'Homework', sessions: 142, color: '#06b6d4' },
-    { name: 'PPT Gen', sessions: 98, color: '#8b5cf6' },
-    { name: 'Q-Paper', sessions: 215, color: '#10b981' },
-    { name: 'Lesson', sessions: 67, color: '#f59e0b' },
-    { name: 'Solver', sessions: 189, color: '#ec4899' },
-    { name: 'Shuffle', sessions: 54, color: '#6366f1' },
-    { name: 'Report', sessions: 38, color: '#14b8a6' },
-];
-
-const MetricCard = ({ title, value, unit, icon: Icon, trend, color }: any) => (
-    <motion.div
-        whileHover={{ y: -4, scale: 1.01 }}
-        className="bg-[#0a0c12]/80 backdrop-blur-xl border border-white/5 p-6 rounded-[2rem] relative overflow-hidden group hover:border-white/10 shadow-2xl transition-all duration-300"
-    >
-        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-            <Icon size={80} />
-        </div>
-
-        <div className="flex items-center gap-3 mb-4">
-            <div className={`p-2.5 rounded-xl border`} style={{ backgroundColor: `${color}15`, borderColor: `${color}30` }}>
-                <Icon size={18} style={{ color }} />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">{title}</span>
-        </div>
-
-        <div className="flex items-end gap-2">
-            <h3 className="text-4xl font-black text-white tracking-tighter">{value}</h3>
-            <span className="text-xs font-bold text-white/20 mb-2 uppercase tracking-widest">{unit}</span>
-        </div>
-
-        <div className="mt-4 flex items-center gap-2">
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                <ArrowUpRight size={10} className="text-emerald-400" />
-                <span className="text-[10px] font-bold text-emerald-400">{trend}</span>
-            </div>
-            <span className="text-[9px] text-white/20 font-bold uppercase tracking-widest">Since last sync</span>
-        </div>
-    </motion.div>
-);
-
-const CustomTooltipStyle = {
-    backgroundColor: 'rgba(2, 4, 8, 0.95)',
-    borderColor: 'rgba(255,255,255,0.06)',
-    borderRadius: '1rem',
-    border: '1px solid rgba(255,255,255,0.06)',
-    color: '#fff',
-    fontSize: '11px',
-    boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-};
-
 export default function TurboAnalytics() {
+    const [timeframe, setTimeframe] = useState<'today' | '7d' | '30d' | 'ytd'>('7d');
+
+    const KPI_METRICS = [
+        {
+            title: 'Examination Paper Generation Velocity',
+            value: '30.2s',
+            unit: 'Avg / 80M Paper',
+            delta: '+24.5%',
+            positive: true,
+            icon: Zap,
+            color: '#00A4E4',
+            benchmark: 'Industry Std: 4.5 hrs'
+        },
+        {
+            title: 'NEP 2020 Bloom’s Cognitive Balance',
+            value: '99.8%',
+            unit: 'Strict 80/80 SLA',
+            delta: '+4.2%',
+            positive: true,
+            icon: Sliders,
+            color: '#10B981',
+            benchmark: 'Target: 98.0%'
+        },
+        {
+            title: 'LaTeX Formula & KaTeX Typesetting',
+            value: '100%',
+            unit: 'Vector Fidelity',
+            delta: '0% Drift',
+            positive: true,
+            icon: Award,
+            color: '#6E85D6',
+            benchmark: 'Zero Math Syntax Glitches'
+        },
+        {
+            title: 'Multi-Campus Institutional Adoption',
+            value: '14,820',
+            unit: 'Papers Derived',
+            delta: '+31.8%',
+            positive: true,
+            icon: Database,
+            color: '#F59E0B',
+            benchmark: 'Across 480+ Schools'
+        }
+    ];
+
+    const REALTIME_THROUGHPUT = [
+        { time: '09:00', derivations: 420, latency: 68, accuracy: 99.8 },
+        { time: '10:00', derivations: 680, latency: 74, accuracy: 99.9 },
+        { time: '11:00', derivations: 890, latency: 82, accuracy: 99.7 },
+        { time: '12:00', derivations: 1120, latency: 79, accuracy: 100 },
+        { time: '13:00', derivations: 750, latency: 71, accuracy: 99.9 },
+        { time: '14:00', derivations: 980, latency: 85, accuracy: 99.8 },
+        { time: '15:00', derivations: 1340, latency: 88, accuracy: 100 },
+        { time: '16:00', derivations: 1050, latency: 76, accuracy: 99.9 },
+    ];
+
+    const BLOOM_DISTRIBUTION = [
+        { name: 'Knowledge & Recall', weight: 30, color: '#00A4E4' },
+        { name: 'Application & Problem Solving', weight: 40, color: '#3B82F6' },
+        { name: 'HOTS & Critical Synthesis', weight: 30, color: '#8B5CF6' }
+    ];
+
+    const BOARD_USAGE = [
+        { board: 'CBSE 2026', count: 6420, percent: '43%' },
+        { board: 'ICSE / ISC', count: 3890, percent: '26%' },
+        { board: 'State Secondary', count: 2850, percent: '19%' },
+        { board: 'Cambridge / IB', count: 1660, percent: '12%' },
+    ];
+
+    const AUDIT_LOGS = [
+        { time: '10:48:12', status: 'healthy', msg: 'Cryptographic QR Seal Generation latency 14ms (100% Validated)' },
+        { time: '10:42:05', status: 'healthy', msg: 'CBSE Class 12 Physics derivation engine warm cache synced' },
+        { time: '10:35:19', status: 'healthy', msg: '11 Indian Language neural translation models verified with 0% pedagogical drift' },
+        { time: '10:21:40', status: 'healthy', msg: 'Automated 80-mark blueprint balance check passed with 0 errors' }
+    ];
+
     return (
-        <div className="space-y-8 animate-fade-in pb-12">
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-8 animate-settle pb-12 font-sans-academic text-white">
+            {/* ── HEADER & TIMEFRAME SELECTOR ── */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#1E2640]">
                 <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
-                            <Activity size={22} className="animate-pulse" />
-                        </div>
-                        <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">Neural Analytics</h2>
+                    <div className="inline-flex items-center gap-2 text-xs font-mono-stamp text-[#00A4E4] uppercase font-bold tracking-wider mb-1">
+                        <Activity size={14} className="animate-pulse" />
+                        <span>Executive Academic Analytics & KPI Center</span>
                     </div>
-                    <p className="text-white/30 text-xs font-medium uppercase tracking-[0.3em] ml-1">Real-time performance monitoring & benchmarks</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold font-display text-white">
+                        Performance & SLA Governance
+                    </h1>
+                    <p className="text-xs sm:text-sm text-[#94A3B8] font-sans-academic">
+                        Real-time neural telemetry, curriculum balancing accuracy, and institutional examination throughput.
+                    </p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-all flex items-center gap-2 hover:bg-white/10">
-                        <RefreshCcw size={14} /> Re-Sync
+                <div className="flex items-center gap-2">
+                    <div className="inline-flex rounded-xl bg-[#000000] p-1 border border-[#1E2640]">
+                        {(['today', '7d', '30d', 'ytd'] as const).map(tf => (
+                            <button
+                                key={tf}
+                                onClick={() => setTimeframe(tf)}
+                                className={`px-3 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all ${
+                                    timeframe === tf
+                                        ? 'bg-[#00A4E4] text-black font-bold shadow-md shadow-[#00A4E4]/20'
+                                        : 'text-[#94A3B8] hover:text-white'
+                                }`}
+                            >
+                                {tf === 'ytd' ? '2026 YTD' : tf}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={() => alert('Exporting full institutional audit report (PDF/JSON)...')}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#0E1424] hover:bg-[#1E2640] border border-[#1E2640] text-xs font-semibold text-white flex items-center gap-1.5 transition-colors"
+                    >
+                        <Download size={14} />
+                        <span>Export SLA</span>
                     </button>
-                    <div className="px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-xl flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">System Live</span>
-                    </div>
                 </div>
             </div>
 
-            {/* Top Metrics Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-                <MetricCard title="Processing Speed" value="72.4" unit="Tokens/s" icon={Zap} trend="+18.5%" color="#06b6d4" />
-                <MetricCard title="Inference Latency" value="85" unit="ms/req" icon={Gauge} trend="-12.2%" color="#6366f1" />
-                <MetricCard title="System Uptime" value="99.9" unit="Percent" icon={ShieldCheck} trend="+0.01%" color="#10b981" />
-                <MetricCard title="Neural Load" value="42" unit="Percent" icon={Cpu} trend="-5.4%" color="#f59e0b" />
+            {/* ── 1. STRATEGIC EXECUTIVE KPI CARDS ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {KPI_METRICS.map((kpi, idx) => {
+                    const Icon = kpi.icon;
+                    return (
+                        <div
+                            key={idx}
+                            className="p-5 rounded-2xl bg-[#0E1424]/90 backdrop-blur-md border border-[#1E2640] hover:border-[#00A4E4] transition-all shadow-xl flex flex-col justify-between"
+                        >
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div
+                                        className="p-2.5 rounded-xl border"
+                                        style={{ backgroundColor: `${kpi.color}15`, borderColor: `${kpi.color}30` }}
+                                    >
+                                        <Icon size={18} style={{ color: kpi.color }} />
+                                    </div>
+                                    <span className="inline-flex items-center gap-1 text-xs font-mono-stamp text-emerald-400 font-bold bg-emerald-950/30 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                                        <ArrowUpRight size={12} />
+                                        <span>{kpi.delta}</span>
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <div className="text-[11px] text-[#94A3B8] font-mono-stamp uppercase font-semibold">
+                                        {kpi.title}
+                                    </div>
+                                    <div className="flex items-baseline gap-2 mt-1">
+                                        <span className="text-3xl font-bold font-display text-white">{kpi.value}</span>
+                                        <span className="text-xs font-mono text-white/50">{kpi.unit}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 pt-3 border-t border-[#1E2640] text-[10px] font-mono-stamp text-[#94A3B8] flex items-center justify-between">
+                                <span>{kpi.benchmark}</span>
+                                <CheckCircle2 size={12} className="text-[#00A4E4]" />
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Latency & Throughput Chart */}
-                <div className="lg:col-span-2 bg-[#0a0c12]/80 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 relative overflow-hidden group hover:border-white/10 transition-all">
-                    <div className="flex items-center justify-between mb-8">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-                                <Layers size={24} />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-black text-white uppercase tracking-tight">Throughput Velocity</h3>
-                                <p className="text-[10px] text-white/30 font-bold uppercase tracking-[0.15em]">Neural bandwidth monitoring</p>
-                            </div>
+            {/* ── 2. REAL-TIME THROUGHPUT & LATENCY CHARTS ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left 2 Cols: Paper Derivations Area Chart */}
+                <div className="lg:col-span-2 p-6 rounded-2xl bg-[#0E1424]/90 border border-[#1E2640] shadow-xl space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h3 className="text-base font-bold text-white font-display">
+                                Examination Derivation Volume & SLA
+                            </h3>
+                            <p className="text-xs text-[#94A3B8]">
+                                Hourly question papers compiled across all 11 Indian board mediums
+                            </p>
                         </div>
-                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest">
-                            <span className="px-3 py-1.5 rounded-lg bg-cyan-500 text-white">Realtime</span>
-                            <span className="px-3 py-1.5 rounded-lg text-white/30 hover:text-white cursor-pointer transition-all">Historical</span>
-                        </div>
+                        <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono-stamp font-bold flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            <span>1,340 Peak/hr</span>
+                        </span>
                     </div>
 
-                    <div className="h-[280px] w-full">
+                    <div className="h-64 w-full pt-4">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={performanceData}>
+                            <AreaChart data={REALTIME_THROUGHPUT} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
-                                    <linearGradient id="colorTps" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.25} />
-                                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+                                    <linearGradient id="colorDeriv" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#00A4E4" stopOpacity={0.4} />
+                                        <stop offset="95%" stopColor="#00A4E4" stopOpacity={0.0} />
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="time" stroke="#ffffff08" fontSize={10} tickLine={false} axisLine={false} tick={{ fill: '#ffffff40' }} />
-                                <YAxis stroke="#ffffff08" fontSize={10} tickLine={false} axisLine={false} tick={{ fill: '#ffffff40' }} />
-                                <Tooltip contentStyle={CustomTooltipStyle} cursor={{ stroke: 'rgba(255,255,255,0.05)', strokeWidth: 2 }} />
-                                <Area type="monotone" dataKey="tps" stroke="#06b6d4" strokeWidth={3} fillOpacity={1} fill="url(#colorTps)" dot={false} activeDot={{ r: 5, fill: '#06b6d4' }} />
+                                <XAxis dataKey="time" stroke="#64748B" fontSize={11} />
+                                <YAxis stroke="#64748B" fontSize={11} />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#000000',
+                                        border: '1px solid #1E2640',
+                                        borderRadius: '0.75rem',
+                                        fontSize: '12px',
+                                        color: '#FFFFFF'
+                                    }}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="derivations"
+                                    stroke="#00A4E4"
+                                    strokeWidth={2.5}
+                                    fillOpacity={1}
+                                    fill="url(#colorDeriv)"
+                                />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
-                {/* Model Efficiency Benchmarks */}
-                <div className="bg-[#0a0c12]/80 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 hover:border-white/10 transition-all">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="w-12 h-12 rounded-2xl bg-pink-500/10 flex items-center justify-center text-pink-400">
-                            <BrainCircuit size={24} />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-black text-white uppercase tracking-tight">AI Efficiency</h3>
-                            <p className="text-[10px] text-white/30 font-bold uppercase tracking-[0.15em]">Comparative Score (0-100)</p>
-                        </div>
+                {/* Right Col: Bloom's Cognitive Weights Breakdown */}
+                <div className="p-6 rounded-2xl bg-[#0E1424]/90 border border-[#1E2640] shadow-xl space-y-4 flex flex-col justify-between">
+                    <div>
+                        <h3 className="text-base font-bold text-white font-display">
+                            NEP 2020 Cognitive Balance
+                        </h3>
+                        <p className="text-xs text-[#94A3B8]">
+                            Strict 80-mark curriculum distribution
+                        </p>
                     </div>
 
-                    <div className="space-y-5">
-                        {modelEfficiency.map((model, idx) => (
-                            <div key={idx} className="space-y-2">
-                                <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-widest">
-                                    <span className="text-white/60">{model.name}</span>
-                                    <span className="text-white">{model.value}%</span>
+                    <div className="space-y-4">
+                        {BLOOM_DISTRIBUTION.map((item, idx) => (
+                            <div key={idx} className="space-y-1.5">
+                                <div className="flex justify-between text-xs font-mono-stamp">
+                                    <span className="text-white">{item.name}</span>
+                                    <span className="font-bold text-[#00A4E4]">{item.weight}%</span>
                                 </div>
-                                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${model.value}%` }}
-                                        transition={{ duration: 1.5, delay: idx * 0.1, ease: "easeOut" }}
-                                        className="h-full rounded-full"
-                                        style={{ backgroundColor: model.color }}
+                                <div className="h-2 w-full bg-[#000000] rounded-full overflow-hidden border border-[#1E2640]">
+                                    <div
+                                        className="h-full rounded-full transition-all duration-500"
+                                        style={{ width: `${item.weight}%`, backgroundColor: item.color }}
                                     />
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    <div className="mt-8 p-5 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-indigo-500/10 border border-white/5 text-center">
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/80 mb-2">Verdict</p>
-                        <p className="text-xs text-white/40 leading-relaxed font-medium uppercase italic">
-                            Turbo V4 is operating at <span className="text-cyan-400 font-bold">128% efficiency</span> compared to standard LLM benchmarks.
-                        </p>
+                    <div className="p-3 rounded-xl bg-[#000000]/60 border border-[#1E2640] text-xs font-mono-stamp text-emerald-400 flex items-center gap-2">
+                        <ShieldCheck size={16} className="shrink-0 text-emerald-400" />
+                        <span>100% Verified against CBSE & ICSE 2026 Circulars</span>
                     </div>
                 </div>
             </div>
 
-            {/* Tool Usage Bar Chart */}
-            <div className="bg-[#0a0c12]/80 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 hover:border-white/10 transition-all">
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                        <TrendingUp size={24} />
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-black text-white uppercase tracking-tight">Tool Usage Distribution</h3>
-                        <p className="text-[10px] text-white/30 font-bold uppercase tracking-[0.15em]">Sessions this month across all Turbo features</p>
-                    </div>
-                </div>
-                <div className="h-[220px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={toolUsage} barSize={32}>
-                            <XAxis dataKey="name" stroke="#ffffff08" fontSize={10} tickLine={false} axisLine={false} tick={{ fill: '#ffffff40' }} />
-                            <YAxis stroke="#ffffff08" fontSize={10} tickLine={false} axisLine={false} tick={{ fill: '#ffffff40' }} />
-                            <Tooltip contentStyle={CustomTooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
-                            <Bar dataKey="sessions" radius={[8, 8, 0, 0]}>
-                                {toolUsage.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} fillOpacity={0.8} />
-                                ))}
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
-
-            {/* System Status Table */}
-            <div className="bg-[#0a0c12]/80 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 hover:border-white/10 transition-all">
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-violet-500/10 flex items-center justify-center text-violet-400">
-                        <Database size={24} />
-                    </div>
-                    <h3 className="text-lg font-black text-white uppercase tracking-tight">Neural Node Status</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[
-                        { icon: RefreshCcw, label: 'Node Primary', status: 'Active & Distributed', color: 'cyan', dot: true },
-                        { icon: Activity, label: 'Semantic Pulse', status: 'Optimum Sync (0.2ms)', color: 'indigo', dot: true },
-                        { icon: ZapOff, label: 'Offline Buffers', status: 'Empty & Secure', color: 'violet', dot: false },
-                    ].map(({ icon: Icon, label, status, color, dot }, i) => (
-                        <motion.div
-                            key={i}
-                            whileHover={{ scale: 1.02 }}
-                            className={`flex items-center gap-4 p-5 rounded-2xl bg-white/[0.03] border border-white/5 group hover:border-${color}-500/30 transition-all cursor-default`}
-                        >
-                            <div className={`w-11 h-11 rounded-full bg-${color}-500/10 flex items-center justify-center shrink-0`}>
-                                <Icon size={18} className={`text-${color}-400`} />
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <p className="text-[9px] font-black uppercase tracking-widest text-white/30">{label}</p>
-                                    {dot && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+            {/* ── 3. BOARD ADOPTION & REAL-TIME AUDIT FEED ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Board Adoption Breakdown */}
+                <div className="p-6 rounded-2xl bg-[#0E1424]/90 border border-[#1E2640] shadow-xl space-y-4">
+                    <h3 className="text-base font-bold text-white font-display">
+                        Examinations by Education Board
+                    </h3>
+                    <div className="space-y-3">
+                        {BOARD_USAGE.map((board, idx) => (
+                            <div
+                                key={idx}
+                                className="p-3 rounded-xl bg-[#000000]/60 border border-[#1E2640] flex items-center justify-between"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-[#00A4E4]" />
+                                    <span className="text-xs font-bold text-white font-mono-stamp">{board.board}</span>
                                 </div>
-                                <p className="text-xs font-bold text-white uppercase tracking-tight mt-0.5">{status}</p>
+                                <div className="flex items-center gap-3 text-xs font-mono-stamp">
+                                    <span className="text-[#94A3B8]">{board.count.toLocaleString()} papers</span>
+                                    <span className="px-2 py-0.5 rounded bg-[#00A4E4]/10 border border-[#00A4E4]/30 text-[#00A4E4] font-bold">
+                                        {board.percent}
+                                    </span>
+                                </div>
                             </div>
-                        </motion.div>
-                    ))}
+                        ))}
+                    </div>
+                </div>
+
+                {/* Real-time Incident & Telemetry Stream */}
+                <div className="p-6 rounded-2xl bg-[#0E1424]/90 border border-[#1E2640] shadow-xl space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-base font-bold text-white font-display">
+                            Real-Time System Audit Stream
+                        </h3>
+                        <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                            <span>Telemetry Active</span>
+                        </span>
+                    </div>
+
+                    <div className="space-y-2.5">
+                        {AUDIT_LOGS.map((log, idx) => (
+                            <div
+                                key={idx}
+                                className="p-3 rounded-xl bg-[#000000]/60 border border-[#1E2640] flex items-start gap-3 text-xs font-mono-stamp"
+                            >
+                                <span className="text-white/40 shrink-0 text-[11px]">{log.time}</span>
+                                <CheckCircle2 size={14} className="text-emerald-400 shrink-0 mt-0.5" />
+                                <span className="text-[#94A3B8] leading-relaxed">{log.msg}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
