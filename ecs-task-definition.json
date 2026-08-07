@@ -1,0 +1,95 @@
+{
+  "family": "DeepHub-Neural-Core",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "executionRoleArn": "arn:aws:iam::469026588105:role/DeepHub-ECS-ExecutionRole",
+  "taskRoleArn": "arn:aws:iam::469026588105:role/DeepHub-ECS-ExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "DeepHub-Backend",
+      "image": "469026588105.dkr.ecr.us-east-1.amazonaws.com/deephub-ai-backend:latest",
+      "portMappings": [
+        {
+          "containerPort": 3001,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "NODE_ENV",                      "value": "production" },
+        { "name": "PORT",                          "value": "3001" },
+        { "name": "USE_DYNAMODB",                  "value": "true" },
+        { "name": "USE_AWS_S3",                    "value": "true" },
+        { "name": "AWS_REGION",                    "value": "us-east-1" },
+        { "name": "AWS_S3_BUCKET",                 "value": "deephub-neural-storage-469026588105" },
+        { "name": "DYNAMODB_USERS_TABLE",          "value": "DeepHub_Users" },
+        { "name": "DYNAMODB_LESSONS_TABLE",        "value": "DeepHub_NeuralLessons" },
+        { "name": "DYNAMODB_ACTIVITY_LOGS_TABLE",  "value": "DeepHub_ActivityLogs" },
+        { "name": "DYNAMODB_CATALOG_TABLE",        "value": "DeepHub_Catalog" },
+        { "name": "DYNAMODB_SETTINGS_TABLE",       "value": "DeepHub_Settings" },
+        { "name": "MONGO_URI",                     "value": "NOT_USED_DYNAMODB_ACTIVE" },
+        { "name": "DEFAULT_AI_PROVIDER",           "value": "groq" },
+        { "name": "OLLAMA_BASE_URL",               "value": "http://44.202.144.106:11434" }
+      ],
+      "secrets": [
+        {
+          "name": "GROQ_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:469026588105:secret:DeepHub-Neural-Secrets:GROQ_API_KEY::"
+        },
+        {
+          "name": "GEMINI_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:469026588105:secret:DeepHub-Neural-Secrets:GEMINI_API_KEY::"
+        },
+        {
+          "name": "KIMI_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:469026588105:secret:DeepHub-Neural-Secrets:KIMI_API_KEY::"
+        },
+        {
+          "name": "SERPER_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:469026588105:secret:DeepHub-Neural-Secrets:SERPER_API_KEY::"
+        },
+        {
+          "name": "VITE_NEWS_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:469026588105:secret:DeepHub-Neural-Secrets:VITE_NEWS_API_KEY::"
+        },
+        {
+          "name": "JWT_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:469026588105:secret:DeepHub-Neural-Secrets:JWT_SECRET::"
+        },
+        {
+          "name": "AWS_ACCESS_KEY_ID",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:469026588105:secret:DeepHub-Neural-Secrets:AWS_ACCESS_KEY_ID::"
+        },
+        {
+          "name": "AWS_SECRET_ACCESS_KEY",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:469026588105:secret:DeepHub-Neural-Secrets:AWS_SECRET_ACCESS_KEY::"
+        },
+        {
+          "name": "GOOGLE_CLIENT_ID",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:469026588105:secret:DeepHub-Neural-Secrets:GOOGLE_CLIENT_ID::"
+        },
+        {
+          "name": "GOOGLE_CLIENT_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:469026588105:secret:DeepHub-Neural-Secrets:GOOGLE_CLIENT_SECRET::"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/deephub-neural-core",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget -qO- http://localhost:3001/health || exit 1"],
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3,
+        "startPeriod": 15
+      }
+    }
+  ]
+}

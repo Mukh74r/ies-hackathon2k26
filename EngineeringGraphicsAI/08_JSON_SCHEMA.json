@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EngineeringGraphicsAI_Response_Schema",
+  "type": "object",
+  "required": [
+    "status",
+    "topic",
+    "problem_type",
+    "method",
+    "quadrant",
+    "given",
+    "answers",
+    "analysis",
+    "construction_steps",
+    "geometry",
+    "verification",
+    "teaching"
+  ],
+  "properties": {
+    "status": { "type": "string", "enum": ["success", "need_more_info", "error"] },
+    "topic": { "type": "string" },
+    "problem_type": { "type": "string" },
+    "method": { "type": "string" },
+    "quadrant": { "type": "string" },
+    "given": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "answers": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "analysis": {
+      "type": "object",
+      "required": ["summary", "engineering_reasoning", "formulae"],
+      "properties": {
+        "summary": { "type": "string" },
+        "engineering_reasoning": { "type": "string" },
+        "formulae": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "observations": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "construction_steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step", "title", "description"],
+        "properties": {
+          "step": { "type": "integer" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "action": { "type": "string" },
+          "parameters": { "type": "object" }
+        }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "required": ["points", "lines", "loci"],
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["x", "y"],
+            "properties": {
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "style": { "type": "string" },
+              "anchor": { "type": "string" },
+              "step": { "type": "integer" }
+            }
+          }
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "to"],
+            "properties": {
+              "id": { "type": "string" },
+              "from": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+              "to": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+              "style": { "type": "string" },
+              "label": { "type": "string" },
+              "step": { "type": "integer" }
+            }
+          }
+        },
+        "projectors": { "type": "array" },
+        "loci": { "type": "array" },
+        "arcs": { "type": "array" },
+        "dimensions": { "type": "array" },
+        "labels": { "type": "array" },
+        "traces": { "type": "array" }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "required": ["is_valid"],
+      "properties": {
+        "is_valid": { "type": "boolean" },
+        "checks": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "teaching": {
+      "type": "object",
+      "properties": {
+        "important_points": { "type": "array", "items": { "type": "string" } },
+        "common_errors": { "type": "array", "items": { "type": "string" } },
+        "exam_tips": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

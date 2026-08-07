@@ -1,0 +1,58 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: "us-east-1"
+    ECR_REPO_URI: "469026588105.dkr.ecr.us-east-1.amazonaws.com/deephub-ai-backend"
+    ECS_CLUSTER: "DeepHub-Neural-Cluster"
+    ECS_SERVICE: "DeepHub-Neural-Service"
+    TASK_FAMILY: "DeepHub-Neural-Core"
+    CONTAINER_NAME: "DeepHub-Backend"
+    VITE_GOOGLE_CLIENT_ID: "1052513478675-1s2pucjrq99qljnd3fdv0uv6b5j1018b.apps.googleusercontent.com"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - echo "Installing dependencies"
+      - npm ci --prefer-offline --legacy-peer-deps
+
+  pre_build:
+    commands:
+      - echo "Logging into ECR"
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-7)
+      - IMAGE_URI="$ECR_REPO_URI:$IMAGE_TAG"
+      - LATEST_URI="$ECR_REPO_URI:latest"
+      - echo "Will build image $IMAGE_URI"
+
+  build:
+    commands:
+      - echo "Building frontend"
+      - npm run build
+      - echo "Building Docker image"
+      - docker build -t $IMAGE_URI .
+      - docker tag $IMAGE_URI $LATEST_URI
+
+  post_build:
+    commands:
+      - echo "Pushing image to ECR"
+      - docker push $IMAGE_URI
+      - docker push $LATEST_URI
+      - echo "Fetching current task definition"
+      - aws ecs describe-task-definition --task-definition $TASK_FAMILY --region $AWS_REGION --query taskDefinition > current-task.json
+      - echo "Updating image in task definition"
+      - python3 -c "import json; t=json.load(open('current-task.json')); [c.update({'image':'$IMAGE_URI'}) for c in t['containerDefinitions'] if c['name']=='$CONTAINER_NAME']; [t.pop(k,None) for k in ['taskDefinitionArn','revision','status','requiresAttributes','compatibilities','registeredAt','registeredBy']]; open('new-task.json','w').write(json.dumps(t))"
+      - echo "Registering new task definition"
+      - NEW_TASK_ARN=$(aws ecs register-task-definition --cli-input-json file://new-task.json --region $AWS_REGION --query taskDefinition.taskDefinitionArn --output text)
+      - echo "New task ARN $NEW_TASK_ARN"
+      - echo "Deploying to ECS"
+      - aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --task-definition $NEW_TASK_ARN --force-new-deployment --region $AWS_REGION
+      - echo "Deployment triggered! DeepHub Neural Core is updating..."
+      - echo "Check ECS console for task health status"
+
+artifacts:
+  files:
+    - new-task.json
+  discard-paths: yes

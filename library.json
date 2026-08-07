@@ -1,0 +1,17 @@
+[
+  {
+    "id": "1771864929372",
+    "type": "lesson-plan",
+    "title": "Matrices and Determinant",
+    "content": "\n# Introduction to Matrices\nMatrices are a fundamental concept in linear algebra, used to represent systems of linear equations. A matrix is a rectangular array of numbers, symbols, or expressions, arranged in rows and columns.\n\n## Definition of a Matrix\nA matrix is defined as a set of numbers arranged in a rectangular pattern, with rows and columns. The numbers in a matrix are called elements or entries.\n\n## Types of Matrices\n* **Square Matrix**: A matrix with the same number of rows and columns.\n* **Rectangular Matrix**: A matrix with a different number of rows and columns.\n* **Identity Matrix**: A square matrix with ones on the main diagonal and zeros elsewhere.\n\n## Operations on Matrices\n* **Addition**: Matrices can be added by adding corresponding elements.\n* **Multiplication**: Matrices can be multiplied by multiplying the rows of the first matrix with the columns of the second matrix.\n\n# Introduction to Determinant\nThe determinant of a square matrix is a scalar value that can be used to describe the scaling effect of the matrix on a region of space.\n\n## Definition of a Determinant\nThe determinant of a square matrix A, denoted as |A| or det(A), is a value that can be computed from the elements of the matrix.\n\n## Properties of Determinant\n* **Multiplicative Property**: The determinant of a product of matrices is equal to the product of the determinants.\n* **Inverse Property**: The determinant of the inverse of a matrix is equal to the reciprocal of the determinant.\n\n## Calculating the Determinant\nThe determinant of a 2x2 matrix can be calculated using the formula:\n[ \begin{vmatrix} a & b \\ c & d end{vmatrix} = ad - bc ]\nThe determinant of a 3x3 matrix can be calculated using the formula:\n[ \begin{vmatrix} a & b & c \\ d & e & f \\ g & h & i end{vmatrix} = a(ei - fh) - b(di - fg) + c(dh - eg) ]\n\n## Applications of Matrices and Determinant\n* **Solving Systems of Linear Equations**: Matrices and determinants can be used to solve systems of linear equations.\n* **Finding the Inverse of a Matrix**: The determinant can be used to find the inverse of a matrix.\n* **Describing Linear Transformations**: Matrices and determinants can be used to describe linear transformations and their effects on a region of space.",
+    "metadata": {
+      "topic": "Matrices and Determinant",
+      "grade": "Class 12",
+      "subject": "Mathematics ",
+      "board": "CBSE",
+      "duration": "90 Mins",
+      "timestamp": "2026-02-23T16:41:56.504Z"
+    },
+    "timestamp": "2026-02-23T16:42:09.372Z"
+  }
+]

@@ -1,0 +1,407 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "DeepHub AI Neural Core - Infrastructure (Phase B)"
+
+Resources:
+  # 1. S3 Bucket for Neural Storage (Question Papers, Avatars)
+  NeuralStorageBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Sub "deephub-neural-storage-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # 2. DynamoDB Table for Users (Single Table Design)
+  UsersTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: DeepHub_Users
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: UserIdIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  # 3. DynamoDB Table for Neural Lessons (Library & Question Papers)
+  LessonsTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: DeepHub_NeuralLessons
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: lessonId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: lessonId
+          KeyType: RANGE
+
+  # 4. DynamoDB Table for Activity Logs (Admin Health & Telemetry)
+  ActivityLogsTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: DeepHub_ActivityLogs
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: logType
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: logType
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  # 5. DynamoDB Table for Catalog (Robots & Educator Tools)
+  CatalogTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: DeepHub_Catalog
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: category
+          AttributeType: S
+        - AttributeName: itemId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: category
+          KeyType: HASH
+        - AttributeName: itemId
+          KeyType: RANGE
+
+  # 6. DynamoDB Table for System Settings (AI Providers, Feature Flags)
+  SettingsTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: DeepHub_Settings
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: settingGroup
+          AttributeType: S
+        - AttributeName: settingKey
+          AttributeType: S
+      KeySchema:
+        - AttributeName: settingGroup
+          KeyType: HASH
+        - AttributeName: settingKey
+          KeyType: RANGE
+
+  # ==========================================================================
+  # 7. NETWORKING LAYER (GOLD STANDARD VPC)
+  # ==========================================================================
+  NeuralVPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: DeepHub-Neural-VPC
+
+  NeuralInternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+
+  VPCGatewayAttachment:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId: !Ref NeuralVPC
+      InternetGatewayId: !Ref NeuralInternetGateway
+
+  PublicSubnetA:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref NeuralVPC
+      CidrBlock: "10.0.1.0/24"
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      MapPublicIpOnLaunch: true
+
+  PublicSubnetB:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref NeuralVPC
+      CidrBlock: "10.0.2.0/24"
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      MapPublicIpOnLaunch: true
+
+  NeuralPublicRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref NeuralVPC
+
+  NeuralPublicRoute:
+    Type: "AWS::EC2::Route"
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref NeuralPublicRouteTable
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref NeuralInternetGateway
+
+  SubnetARouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref PublicSubnetA
+      RouteTableId: !Ref NeuralPublicRouteTable
+
+  SubnetBRouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref PublicSubnetB
+      RouteTableId: !Ref NeuralPublicRouteTable
+
+  # ==========================================================================
+  # 8. SECURITY & LOAD BALANCING
+  # ==========================================================================
+  ALBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Allow HTTP to ALB"
+      VpcId: !Ref NeuralVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: "0.0.0.0/0"
+
+  ECSSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Allow traffic from ALB to ECS"
+      VpcId: !Ref NeuralVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3001
+          ToPort: 3001
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+
+  NeuralALB:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Name: DeepHub-Neural-ALB
+      Subnets:
+        - !Ref PublicSubnetA
+        - !Ref PublicSubnetB
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+
+  ALBTargetGroup:
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+      Name: DeepHub-Neural-TG
+      VpcId: !Ref NeuralVPC
+      Protocol: HTTP
+      Port: 3001
+      TargetType: ip
+      HealthCheckPath: "/health"
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+      Matcher:
+        HttpCode: "200"
+
+  ALBListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ALBTargetGroup
+      LoadBalancerArn: !Ref NeuralALB
+      Port: 80
+      Protocol: HTTP
+
+  # ==========================================================================
+  # 9. ECS FARGATE CLUSTER & SERVICE
+  # ==========================================================================
+  NeuralECSCluster:
+    Type: "AWS::ECS::Cluster"
+    Properties:
+      ClusterName: DeepHub-Neural-Cluster
+
+  # Execution Role: only needs ECR pull + CloudWatch logs + Secrets Manager read
+  ECSExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: DeepHub-ECS-ExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ecs-tasks.amazonaws.com]
+            Action: ["sts:AssumeRole"]
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - arn:aws:iam::aws:policy/SecretsManagerReadWrite
+
+  # Task Role: permissions the running app code needs (DynamoDB + S3)
+  ECSTaskRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: DeepHub-ECS-TaskRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ecs-tasks.amazonaws.com]
+            Action: ["sts:AssumeRole"]
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+  # CloudWatch Log Group for container logs
+  ECSLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: /ecs/deephub-neural-core
+      RetentionInDays: 30
+
+  NeuralTaskDefinition:
+    Type: "AWS::ECS::TaskDefinition"
+    Properties:
+      Family: DeepHub-Neural-Core
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: "1024" # 1 vCPU
+      Memory: "2048" # 2 GB
+      ExecutionRoleArn: !GetAtt ECSExecutionRole.Arn
+      TaskRoleArn: !GetAtt ECSTaskRole.Arn
+      ContainerDefinitions:
+        - Name: DeepHub-Backend
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/deephub-ai-backend:latest"
+          PortMappings:
+            - ContainerPort: 3001
+          Environment:
+            - Name: NODE_ENV
+              Value: production
+            - Name: PORT
+              Value: "3001"
+            - Name: USE_DYNAMODB
+              Value: "true"
+            - Name: USE_AWS_S3
+              Value: "true"
+            - Name: AWS_REGION
+              Value: !Ref "AWS::Region"
+            - Name: AWS_S3_BUCKET
+              Value: !Sub "deephub-neural-storage-${AWS::AccountId}"
+            - Name: DYNAMODB_USERS_TABLE
+              Value: DeepHub_Users
+            - Name: DYNAMODB_LESSONS_TABLE
+              Value: DeepHub_NeuralLessons
+            - Name: DYNAMODB_ACTIVITY_LOGS_TABLE
+              Value: DeepHub_ActivityLogs
+            - Name: DYNAMODB_CATALOG_TABLE
+              Value: DeepHub_Catalog
+            - Name: DYNAMODB_SETTINGS_TABLE
+              Value: DeepHub_Settings
+            - Name: MONGO_URI
+              Value: NOT_USED_DYNAMODB_ACTIVE
+            - Name: DEFAULT_AI_PROVIDER
+              Value: groq
+            - Name: OLLAMA_BASE_URL
+              Value: "http://44.202.144.106:11434"
+          Secrets:
+            - Name: GROQ_API_KEY
+              ValueFrom: "arn:aws:secretsmanager:us-east-1:278035644348:secret:DeepHub-Neural-Secrets-cIUX3a:GROQ_API_KEY::"
+            - Name: GEMINI_API_KEY
+              ValueFrom: "arn:aws:secretsmanager:us-east-1:278035644348:secret:DeepHub-Neural-Secrets-cIUX3a:GEMINI_API_KEY::"
+            - Name: KIMI_API_KEY
+              ValueFrom: "arn:aws:secretsmanager:us-east-1:278035644348:secret:DeepHub-Neural-Secrets-cIUX3a:KIMI_API_KEY::"
+            - Name: SERPER_API_KEY
+              ValueFrom: "arn:aws:secretsmanager:us-east-1:278035644348:secret:DeepHub-Neural-Secrets-cIUX3a:SERPER_API_KEY::"
+            - Name: VITE_NEWS_API_KEY
+              ValueFrom: "arn:aws:secretsmanager:us-east-1:278035644348:secret:DeepHub-Neural-Secrets-cIUX3a:VITE_NEWS_API_KEY::"
+            - Name: JWT_SECRET
+              ValueFrom: "arn:aws:secretsmanager:us-east-1:278035644348:secret:DeepHub-Neural-Secrets-cIUX3a:JWT_SECRET::"
+            - Name: GOOGLE_CLIENT_ID
+              ValueFrom: "arn:aws:secretsmanager:us-east-1:278035644348:secret:DeepHub-Neural-Secrets-cIUX3a:GOOGLE_CLIENT_ID::"
+            - Name: GOOGLE_CLIENT_SECRET
+              ValueFrom: "arn:aws:secretsmanager:us-east-1:278035644348:secret:DeepHub-Neural-Secrets-cIUX3a:GOOGLE_CLIENT_SECRET::"
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: /ecs/deephub-neural-core
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: ecs
+          HealthCheck:
+            Command:
+              - "CMD-SHELL"
+              - "wget -qO- http://localhost:3001/health || exit 1"
+            Interval: 30
+            Timeout: 10
+            Retries: 3
+            StartPeriod: 15
+
+  NeuralECSService:
+    Type: "AWS::ECS::Service"
+    DependsOn: ALBListener
+    Properties:
+      ServiceName: DeepHub-Neural-Service
+      Cluster: !Ref NeuralECSCluster
+      TaskDefinition: !Ref NeuralTaskDefinition
+      LaunchType: FARGATE
+      DesiredCount: 1
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - !Ref PublicSubnetA
+            - !Ref PublicSubnetB
+          SecurityGroups:
+            - !Ref ECSSecurityGroup
+      LoadBalancers:
+        - ContainerName: DeepHub-Backend
+          ContainerPort: 3001
+          TargetGroupArn: !Ref ALBTargetGroup
+
+  # ==========================================================================
+  # 10. CONTAINER REGISTRY (ECR)
+  # ==========================================================================
+
+
+Outputs:
+  BucketName:
+    Value: !Ref NeuralStorageBucket
+  UsersTableName:
+    Value: !Ref UsersTable
+  LessonsTableName:
+    Value: !Ref LessonsTable
+  ActivityLogsTableName:
+    Value: !Ref ActivityLogsTable
+  CatalogTableName:
+    Value: !Ref CatalogTable
+  SettingsTableName:
+    Value: !Ref SettingsTable
+  LoadBalancerDNS:
+    Value: !GetAtt NeuralALB.DNSName
+    Description: "Application Load Balancer DNS Name"

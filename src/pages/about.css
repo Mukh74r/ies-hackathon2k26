@@ -1,0 +1,50 @@
+/* Intro overlay */
+.about-intro {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* SVG sizing */
+.intro-svg {
+  width: 140px;
+  height: 140px;
+}
+
+/* Main page */
+.about-page {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.about-page.visible {
+  opacity: 1;
+}
+
+/* About content */
+.about-hero {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 10vw;
+}
+
+.about-hero h1 {
+  font-size: clamp(3.5rem, 7vw, 7rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.about-hero p {
+  margin-top: 1.2rem;
+  max-width: 480px;
+  opacity: 0.7;
+  font-size: 1.1rem;
+}
