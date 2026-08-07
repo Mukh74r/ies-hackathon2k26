@@ -521,48 +521,7 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ── 5. Institutional Faculty Trust ── */}
-            <section className="py-16 px-6 sm:px-12 max-w-7xl mx-auto border-t border-[#1E293B]">
-                <div className="max-w-2xl mb-8">
-                    <span className="text-xs font-mono-stamp text-[#38BDF8] uppercase tracking-wider">Institutional Adoption</span>
-                    <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#F8FAFC] mt-1">
-                        Deployed Across Secondary & Higher Secondary Schools
-                    </h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[
-                        {
-                            name: "Kendriya Vidyalaya Faculty",
-                            loc: "Delhi NCR Region",
-                            points: "Standardized 50-mark Term 1 and Term 2 science and mathematics examination papers with complete marking schemes."
-                        },
-                        {
-                            name: "St. Thomas Higher Secondary",
-                            loc: "Kochi, Kerala",
-                            points: "Implemented bilingual Malayalam and English lesson plan timelines for Class 9 and 10 faculty."
-                        },
-                        {
-                            name: "Delhi Public School Faculty",
-                            loc: "Chennai, Tamil Nadu",
-                            points: "Accelerated question bank creation for Physics and Chemistry with Bloom's Taxonomy categorization."
-                        }
-                    ].map((inst, idx) => (
-                        <div key={idx} className="bg-[#0F172A] border border-[#1E293B] p-6 rounded-lg">
-                            <div className="flex items-center gap-2 mb-3">
-                                <School size={16} className="text-[#38BDF8]" />
-                                <h4 className="text-sm font-bold font-display text-[#F8FAFC]">{inst.name}</h4>
-                            </div>
-                            <div className="text-[11px] font-mono-stamp text-[#94A3B8] mb-3">{inst.loc}</div>
-                            <p className="text-xs text-[#94A3B8] leading-relaxed font-sans-academic">
-                                {inst.points}
-                            </p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* ── 6. Footer ── */}
+            {/* ── 5. Footer ── */}
             <footer className="border-t border-[#1E293B] bg-[#080C14] py-8 px-6 sm:px-12 text-xs text-[#94A3B8]">
                 <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-2">
