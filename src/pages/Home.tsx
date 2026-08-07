@@ -12,18 +12,24 @@ import {
     BookOpen,
     Layers,
     ChevronRight,
+    ChevronDown,
     Printer,
     Download,
     FileSpreadsheet,
     Sliders,
     GraduationCap,
     School,
-    Check
+    Check,
+    Sun,
+    Moon
 } from 'lucide-react';
-import { INDIAN_LANGUAGES } from '../context/LanguageContext';
+import { useLanguage, INDIAN_LANGUAGES } from '../context/LanguageContext';
 
 export default function Home() {
     const navigate = useNavigate();
+    const { currentLanguage, setLanguageByCode, theme, toggleTheme } = useLanguage();
+    const isLight = theme === 'light';
+    const [langOpen, setLangOpen] = useState(false);
     const [selectedGrade, setSelectedGrade] = useState('10');
     const [selectedSubject, setSelectedSubject] = useState('Physics');
     const [selectedBoard, setSelectedBoard] = useState('CBSE');
@@ -180,24 +186,94 @@ export default function Home() {
 
     return (
         <div className="min-h-screen bg-[#0F1B2A] text-[#F2F3F3] font-sans-academic selection:bg-[#FF9900]/30">
-            {/* ── Top Institutional Header Strip ── */}
-            <div className="border-b border-[#2E3B4E] bg-[#0B121E] px-6 py-2">
-                <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono-stamp text-[#AAB7B8]">
+            {/* ── Standalone Top Header Bar ── */}
+            <header className="border-b border-[#2E3B4E] bg-[#0B121E] px-6 sm:px-12 py-3 sticky top-0 z-50 shadow-md notranslate" translate="no">
+                <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+                    {/* Brand Identifier */}
                     <div className="flex items-center gap-3">
-                        <span className="inline-flex items-center gap-1.5 text-[#FF9900] font-bold">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#FF9900]"></span>
-                            DEEPHUB CLOUD V4.2
-                        </span>
-                        <span className="text-[#2E3B4E]">|</span>
-                        <span>CURRICULUM ARCHITECTURE FOR INDIAN FACULTY</span>
+                        <div className="w-8 h-8 rounded bg-[#FF9900] flex items-center justify-center font-bold font-display text-[#0F1B2A] text-sm shadow-sm">
+                            DH
+                        </div>
+                        <div>
+                            <div className="font-bold font-display text-sm sm:text-base text-[#FFFFFF] tracking-tight">
+                                DeepHub AI
+                            </div>
+                            <div className="text-[10px] font-mono-stamp text-[#AAB7B8] hidden sm:block">
+                                Curriculum & Examination Architecture
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-4 text-[11px]">
-                        <span>CBSE · ICSE · STATE BOARDS</span>
-                        <span className="text-[#2E3B4E]">|</span>
-                        <span className="text-[#00A4E4]">11 REGIONAL LANGUAGES</span>
+
+                    {/* Right-Side Actions: Studio CTA + Theme Toggle + Language Dropdown */}
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <button
+                            onClick={() => navigate('/turbo')}
+                            className="px-3.5 py-1.5 rounded-md bg-[#FF9900] hover:bg-[#EC7211] text-[#0F1B2A] font-bold text-xs uppercase font-mono-stamp flex items-center gap-1.5 transition-colors shadow-sm"
+                        >
+                            <span>Teacher Studio</span>
+                            <ChevronRight size={13} />
+                        </button>
+
+                        {/* Theme Toggle Button */}
+                        <button
+                            onClick={toggleTheme}
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-[#2E3B4E] bg-[#1A2433] text-xs font-mono-stamp text-[#FFFFFF] hover:border-[#FF9900]/60 transition-all active:scale-95 shadow-sm"
+                            title={`Switch to ${isLight ? 'Dark Mode' : 'White Mode'}`}
+                        >
+                            {isLight ? (
+                                <>
+                                    <Sun size={13} className="text-[#D97706]" />
+                                    <span className="hidden sm:inline text-[11px] font-mono-stamp font-bold text-[#0F172A]">White</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Moon size={13} className="text-[#FF9900]" />
+                                    <span className="hidden sm:inline text-[11px] font-mono-stamp font-bold text-[#FF9900]">Dark</span>
+                                </>
+                            )}
+                        </button>
+
+                        {/* Regional Language Picker Dropdown */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setLangOpen(prev => !prev)}
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-[#2E3B4E] bg-[#1A2433] text-xs font-mono-stamp text-[#FF9900] hover:border-[#FF9900]/60 transition-all"
+                            >
+                                <span>{currentLanguage.code.toUpperCase()}</span>
+                                <ChevronDown size={12} className={`transition-transform text-[#FF9900] ${langOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {langOpen && (
+                                <div className="absolute right-0 top-full mt-2 w-60 p-2 bg-[#1A2433] border border-[#2E3B4E] shadow-2xl rounded-lg grid grid-cols-2 gap-1 z-[9999]">
+                                    <div className="col-span-2 px-2 py-1 text-[10px] font-mono-stamp text-[#AAB7B8] uppercase border-b border-[#2E3B4E] mb-1">
+                                        11 Regional Languages
+                                    </div>
+                                    {INDIAN_LANGUAGES.map((lang) => (
+                                        <button
+                                            key={lang.code}
+                                            onClick={() => {
+                                                setLanguageByCode(lang.code);
+                                                setLangOpen(false);
+                                            }}
+                                            className={`flex items-center justify-between px-2 py-1.5 rounded text-xs text-left transition-colors ${
+                                                currentLanguage.code === lang.code
+                                                    ? 'bg-[#FF9900]/20 text-[#FF9900] font-bold border border-[#FF9900]/40'
+                                                    : 'text-[#AAB7B8] hover:bg-[#232F3E] hover:text-[#FFFFFF]'
+                                            }`}
+                                        >
+                                            <div className="flex flex-col">
+                                                <span className="font-mono-stamp text-[11px] uppercase">{lang.code}</span>
+                                                <span className="text-[10px] text-[#AAB7B8]">{lang.name} ({lang.nativeName})</span>
+                                            </div>
+                                            {currentLanguage.code === lang.code && <Check size={12} className="text-[#FF9900]" />}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </header>
 
             {/* ── 1. Hero Section: AWS Cloud Architectural Style ── */}
             <section className="pt-16 pb-16 px-6 sm:px-12 max-w-7xl mx-auto">

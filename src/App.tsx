@@ -57,8 +57,10 @@ function LayoutWrapper() {
         );
     }
 
-    // DEFINITION: Routes where we want the clean Legacy Look (No global Navbar, No Pill)
+    // DEFINITION: Routes where we want clean standalone look (No global Navbar)
     const isAboutUsPage =
+        location.pathname === "/" ||
+        location.pathname === "/home" ||
         location.pathname === "/admin-hq" ||
         location.pathname === "/terms" ||
         location.pathname === "/privacy" ||
@@ -69,7 +71,7 @@ function LayoutWrapper() {
         <div className="min-h-screen flex flex-col bg-background selection:bg-amber-500/30">
 
             {/* 1. RESTRICTED NAVBAR: 
-          Only shows on legacy sub-pages. Hidden on About Us/Home/Admin/Turbo. */}
+          Hidden on Home (/ and /home), About Us, Admin, Pricing, etc. */}
             {!isAboutUsPage && <Navbar />}
 
             <main className="flex-grow flex flex-col">
