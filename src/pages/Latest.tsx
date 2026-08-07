@@ -420,7 +420,7 @@ Please summarize in 3 bullet points focusing on impact for teachers and students
                                             <span className="text-[10px] font-semibold px-2.5 py-1 rounded-md bg-cyan-500/10 border border-cyan-500/30 text-cyan-300">
                                                 {item.category}
                                             </span>
-                                            <span className="text-xs text-amber-300/80 font-medium px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
+                                            <span className="text-xs text-cyan-300/80 font-medium px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20">
                                                 {item.source}
                                             </span>
                                             <span className="text-white/20">•</span>
@@ -532,7 +532,7 @@ Please summarize in 3 bullet points focusing on impact for teachers and students
 
                         {/* Global EdTech Research & Journalism Sources */}
                         <section className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.08]">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-4 flex items-center gap-2">
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-cyan-400 mb-4 flex items-center gap-2">
                                 <Compass className="w-4 h-4" />
                                 Verified EdTech News Sources
                             </h3>
@@ -550,7 +550,7 @@ Please summarize in 3 bullet points focusing on impact for teachers and students
                                         href={site.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-amber-500/40 hover:bg-amber-500/[0.04] transition-all group text-xs"
+                                        className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-cyan-500/40 hover:bg-cyan-500/[0.04] transition-all group text-xs"
                                     >
                                         <div className="flex items-center gap-2.5 min-w-0">
                                             <img
@@ -558,9 +558,9 @@ Please summarize in 3 bullet points focusing on impact for teachers and students
                                                 alt={site.name}
                                                 className="w-4 h-4 rounded object-contain flex-shrink-0"
                                             />
-                                            <span className="text-white/80 group-hover:text-amber-300 font-medium truncate">{site.name}</span>
+                                            <span className="text-white/80 group-hover:text-cyan-300 font-medium truncate">{site.name}</span>
                                         </div>
-                                        <ExternalLink className="w-3.5 h-3.5 text-white/30 group-hover:text-amber-400 flex-shrink-0" />
+                                        <ExternalLink className="w-3.5 h-3.5 text-white/30 group-hover:text-cyan-400 flex-shrink-0" />
                                     </a>
                                 ))}
                             </div>

@@ -16,17 +16,17 @@
     --popover: #0E1424;
     --popover-foreground: #FFFFFF;
 
-    --primary: #FF9900;
-    --primary-foreground: #000000;
-    --primary-hover: #FFA726;
+    --primary: #00A4E4;
+    --primary-foreground: #FFFFFF;
+    --primary-hover: #38BDF8;
 
-    --secondary: #00A4E4;
+    --secondary: #6E85D6;
     --secondary-foreground: #FFFFFF;
 
     --success: #2F7D5C;
     --success-foreground: #FFFFFF;
 
-    --warning: #FF9900;
+    --warning: #F59E0B;
     --warning-foreground: #000000;
 
     --muted: #121829;
@@ -40,7 +40,7 @@
 
     --border: #1E2640;
     --input: #1E2640;
-    --ring: #FF9900;
+    --ring: #00A4E4;
 
     --radius: 8px;
   }
@@ -58,9 +58,9 @@
     --popover: #FFFFFF;
     --popover-foreground: #111827;
 
-    --primary: #FF9900;
-    --primary-foreground: #000000;
-    --primary-hover: #E68A00;
+    --primary: #2A3F8F;
+    --primary-foreground: #FFFFFF;
+    --primary-hover: #1E2E6F;
 
     --secondary: #00A4E4;
     --secondary-foreground: #FFFFFF;
@@ -68,7 +68,7 @@
     --success: #2F7D5C;
     --success-foreground: #FFFFFF;
 
-    --warning: #B5762A;
+    --warning: #D97706;
     --warning-foreground: #FFFFFF;
 
     --muted: #F1F5F9;
@@ -82,7 +82,7 @@
 
     --border: #E2E8F0;
     --input: #E2E8F0;
-    --ring: #FF9900;
+    --ring: #2A3F8F;
 
     --radius: 8px;
   }
@@ -156,9 +156,9 @@
     font-size: 0.75rem;
     font-weight: 700;
     font-family: "Space Mono", monospace;
-    color: #FF9900;
-    background-color: rgba(255, 153, 0, 0.12);
-    border: 1px solid rgba(255, 153, 0, 0.35);
+    color: #00A4E4;
+    background-color: rgba(0, 164, 228, 0.12);
+    border: 1px solid rgba(0, 164, 228, 0.35);
     border-radius: 6px;
   }
 
@@ -177,7 +177,7 @@
   .card-lift:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    border-color: rgba(255, 153, 0, 0.45);
+    border-color: rgba(0, 164, 228, 0.45);
   }
 
   /* Subtle staggered page entry animation */

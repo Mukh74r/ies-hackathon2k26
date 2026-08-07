@@ -62,12 +62,12 @@ export default function Maintenance() {
                 </div>
 
                 {/* Status badge with better animation */}
-                <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-500/30 rounded-full mx-auto backdrop-blur-sm shadow-lg shadow-amber-500/10">
+                <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-cyan-500/10 border border-cyan-500/30 rounded-full mx-auto backdrop-blur-sm shadow-lg shadow-cyan-500/10">
                     <div className="relative flex items-center justify-center">
-                        <span className="w-3 h-3 bg-amber-400 rounded-full animate-ping absolute"/>
-                        <span className="w-2 h-2 bg-amber-400 rounded-full"/>
+                        <span className="w-3 h-3 bg-cyan-400 rounded-full animate-ping absolute"/>
+                        <span className="w-2 h-2 bg-cyan-400 rounded-full"/>
                     </div>
-                    <span className="text-sm font-bold text-amber-300 uppercase tracking-widest">System Maintenance</span>
+                    <span className="text-sm font-bold text-cyan-300 uppercase tracking-widest">System Maintenance</span>
                 </div>
 
                 {/* Main message with better typography */}
