@@ -3,22 +3,66 @@
 @tailwind utilities;
 
 @layer base {
-  :root, [data-theme='light'] {
-    --background: #F7F8FA;
-    --foreground: #1C2434;
+  :root, [data-theme='dark'] {
+    --background: #000000;
+    --surface: #080C14;
+    --foreground: #FFFFFF;
+    --text: #FFFFFF;
+
+    --card: #0E1424;
+    --card-foreground: #FFFFFF;
+    --card-border: #1E2640;
+
+    --popover: #0E1424;
+    --popover-foreground: #FFFFFF;
+
+    --primary: #FF9900;
+    --primary-foreground: #000000;
+    --primary-hover: #FFA726;
+
+    --secondary: #00A4E4;
+    --secondary-foreground: #FFFFFF;
+
+    --success: #2F7D5C;
+    --success-foreground: #FFFFFF;
+
+    --warning: #FF9900;
+    --warning-foreground: #000000;
+
+    --muted: #121829;
+    --muted-foreground: #94A3B8;
+
+    --accent: #00A4E4;
+    --accent-foreground: #FFFFFF;
+
+    --destructive: #EF4444;
+    --destructive-foreground: #FFFFFF;
+
+    --border: #1E2640;
+    --input: #1E2640;
+    --ring: #FF9900;
+
+    --radius: 8px;
+  }
+
+  [data-theme='light'] {
+    --background: #FFFFFF;
+    --surface: #F7F8FA;
+    --foreground: #111827;
+    --text: #111827;
 
     --card: #FFFFFF;
-    --card-foreground: #1C2434;
-    --card-border: #DDE1E7;
+    --card-foreground: #111827;
+    --card-border: #E2E8F0;
 
     --popover: #FFFFFF;
-    --popover-foreground: #1C2434;
+    --popover-foreground: #111827;
 
-    --primary: #2A3F8F;
-    --primary-foreground: #FFFFFF;
-    --primary-hover: #223377;
+    --primary: #FF9900;
+    --primary-foreground: #000000;
+    --primary-hover: #E68A00;
 
-    --secondary: #8C2D33;
+    --secondary: #00A4E4;
     --secondary-foreground: #FFFFFF;
 
     --success: #2F7D5C;
@@ -27,8 +71,8 @@
     --warning: #B5762A;
     --warning-foreground: #FFFFFF;
 
-    --muted: #EEF1F6;
-    --muted-foreground: #5C6474;
+    --muted: #F1F5F9;
+    --muted-foreground: #64748B;
 
     --accent: #2A3F8F;
     --accent-foreground: #FFFFFF;
@@ -36,77 +80,43 @@
     --destructive: #8C2D33;
     --destructive-foreground: #FFFFFF;
 
-    --border: #E1E4E9;
-    --input: #DDE1E7;
-    --ring: #2A3F8F;
-
-    --radius: 8px;
-  }
-
-  [data-theme='dark'] {
-    --background: #12172A;
-    --foreground: #F0F1F5;
-
-    --card: #1B2140;
-    --card-foreground: #F0F1F5;
-    --card-border: #2A3258;
-
-    --popover: #1B2140;
-    --popover-foreground: #F0F1F5;
-
-    --primary: #6E85D6;
-    --primary-foreground: #12172A;
-    --primary-hover: #8398E2;
-
-    --secondary: #C4707A;
-    --secondary-foreground: #12172A;
-
-    --success: #48A87D;
-    --success-foreground: #12172A;
-
-    --warning: #D49B4D;
-    --warning-foreground: #12172A;
-
-    --muted: #1F2748;
-    --muted-foreground: #9AA1B5;
-
-    --accent: #6E85D6;
-    --accent-foreground: #12172A;
-
-    --destructive: #C4707A;
-    --destructive-foreground: #F0F1F5;
-
-    --border: #242C4F;
-    --input: #2A3258;
-    --ring: #6E85D6;
+    --border: #E2E8F0;
+    --input: #E2E8F0;
+    --ring: #FF9900;
 
     --radius: 8px;
   }
 }
 
 @layer base {
-  * {
+  *, *::before, *::after {
+    box-sizing: border-box;
     border-color: var(--border);
   }
 
   html {
     scroll-behavior: smooth;
-    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     background-color: var(--background);
     color: var(--foreground);
+    font-family: "Outfit", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "Outfit", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     line-height: 1.55;
-    letter-spacing: -0.01em;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6, .font-display {
-    font-family: "Inter", "Manrope", sans-serif;
-    font-weight: 600;
+    font-family: "Outfit", "Plus Jakarta Sans", sans-serif;
+    font-weight: 700;
     color: var(--foreground);
     letter-spacing: -0.02em;
   }
@@ -126,60 +136,48 @@
 
 @layer utilities {
   .font-display {
-    font-family: "Inter", "Manrope", sans-serif;
+    font-family: "Outfit", "Plus Jakarta Sans", sans-serif;
   }
 
   .font-sans-academic {
     font-family: "Inter", -apple-system, sans-serif;
   }
 
-  .font-mono-stamp {
+  .font-mono-stamp, .font-mono, .analytics-num {
     font-family: "Space Mono", ui-monospace, SFMono-Regular, monospace;
-    font-variant: small-caps;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
   }
 
-  /* Signature Mark Allocation Badge: Muted maroon, right-aligned */
+  /* Signature Mark Allocation Badge */
   .mark-badge {
     display: inline-flex;
     align-items: center;
     padding: 0.15rem 0.5rem;
     font-size: 0.75rem;
-    font-weight: 600;
-    font-family: "Inter", sans-serif;
-    color: #8C2D33;
-    background-color: rgba(140, 45, 51, 0.08);
-    border: 1px solid rgba(140, 45, 51, 0.22);
+    font-weight: 700;
+    font-family: "Space Mono", monospace;
+    color: #FF9900;
+    background-color: rgba(255, 153, 0, 0.12);
+    border: 1px solid rgba(255, 153, 0, 0.35);
     border-radius: 6px;
-  }
-
-  [data-theme='dark'] .mark-badge {
-    color: #E68A94;
-    background-color: rgba(196, 112, 122, 0.14);
-    border-color: rgba(196, 112, 122, 0.32);
   }
 
   /* Academic paper container */
   .paper-surface {
     background-color: var(--card);
     border: 1px solid var(--border);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     border-radius: 8px;
   }
 
-  /* Card subtle lift on hover (2-4px, no glow) */
+  /* Card subtle lift on hover */
   .card-lift {
     transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
   }
   .card-lift:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    border-color: rgba(42, 63, 143, 0.35);
-  }
-
-  /* Sidebar active transition */
-  .sidebar-nav-item {
-    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 153, 0, 0.45);
   }
 
   /* Subtle staggered page entry animation */

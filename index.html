@@ -16,35 +16,41 @@
       content="We build the future through innovative technology solutions. Discover our story."
     />
     <meta name="author" content="DeepHubAI" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="keywords"
+      content="DeepHub AI, Curriculum Architecture, Examination Platform, Question Paper Generator, CBSE, ICSE, Indian Education AI"
+    />
 
+    <!-- Open Graph Metadata -->
     <meta property="og:title" content="DeepHubAI | Innovation Redefined" />
     <meta
       property="og:description"
       content="We build the future through innovative technology solutions."
     />
+    <meta property="og:site_name" content="DeepHubAI" />
     <meta property="og:type" content="website" />
-
-    <!-- Preload placeholder Removed for hash consistency -->
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 
-    <!-- Google Fonts: Plus Jakarta Sans (Headings), Inter (Body), Space Mono (Monospace/Stamps) -->
+    <!-- Google Fonts: Inter, Outfit, Plus Jakarta Sans, Space Mono -->
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"
       onload="this.onload=null;this.rel='stylesheet'"
     />
     <noscript>
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"
       />
     </noscript>
 
-    <!-- Deferred Non-Critical CSS -->
+    <!-- Deferred KaTeX Stylesheet -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
@@ -70,24 +76,60 @@
         href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
       />
     </noscript>
-    <!-- Critical Base CSS: Sleek Modern Dark Theme -->
+
+    <!-- Critical Base CSS: Exact DeepHubAI Dark Theme -->
     <style>
-      :root {
-        --background: #080C14;
-        --foreground: #F1F5F9;
-        font-family: "Inter", -apple-system, sans-serif;
+      *, *::before, *::after {
+        box-sizing: border-box;
       }
-      html,
+
+      :root {
+        --background: #000000;
+        --surface: #0A0E1A;
+        --foreground: #FFFFFF;
+        --text: #FFFFFF;
+        --primary: #FF9900;
+        --accent: #00A4E4;
+        --border: #1E2640;
+        font-family: "Outfit", "Inter", sans-serif;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #000000;
+        color: #FFFFFF;
+      }
+
       body {
-        background-color: #080C14;
-        color: #F1F5F9;
+        background-color: #000000;
+        color: #FFFFFF;
         margin: 0;
         padding: 0;
         overflow-x: hidden;
+        font-family: "Outfit", "Inter", -apple-system, sans-serif;
+        line-height: 1.55;
       }
+
+      h1, h2, h3, h4, h5, h6, .font-display {
+        font-family: "Outfit", "Plus Jakarta Sans", sans-serif;
+        font-weight: 700;
+        color: #FFFFFF;
+      }
+
+      .font-mono, .font-mono-stamp, .mark-badge, .analytics-num {
+        font-family: "Space Mono", ui-monospace, SFMono-Regular, monospace;
+      }
+
       #root {
         min-height: 100vh;
-        background-color: #080C14;
+        background-color: #000000;
+      }
+
+      .bg-background {
+        background-color: #000000;
       }
     </style>
   </head>
