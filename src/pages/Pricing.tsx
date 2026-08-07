@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { Check, Lock, Zap, ArrowRight, ShieldCheck, Sparkles, Building2, UserCheck, HelpCircle } from "lucide-react";
 import Footer1 from "../components/Footer1";
 
 const FREE_FEATURES = [
@@ -10,39 +11,23 @@ const FREE_FEATURES = [
     { label: "Paper Solver", limit: "2 / month" },
     { label: "Quiz Shuffler", limit: "1 / month" },
     { label: "My Library", limit: "10 saved items" },
-    { label: "The Secretary", limit: "❌ Locked" },
-    { label: "Analytics", limit: "❌ Locked" },
-    { label: "AI Provider", limit: "Groq only" },
+    { label: "The Secretary", limit: "Locked" },
+    { label: "Analytics & KPI Center", limit: "Locked" },
+    { label: "AI Engine", limit: "Groq Cloud" },
 ];
 
 const PRO_FEATURES = [
-    { label: "Question Paper Generator", limit: "✦ Unlimited" },
-    { label: "PPT Generator", limit: "✦ Unlimited" },
-    { label: "Homework Creator", limit: "✦ Unlimited" },
-    { label: "Lesson Plan Builder", limit: "✦ Unlimited" },
-    { label: "Paper Solver", limit: "✦ Unlimited" },
-    { label: "Quiz Shuffler", limit: "✦ Unlimited" },
-    { label: "My Library", limit: "✦ Unlimited" },
-    { label: "The Secretary", limit: "✦ Unlocked" },
-    { label: "Analytics", limit: "✦ Full Access" },
-    { label: "AI Provider", limit: "Groq + Gemini 2.0" },
+    { label: "Question Paper Generator", limit: "Unlimited" },
+    { label: "PPT Generator", limit: "Unlimited" },
+    { label: "Homework Creator", limit: "Unlimited" },
+    { label: "Lesson Plan Builder", limit: "Unlimited" },
+    { label: "Paper Solver", limit: "Unlimited" },
+    { label: "Quiz Shuffler", limit: "Unlimited" },
+    { label: "My Library", limit: "Unlimited" },
+    { label: "The Secretary", limit: "Full Access" },
+    { label: "Analytics & KPI Center", limit: "Full Access" },
+    { label: "AI Engine", limit: "Groq + Gemini 2.0 Pro" },
 ];
-
-function CheckIcon() {
-    return (
-        <svg className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-        </svg>
-    );
-}
-
-function LockIcon() {
-    return (
-        <svg className="w-4 h-4 text-white/20 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-    );
-}
 
 // Declare Razorpay on window
 declare global {
@@ -99,34 +84,39 @@ export default function Pricing() {
             // Step 1: Create order on backend
             const orderRes = await fetch(apiEndpoint("/api/payment/create-order"), {
                 method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
             if (!orderRes.ok) {
-                const err = await orderRes.json().catch(() => ({}));
-                alert(err.message || "Failed to create order");
+                const err = await orderRes.json();
+                alert(err.message || "Failed to initialize payment. Try again.");
                 setLoading(false);
                 return;
             }
 
-            const order = await orderRes.json();
+            const { orderId, amount, currency, keyId } = await orderRes.json();
 
-            // Step 2: Open Razorpay checkout
+            // Step 2: Open Razorpay checkout modal
             const options = {
-                key: order.keyId,
-                amount: order.amount,
-                currency: order.currency,
+                key: keyId,
+                amount,
+                currency,
                 name: "DeepHub AI",
-                description: "Pro Tier — 3 Months",
-                order_id: order.orderId,
-                theme: { color: "#22d3ee" },
-                prefill: {},
+                description: "Pro Subscription — 3 Months Access",
+                image: "/favicon.ico",
+                order_id: orderId,
                 handler: async (response: any) => {
                     // Step 3: Verify payment on backend
                     try {
-                        const verifyRes = await fetch(apiEndpoint("/api/payment/verify"), {
+                        const verifyRes = await fetch(apiEndpoint("/api/payment/verify-payment"), {
                             method: "POST",
-                            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`,
+                            },
                             body: JSON.stringify({
                                 razorpay_order_id: response.razorpay_order_id,
                                 razorpay_payment_id: response.razorpay_payment_id,
@@ -134,26 +124,22 @@ export default function Pricing() {
                             }),
                         });
 
-                        if (verifyRes.ok) {
-                            const result = await verifyRes.json();
+                        const verifyData = await verifyRes.json();
+                        if (verifyData.success) {
                             setSuccess(true);
-                            setProStatus({ isPro: true, proExpiresAt: result.proExpiresAt });
-
-                            // Update user in localStorage
-                            const storedUser = localStorage.getItem("user");
-                            if (storedUser) {
-                                const user = JSON.parse(storedUser);
-                                user.isPro = true;
-                                user.proExpiresAt = result.proExpiresAt;
-                                localStorage.setItem("user", JSON.stringify(user));
-                            }
+                            setProStatus({ isPro: true, proExpiresAt: verifyData.proExpiresAt });
                         } else {
                             alert("Payment verification failed. Contact support.");
                         }
                     } catch {
-                        alert("Verification error. Contact support.");
+                        alert("Network error verifying payment. Contact support.");
+                    } finally {
+                        setLoading(false);
                     }
-                    setLoading(false);
+                },
+                prefill: {},
+                theme: {
+                    color: "#00A4E4",
                 },
                 modal: {
                     ondismiss: () => setLoading(false),
@@ -161,215 +147,190 @@ export default function Pricing() {
             };
 
             const rzp = new window.Razorpay(options);
+            rzp.on("payment.failed", (response: any) => {
+                alert(`Payment failed: ${response.error.description}`);
+                setLoading(false);
+            });
             rzp.open();
-        } catch {
-            alert("Something went wrong. Try again.");
+        } catch (e: any) {
+            alert(e.message || "Something went wrong.");
             setLoading(false);
         }
     };
 
-    const isAlreadyPro = proStatus?.isPro === true;
-
     return (
-        <div className="min-h-screen bg-black text-white">
-            {/* Navbar strip */}
-            <div className="border-b border-white/10 bg-black/80 backdrop-blur-md sticky top-0 z-50">
-                <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <a href="/" className="font-black text-xl tracking-tight">
-                        DEEPHUB<span className="text-cyan-400">AI</span>
+        <div className="min-h-screen bg-[#000000] text-[#FFFFFF] font-sans-academic selection:bg-[#00A4E4]/30">
+            {/* Top Navbar */}
+            <header className="border-b border-[#1E2640] px-4 sm:px-8 py-4 bg-[#000000]/90 backdrop-blur-md sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto flex items-center justify-between">
+                    <a href="/" className="font-display font-bold text-lg text-white flex items-center gap-2">
+                        <span>DeepHub AI</span>
+                        <span className="text-[10px] font-mono-stamp px-1.5 py-0.5 rounded bg-[#00A4E4]/15 text-[#00A4E4] border border-[#00A4E4]/30 font-semibold uppercase">
+                            Pricing
+                        </span>
                     </a>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 text-xs font-semibold">
                         {token ? (
-                            <a href="/virtualbrain" className="text-sm text-white/60 hover:text-white transition-colors">
-                                ← Back to Dashboard
+                            <a href="/turbo" className="px-3.5 py-1.5 rounded-lg bg-[#0E1424] border border-[#1E2640] text-white hover:border-[#00A4E4] transition-colors">
+                                ← Back to Studio
                             </a>
                         ) : (
                             <>
-                                <a href="/login" className="text-sm text-white/60 hover:text-white transition-colors">Log In</a>
-                                <a href="/signup" className="text-sm bg-white text-black font-bold px-4 py-2 rounded-full hover:bg-cyan-400 transition-colors">
+                                <a href="/login" className="text-[#94A3B8] hover:text-white transition-colors">Log In</a>
+                                <a href="/signup" className="px-3.5 py-1.5 rounded-lg bg-[#FFFFFF] text-black font-bold hover:bg-[#F1F5F9] transition-colors">
                                     Sign Up Free
                                 </a>
                             </>
                         )}
                     </div>
                 </div>
-            </div>
+            </header>
 
-            <main className="max-w-5xl mx-auto px-6 py-20">
+            <main className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24 space-y-16">
                 {/* Success Banner */}
                 {success && (
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mb-10 p-6 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 text-center"
+                        className="p-6 rounded-2xl border border-emerald-500/40 bg-emerald-950/20 text-center space-y-2"
                     >
-                        <div className="text-3xl mb-2">🚀</div>
-                        <h3 className="text-xl font-black text-emerald-400 mb-1">Pro Activated!</h3>
-                        <p className="text-white/60 text-sm">
-                            Your Pro subscription is active until{" "}
-                            <span className="text-white font-bold">
+                        <h3 className="text-xl font-bold text-emerald-400 font-display">Pro Plan Activated Successfully!</h3>
+                        <p className="text-xs sm:text-sm text-[#94A3B8]">
+                            Your Pro tier is active until{" "}
+                            <strong className="text-white">
                                 {proStatus?.proExpiresAt ? new Date(proStatus.proExpiresAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : "—"}
-                            </span>
+                            </strong>
                         </p>
                     </motion.div>
                 )}
 
-                {/* Hero */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-20"
-                >
-                    <div className="inline-flex items-center gap-2 bg-cyan-400/10 border border-cyan-400/20 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-cyan-400 mb-6">
-                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                        Simple Pricing
+                {/* Swiss Asymmetrical Hero Section */}
+                <div className="space-y-4 text-left max-w-3xl">
+                    <div className="inline-flex items-center gap-2 text-xs font-mono-stamp text-[#00A4E4] uppercase font-bold tracking-wider">
+                        <span className="w-2 h-2 rounded-full bg-[#00A4E4]" />
+                        <span>Institutional & Individual Tiers</span>
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6 leading-none">
-                        Choose Your<br />
-                        <span className="text-cyan-400">Neural Tier</span>
+
+                    <h1 className="text-4xl sm:text-6xl font-bold font-display tracking-tight text-white leading-none">
+                        Simple, Transparent <br />
+                        <span className="text-[#00A4E4]">Academic Pricing.</span>
                     </h1>
-                    <p className="text-white/40 text-lg max-w-xl mx-auto">
-                        Start free. Upgrade when you're ready. No auto-renewals, no hidden fees — just pure academic power.
+
+                    <p className="text-sm sm:text-base text-[#94A3B8] leading-relaxed max-w-xl font-sans-academic">
+                        Start with full free access to core AI tools. Upgrade seamlessly for unlimited blueprint derivations, multi-campus exports, and frontier models.
                     </p>
-                </motion.div>
+                </div>
 
-                {/* Pricing Cards */}
-                <div className="grid md:grid-cols-2 gap-6 items-start">
-
-                    {/* FREE CARD */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: 0.1 }}
-                        className="rounded-2xl border border-white/10 bg-white/[0.03] p-8"
-                    >
-                        <div className="mb-8">
-                            <p className="text-xs uppercase tracking-widest font-bold text-white/40 mb-2">Free Tier</p>
-                            <div className="flex items-end gap-2">
-                                <span className="text-5xl font-black">₹0</span>
-                                <span className="text-white/40 text-sm mb-2">forever</span>
+                {/* Strict Swiss 2-Column Mathematical Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch">
+                    {/* FREE TIER CARD */}
+                    <div className="p-6 sm:p-8 rounded-3xl bg-[#0E1424]/80 border border-[#1E2640] flex flex-col justify-between space-y-8">
+                        <div className="space-y-6">
+                            <div className="space-y-2 border-b border-[#1E2640] pb-6">
+                                <span className="text-xs font-mono-stamp uppercase font-bold text-[#94A3B8]">Starter Plan</span>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-4xl sm:text-5xl font-bold font-display text-white">₹0</span>
+                                    <span className="text-xs text-[#94A3B8] font-mono">/ Free Forever</span>
+                                </div>
+                                <p className="text-xs text-[#94A3B8]">For individual educators & basic lesson planning.</p>
                             </div>
-                            <p className="text-white/40 text-sm mt-2">Get started instantly. No credit card required.</p>
+
+                            {/* Features List */}
+                            <div className="space-y-3">
+                                {FREE_FEATURES.map((item, idx) => {
+                                    const isLocked = item.limit === "Locked";
+                                    return (
+                                        <div key={idx} className="flex items-center justify-between text-xs py-1 border-b border-white/[0.03]">
+                                            <div className="flex items-center gap-2 text-white/80">
+                                                {isLocked ? <Lock size={13} className="text-white/30" /> : <Check size={13} className="text-[#00A4E4]" />}
+                                                <span className={isLocked ? "text-white/40" : "text-white"}>{item.label}</span>
+                                            </div>
+                                            <span className="font-mono text-[11px] text-[#94A3B8]">{item.limit}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
 
                         <a
                             href="/signup"
-                            className="block w-full text-center py-3 rounded-xl border border-white/20 text-sm font-bold hover:bg-white/5 transition-all mb-8"
+                            className="w-full py-3.5 rounded-xl border border-[#1E2640] hover:border-[#00A4E4] text-white text-center font-bold text-xs uppercase tracking-wider block transition-colors"
                         >
                             Get Started Free
                         </a>
+                    </div>
 
-                        <div className="space-y-3">
-                            {FREE_FEATURES.map((f) => (
-                                <div key={f.label} className="flex items-start gap-3">
-                                    {f.limit.startsWith("❌") ? <LockIcon /> : <CheckIcon />}
-                                    <div className="flex-1 flex justify-between items-start gap-2">
-                                        <span className={`text-sm ${f.limit.startsWith("❌") ? "text-white/25" : "text-white/70"}`}>
-                                            {f.label}
-                                        </span>
-                                        <span className={`text-xs font-mono ${f.limit.startsWith("❌") ? "text-white/20" : "text-white/40"} text-right flex-shrink-0`}>
-                                            {f.limit.replace("❌ ", "")}
-                                        </span>
-                                    </div>
+                    {/* PRO TIER CARD */}
+                    <div className="p-6 sm:p-8 rounded-3xl bg-[#0E1424]/90 border border-[#00A4E4]/50 flex flex-col justify-between space-y-8 relative overflow-hidden shadow-2xl">
+                        <div className="space-y-6 relative z-10">
+                            <div className="space-y-2 border-b border-[#1E2640] pb-6">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-mono-stamp uppercase font-bold text-[#00A4E4]">Academic Pro</span>
+                                    <span className="text-[10px] font-mono-stamp px-2 py-0.5 rounded-full bg-[#00A4E4]/15 border border-[#00A4E4]/40 text-[#00A4E4] font-bold uppercase">
+                                        Most Popular
+                                    </span>
                                 </div>
-                            ))}
-                        </div>
-                    </motion.div>
-
-                    {/* PRO CARD */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                        className="rounded-2xl border border-cyan-400/30 bg-gradient-to-b from-cyan-400/10 to-transparent p-8 relative overflow-hidden"
-                    >
-                        {/* Glow */}
-                        <div className="absolute -top-20 -right-20 w-64 h-64 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
-
-                        <div className="relative">
-                            <div className="flex items-center justify-between mb-2">
-                                <p className="text-xs uppercase tracking-widest font-bold text-cyan-400">Pro Tier</p>
-                                <span className="text-xs bg-cyan-400 text-black font-black px-3 py-1 rounded-full uppercase tracking-wider">
-                                    Best Value
-                                </span>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-4xl sm:text-5xl font-bold font-display text-white">₹66</span>
+                                    <span className="text-xs text-[#94A3B8] font-mono">/ 3 Months Full Access</span>
+                                </div>
+                                <p className="text-xs text-[#94A3B8]">Unlimited question generation, LaTeX typesetting & Secretary AI.</p>
                             </div>
-                            <div className="flex items-end gap-2 mb-1">
-                                <span className="text-5xl font-black">₹66</span>
-                                <span className="text-white/40 text-sm mb-2">/ 3 months</span>
-                            </div>
-                            <p className="text-white/40 text-sm mt-1 mb-8">
-                                One-time payment. No auto-renewal. Cancel anytime.
-                            </p>
 
-                            <button
-                                onClick={handleUpgrade}
-                                disabled={loading || isAlreadyPro}
-                                className="w-full py-4 rounded-xl bg-cyan-400 text-black font-black text-sm uppercase tracking-wider hover:bg-cyan-300 transition-all shadow-[0_0_30px_rgba(34,211,238,0.3)] hover:shadow-[0_0_40px_rgba(34,211,238,0.5)] disabled:opacity-50 disabled:cursor-not-allowed mb-8"
-                            >
-                                {isAlreadyPro
-                                    ? "✓ You're on Pro"
-                                    : loading
-                                    ? "Processing..."
-                                    : "Upgrade to Pro →"}
-                            </button>
-
+                            {/* Features List */}
                             <div className="space-y-3">
-                                {PRO_FEATURES.map((f) => (
-                                    <div key={f.label} className="flex items-start gap-3">
-                                        <CheckIcon />
-                                        <div className="flex-1 flex justify-between items-start gap-2">
-                                            <span className="text-sm text-white/80">{f.label}</span>
-                                            <span className="text-xs font-mono text-cyan-400 text-right flex-shrink-0">
-                                                {f.limit.replace("✦ ", "")}
-                                            </span>
+                                {PRO_FEATURES.map((item, idx) => (
+                                    <div key={idx} className="flex items-center justify-between text-xs py-1 border-b border-white/[0.03]">
+                                        <div className="flex items-center gap-2 text-white font-medium">
+                                            <Check size={13} className="text-[#00A4E4]" />
+                                            <span>{item.label}</span>
                                         </div>
+                                        <span className="font-mono text-[11px] text-[#00A4E4] font-bold">{item.limit}</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                    </motion.div>
+
+                        <button
+                            onClick={handleUpgrade}
+                            disabled={loading || proStatus?.isPro}
+                            className="w-full py-3.5 rounded-xl bg-[#FFFFFF] hover:bg-[#F1F5F9] text-black font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98 disabled:opacity-50"
+                        >
+                            {loading ? (
+                                <span>Processing...</span>
+                            ) : proStatus?.isPro ? (
+                                <span>Active Plan</span>
+                            ) : (
+                                <>
+                                    <span>Upgrade to Pro Now</span>
+                                    <ArrowRight size={14} />
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
 
-                {/* FAQ / Trust section */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
-                    className="mt-20 grid md:grid-cols-3 gap-6"
-                >
-                    {[
-                        {
-                            icon: "🔒",
-                            title: "Secure Payment",
-                            desc: "Payments are processed via Razorpay with UPI, Debit/Credit Card, and Netbanking support.",
-                        },
-                        {
-                            icon: "🔄",
-                            title: "No Auto-Renewals",
-                            desc: "We never charge you automatically. Simply pay again when your 3 months expire.",
-                        },
-                        {
-                            icon: "💬",
-                            title: "Refund Policy",
-                            desc: "Full refund within 24 hours if Pro access wasn't granted. See our Refund Policy.",
-                        },
-                    ].map((item) => (
-                        <div key={item.title} className="p-6 rounded-xl border border-white/5 bg-white/[0.02]">
-                            <div className="text-2xl mb-3">{item.icon}</div>
-                            <h3 className="font-bold text-white mb-2 text-sm uppercase tracking-wide">{item.title}</h3>
-                            <p className="text-white/40 text-xs leading-relaxed">{item.desc}</p>
+                {/* Institutional & Enterprise Section */}
+                <div className="p-8 sm:p-10 rounded-3xl bg-[#0E1424]/80 border border-[#1E2640] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div className="space-y-2 max-w-xl">
+                        <div className="inline-flex items-center gap-2 text-xs font-mono-stamp text-[#00A4E4] uppercase font-bold">
+                            <Building2 size={14} />
+                            <span>Institutional Licensing</span>
                         </div>
-                    ))}
-                </motion.div>
+                        <h2 className="text-xl sm:text-2xl font-bold font-display text-white">
+                            Multi-Campus School & University Deployments
+                        </h2>
+                        <p className="text-xs sm:text-sm text-[#94A3B8]">
+                            Custom board blueprints, FERPA/COPPA compliance, LMS integrations (Canvas, Google Classroom), and institutional bulk pricing.
+                        </p>
+                    </div>
 
-                {/* Compliance links */}
-                <div className="text-center mt-12 text-xs text-white/20 space-x-4">
-                    <a href="/terms" className="hover:text-white/50 transition-colors">Terms & Conditions</a>
-                    <span>·</span>
-                    <a href="/privacy" className="hover:text-white/50 transition-colors">Privacy Policy</a>
-                    <span>·</span>
-                    <a href="/refund" className="hover:text-white/50 transition-colors">Refund Policy</a>
+                    <a
+                        href="/report-issue"
+                        className="px-6 py-3 rounded-xl bg-[#0E1424] hover:bg-[#1E2640] border border-[#1E2640] text-xs font-bold text-white uppercase tracking-wider transition-colors shrink-0"
+                    >
+                        Contact Academic Sales
+                    </a>
                 </div>
             </main>
 
