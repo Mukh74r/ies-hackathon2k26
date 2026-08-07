@@ -93,7 +93,7 @@ export default function Home() {
         <div className="min-h-screen bg-[#FFFFFF] text-[#1C2434] font-sans-academic selection:bg-[#2A3F8F]/15 transition-colors">
             
             {/* ── TOP NAVBAR ── */}
-            <header className="border-b border-[#E5E7EB] bg-[#FFFFFF] px-4 sm:px-8 py-3 sticky top-0 z-50 shadow-xs notranslate" translate="no">
+            <header className="border-b border-[#E5E7EB] bg-[#FFFFFF] px-4 sm:px-8 py-3.5 sticky top-0 z-50 shadow-xs notranslate" translate="no">
                 <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                     {/* Brand Identifier */}
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
@@ -201,7 +201,7 @@ export default function Home() {
             </header>
 
             {/* ── 1. HERO SECTION (55/45 Split Layout · Real Product Miniature) ── */}
-            <section className="pt-14 pb-18 px-4 sm:px-8 max-w-7xl mx-auto">
+            <section className="pt-16 pb-20 px-4 sm:px-8 max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
                     
                     {/* LEFT COLUMN (55%): Plain, Authoritative Institutional Statement */}
@@ -211,7 +211,7 @@ export default function Home() {
                             <span>INSTITUTIONAL CURRICULUM ARCHITECTURE</span>
                         </div>
 
-                        <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-semibold font-display tracking-tight text-[#1C2434] leading-[1.16]">
+                        <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-semibold font-display tracking-tight text-[#1C2434] leading-[1.16]">
                             Curriculum-aligned Question Papers for Indian Schools
                         </h1>
 
@@ -367,8 +367,8 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ── 2. CURRICULUM PIPELINE (Wide Horizontal Workflow) ── */}
-            <section className="py-18 px-4 sm:px-8 bg-[#F7F8FA] border-y border-[#E5E7EB]">
+            {/* ── 2. CURRICULUM PIPELINE (Wide Horizontal Production Workflow) ── */}
+            <section className="py-20 px-4 sm:px-8 bg-[#F0F3FA] border-y border-[#E5E7EB]">
                 <div className="max-w-7xl mx-auto space-y-8">
                     <div className="max-w-xl">
                         <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold">Production Pipeline</span>
@@ -468,7 +468,7 @@ export default function Home() {
             </section>
 
             {/* ── 4. LANGUAGE SECTION (Prominent Native Scripts Chip Grid) ── */}
-            <section className="py-18 px-4 sm:px-8 bg-[#F0F3FA] border-y border-[#E5E7EB] notranslate" translate="no">
+            <section className="py-20 px-4 sm:px-8 bg-[#F7F8FA] border-y border-[#E5E7EB] notranslate" translate="no">
                 <div className="max-w-7xl mx-auto space-y-8 notranslate" translate="no">
                     <div className="max-w-xl notranslate" translate="no">
                         <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold notranslate" translate="no">Vernacular Parity</span>
@@ -582,7 +582,7 @@ export default function Home() {
             </section>
 
             {/* ── 6. DATA VISUALIZATION (Real Educational Analytics) ── */}
-            <section className="py-18 px-4 sm:px-8 bg-[#F7F8FA] border-y border-[#E5E7EB]">
+            <section className="py-20 px-4 sm:px-8 bg-[#F0F3FA] border-y border-[#E5E7EB]">
                 <div className="max-w-7xl mx-auto space-y-8">
                     <div className="max-w-xl">
                         <span className="text-xs font-mono-stamp text-[#2A3F8F] uppercase font-semibold">Institutional Telemetry</span>
@@ -609,7 +609,7 @@ export default function Home() {
             </section>
 
             {/* ── 7. TRUST SECTION (Clean Typography, No Fake Logos) ── */}
-            <section className="py-16 px-4 sm:px-8 max-w-5xl mx-auto text-center space-y-3">
+            <section className="py-18 px-4 sm:px-8 max-w-5xl mx-auto text-center space-y-3">
                 <div className="text-xs font-mono-stamp uppercase font-semibold text-[#2A3F8F]">
                     Curriculum Compliance Standard
                 </div>
@@ -622,7 +622,7 @@ export default function Home() {
             </section>
 
             {/* ── 8. DEEP INDIGO INSTITUTIONAL CTA SECTION ── */}
-            <section className="bg-[#2A3F8F] text-white py-16 px-4 sm:px-8">
+            <section className="bg-[#2A3F8F] text-white py-18 px-4 sm:px-8">
                 <div className="max-w-4xl mx-auto text-center space-y-6">
                     <h2 className="text-2xl sm:text-3xl font-semibold font-display tracking-tight text-white">
                         Standardize your institutional examination architecture.
