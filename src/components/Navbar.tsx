@@ -307,14 +307,15 @@ export default function Navbar() {
                 </nav>
 
                 {/* GLOBAL INDIAN LANGUAGE SWITCHER STAMP */}
-                <div className="relative ml-auto z-50">
+                <div className="relative ml-auto z-50 notranslate" translate="no">
                     <button
                         onClick={() => setLangOpen(prev => !prev)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#2E3B4E] bg-[#1A2433] text-xs font-mono-stamp text-[#FF9900] hover:border-[#FF9900]/60 hover:bg-[#232F3E] transition-all"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#2E3B4E] bg-[#1A2433] text-xs font-mono-stamp text-[#FF9900] hover:border-[#FF9900]/60 hover:bg-[#232F3E] transition-all notranslate"
                         title="Switch Indian Regional Language"
+                        translate="no"
                     >
-                        <span>{currentLanguage.code.toUpperCase()}</span>
-                        <span className="text-[10px] text-[#AAB7B8]">({currentLanguage.name})</span>
+                        <span className="notranslate" translate="no">{currentLanguage.code.toUpperCase()}</span>
+                        <span className="text-[10px] text-[#AAB7B8] notranslate" translate="no">({currentLanguage.name})</span>
                         <ChevronDown size={12} className={`transition-transform text-[#FF9900] ${langOpen ? 'rotate-180' : ''}`} />
                     </button>
 
@@ -324,9 +325,10 @@ export default function Navbar() {
                                 initial={{ opacity: 0, y: 8, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                                className="absolute right-0 top-full mt-2 w-64 p-2 bg-[#1A2433] border border-[#2E3B4E] shadow-2xl rounded-lg grid grid-cols-2 gap-1 z-[9999]"
+                                className="absolute right-0 top-full mt-2 w-64 p-2 bg-[#1A2433] border border-[#2E3B4E] shadow-2xl rounded-lg grid grid-cols-2 gap-1 z-[9999] notranslate"
+                                translate="no"
                             >
-                                <div className="col-span-2 px-2 py-1 text-[10px] font-mono-stamp text-[#AAB7B8] uppercase border-b border-[#2E3B4E] mb-1">
+                                <div className="col-span-2 px-2 py-1 text-[10px] font-mono-stamp text-[#AAB7B8] uppercase border-b border-[#2E3B4E] mb-1 notranslate" translate="no">
                                     Regional Indian Languages
                                 </div>
                                 {INDIAN_LANGUAGES.map((lang) => (
@@ -336,15 +338,16 @@ export default function Navbar() {
                                             setLanguageByCode(lang.code);
                                             setLangOpen(false);
                                         }}
-                                        className={`flex items-center justify-between px-2 py-1.5 rounded text-xs text-left transition-colors ${
+                                        className={`flex items-center justify-between px-2 py-1.5 rounded text-xs text-left transition-colors notranslate ${
                                             currentLanguage.code === lang.code
                                                 ? 'bg-[#FF9900]/20 text-[#FF9900] font-bold border border-[#FF9900]/40'
                                                 : 'text-[#AAB7B8] hover:bg-[#232F3E] hover:text-[#FFFFFF]'
                                         }`}
+                                        translate="no"
                                     >
-                                        <div className="flex flex-col">
-                                            <span className="font-mono-stamp text-[11px] uppercase">{lang.code}</span>
-                                            <span className="text-[10px] text-[#AAB7B8]">{lang.name}</span>
+                                        <div className="flex flex-col notranslate" translate="no">
+                                            <span className="font-mono-stamp text-[11px] uppercase notranslate" translate="no">{lang.code}</span>
+                                            <span className="text-[10px] text-[#AAB7B8] notranslate" translate="no">{lang.name} ({lang.nativeName})</span>
                                         </div>
                                         {currentLanguage.code === lang.code && <Check size={12} className="text-[#FF9900]" />}
                                     </button>

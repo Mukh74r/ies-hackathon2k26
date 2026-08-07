@@ -500,20 +500,21 @@ export default function Home() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 notranslate" translate="no">
                     {INDIAN_LANGUAGES.map(lang => (
                         <div
                             key={lang.code}
-                            className="bg-[#1A2433] border border-[#2E3B4E] p-3 rounded-md flex flex-col justify-between shadow-sm"
+                            className="bg-[#1A2433] border border-[#2E3B4E] p-3 rounded-md flex flex-col justify-between shadow-sm notranslate"
+                            translate="no"
                         >
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs font-bold font-mono-stamp text-[#FF9900]">{lang.code.toUpperCase()}</span>
-                                <span className="text-[10px] text-[#AAB7B8]">{lang.name}</span>
+                            <div className="flex items-center justify-between mb-2 notranslate" translate="no">
+                                <span className="text-xs font-bold font-mono-stamp text-[#FF9900] notranslate" translate="no">{lang.code.toUpperCase()}</span>
+                                <span className="text-[10px] text-[#AAB7B8] notranslate" translate="no">{lang.name}</span>
                             </div>
-                            <div className="text-sm font-bold text-[#FFFFFF]">
+                            <div className="text-sm font-bold text-[#FFFFFF] notranslate" translate="no">
                                 {lang.nativeName}
                             </div>
-                            <div className="text-[10px] text-[#AAB7B8] mt-1 truncate">
+                            <div className="text-[10px] text-[#AAB7B8] mt-1 truncate notranslate" translate="no">
                                 {lang.region}
                             </div>
                         </div>

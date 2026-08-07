@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  :root, [data-theme='dark'] {
     --background: #0F1B2A;
     --foreground: #F2F3F3;
 
@@ -34,23 +34,55 @@
 
     --radius: 0.5rem;
   }
+
+  [data-theme='light'] {
+    --background: #F8FAFC;
+    --foreground: #0F172A;
+
+    --card: #FFFFFF;
+    --card-foreground: #0F172A;
+
+    --popover: #FFFFFF;
+    --popover-foreground: #0F172A;
+
+    --primary: #D97706;
+    --primary-foreground: #FFFFFF;
+
+    --secondary: #0284C7;
+    --secondary-foreground: #FFFFFF;
+
+    --muted: #F1F5F9;
+    --muted-foreground: #475569;
+
+    --accent: #D97706;
+    --accent-foreground: #FFFFFF;
+
+    --destructive: #DC2626;
+    --destructive-foreground: #FFFFFF;
+
+    --border: #CBD5E1;
+    --input: #CBD5E1;
+    --ring: #D97706;
+
+    --radius: 0.5rem;
+  }
 }
 
 @layer base {
   * {
-    border-color: #2E3B4E;
+    border-color: var(--border);
   }
 
   html {
     scroll-behavior: smooth;
     font-size: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);
-    background-color: #0F1B2A;
-    color: #F2F3F3;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 
   body {
-    background-color: #0F1B2A;
-    color: #F2F3F3;
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: "Inter", -apple-system, sans-serif;
     line-height: 1.6;
     letter-spacing: -0.01em;
@@ -58,9 +90,15 @@
 
   h1, h2, h3, h4, .font-serif-academic, .font-display {
     font-family: "Plus Jakarta Sans", sans-serif;
-    color: #F2F3F3;
+    color: var(--foreground);
     letter-spacing: -0.02em;
   }
+}
+
+/* Guard native language names, titles and stamps from unwanted machine translation */
+.notranslate, [translate="no"], .skiptranslate-text {
+  -webkit-transform: none;
+  font-family: inherit;
 }
 
 @layer utilities {

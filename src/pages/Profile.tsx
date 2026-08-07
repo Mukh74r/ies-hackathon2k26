@@ -440,55 +440,55 @@ export default function Profile() {
                     </section>
 
                     {/* REGIONAL & INDIAN LANGUAGE SELECTOR CARD */}
-                    <section className="bg-[#0F172A] border border-[#1E293B] p-6 rounded-lg relative shadow-md">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded bg-[#38BDF8]/10 border border-[#38BDF8]/30 text-[#38BDF8]">
+                    <section className="bg-[#0F1B2A] border border-[#2E3B4E] p-6 rounded-lg relative shadow-md notranslate" translate="no">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 notranslate" translate="no">
+                            <div className="flex items-center gap-3 notranslate" translate="no">
+                                <div className="p-2 rounded bg-[#FF9900]/10 border border-[#FF9900]/30 text-[#FF9900]">
                                     <Globe size={20} />
                                 </div>
-                                <div>
-                                    <h3 className="text-lg font-bold font-display text-[#F8FAFC] tracking-wide flex items-center gap-2">
-                                        {t('languageSettings')}
-                                        <span className="text-[10px] px-2 py-0.5 rounded border border-[#38BDF8]/40 bg-[#38BDF8]/10 text-[#38BDF8] font-mono-stamp uppercase">
+                                <div className="notranslate" translate="no">
+                                    <h3 className="text-lg font-bold font-display text-[#FFFFFF] tracking-wide flex items-center gap-2 notranslate" translate="no">
+                                        Regional & Indian Language Preference
+                                        <span className="text-[10px] px-2 py-0.5 rounded border border-[#FF9900]/40 bg-[#FF9900]/10 text-[#FF9900] font-mono-stamp uppercase notranslate">
                                             11 Languages
                                         </span>
                                     </h3>
-                                    <p className="text-xs text-[#94A3B8] mt-0.5 font-sans-academic">
-                                        {t('languageSubtitle')}
+                                    <p className="text-xs text-[#AAB7B8] mt-0.5 font-sans-academic notranslate">
+                                        Select your preferred Indian regional language for DeepHub AI tools, summaries, and user interface.
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-1 border border-[#1E293B] bg-[#080C14] text-xs font-mono-stamp text-[#38BDF8] rounded-md">
-                                <span className="font-bold">{currentLanguage.code.toUpperCase()}</span>
-                                <span className="font-sans-academic font-bold text-[#F8FAFC]">{currentLanguage.nativeName}</span>
-                                <span className="text-[#94A3B8]">({currentLanguage.name})</span>
+                            <div className="flex items-center gap-2 px-3 py-1 border border-[#2E3B4E] bg-[#1A2433] text-xs font-mono-stamp text-[#FF9900] rounded-md notranslate" translate="no">
+                                <span className="font-bold notranslate">{currentLanguage.code.toUpperCase()}</span>
+                                <span className="font-sans-academic font-bold text-[#FFFFFF] notranslate">{currentLanguage.nativeName}</span>
+                                <span className="text-[#AAB7B8] notranslate">({currentLanguage.name})</span>
                             </div>
                         </div>
 
                         {/* LANGUAGE SELECTION GRID */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-4 notranslate" translate="no">
                             {INDIAN_LANGUAGES.map((lang) => {
-                                const isSelected = currentLanguage.code === lang.code;
                                 return (
                                     <button
                                         key={lang.code}
                                         onClick={() => setLanguageByCode(lang.code)}
                                         className={`
-                                            relative flex flex-col items-start p-3 border text-left transition-colors group rounded-md
-                                            ${isSelected 
-                                                ? 'bg-[#080C14] border-[#38BDF8] border-l-4 text-[#F8FAFC]' 
-                                                : 'bg-[#080C14] border-[#1E293B] text-[#94A3B8] hover:bg-[#1E293B] hover:text-[#F8FAFC]'
+                                            relative flex flex-col items-start p-3 border text-left transition-colors rounded-md notranslate
+                                            ${isCurrent
+                                                ? 'bg-[#1A2433] border-[#FF9900] border-l-4 text-[#FFFFFF]'
+                                                : 'bg-[#1A2433] border-[#2E3B4E] text-[#AAB7B8] hover:bg-[#232F3E] hover:text-[#FFFFFF]'
                                             }
                                         `}
+                                        translate="no"
                                     >
-                                        <div className="flex items-center justify-between w-full mb-1">
-                                            <span className="text-[10px] font-mono-stamp font-bold uppercase px-1.5 py-0.5 border border-[#38BDF8]/30 bg-[#38BDF8]/10 text-[#38BDF8] rounded">{lang.code}</span>
-                                            {isSelected && (
-                                                <CheckCircle size={14} className="text-[#38BDF8] flex-shrink-0" />
+                                        <div className="flex items-center justify-between w-full mb-1 notranslate" translate="no">
+                                            <span className="text-[10px] font-mono-stamp font-bold uppercase px-1.5 py-0.5 border border-[#FF9900]/30 bg-[#FF9900]/10 text-[#FF9900] rounded notranslate">{lang.code}</span>
+                                            {isCurrent && (
+                                                <CheckCircle size={14} className="text-[#FF9900] flex-shrink-0" />
                                             )}
                                         </div>
-                                        <span className="text-sm font-bold font-sans-academic truncate w-full text-[#F8FAFC]">{lang.nativeName}</span>
-                                        <span className="text-[10px] text-[#94A3B8] truncate w-full font-sans-academic">{lang.name}</span>
+                                        <span className="text-sm font-bold font-sans-academic truncate w-full text-[#FFFFFF] notranslate" translate="no">{lang.nativeName}</span>
+                                        <span className="text-[10px] text-[#AAB7B8] truncate w-full font-sans-academic notranslate" translate="no">{lang.name}</span>
                                     </button>
                                 );
                             })}
@@ -496,7 +496,7 @@ export default function Profile() {
                     </section>
 
                     {/* THEME & APPEARANCE CARD */}
-                    <section className="bg-[#0F172A] border border-[#1E293B] p-6 rounded-lg relative shadow-md">
+                    <section className="bg-[#0F1B2A] border border-[#2E3B4E] p-6 rounded-lg relative shadow-md notranslate" translate="no">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 rounded bg-[#FF9900]/10 border border-[#FF9900]/30 text-[#FF9900]">
@@ -507,23 +507,58 @@ export default function Profile() {
                                         Site Display Theme
                                     </h3>
                                     <p className="text-xs text-[#AAB7B8] mt-0.5 font-sans-academic">
-                                        DeepHub AI is configured in Dark Mode for maximum reading comfort and clarity.
+                                        Choose your preferred visual theme for DeepHub AI. Both modes are calibrated for high-contrast text visibility.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="p-4 border border-[#FF9900] border-l-4 bg-[#0F1B2A] rounded-md flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded bg-[#FF9900]/10 text-[#FF9900]">
-                                    <Sparkles size={20} />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Dark Mode Card */}
+                            <div
+                                onClick={() => setTheme('dark')}
+                                className={`p-4 border rounded-md flex items-center justify-between cursor-pointer transition-all ${
+                                    theme !== 'light'
+                                        ? 'border-[#FF9900] border-l-4 bg-[#1A2433]'
+                                        : 'border-[#2E3B4E] bg-[#1A2433]/60 hover:border-[#FF9900]/50'
+                                }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded bg-[#FF9900]/10 text-[#FF9900]">
+                                        <Moon size={20} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-bold font-display text-[#FFFFFF]">Dark Mode</h4>
+                                        <p className="text-xs text-[#AAB7B8]">AWS Squid Navy with high-contrast white text.</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 className="text-sm font-bold font-display text-[#FFFFFF]">Dark Mode</h4>
-                                    <p className="text-xs text-[#AAB7B8]">High contrast, crisp typography with Plus Jakarta Sans & Inter font hierarchy.</p>
-                                </div>
+                                {theme !== 'light' && (
+                                    <span className="text-xs font-mono-stamp px-2 py-0.5 bg-[#FF9900]/20 border border-[#FF9900]/40 text-[#FF9900] rounded uppercase font-bold">Active</span>
+                                )}
                             </div>
-                            <span className="text-xs font-mono-stamp px-2.5 py-1 bg-[#FF9900]/20 border border-[#FF9900]/40 text-[#FF9900] rounded uppercase font-bold">Active Mode</span>
+
+                            {/* White / Light Mode Card */}
+                            <div
+                                onClick={() => setTheme('light')}
+                                className={`p-4 border rounded-md flex items-center justify-between cursor-pointer transition-all ${
+                                    theme === 'light'
+                                        ? 'border-[#D97706] border-l-4 bg-[#F8FAFC]'
+                                        : 'border-[#2E3B4E] bg-[#1A2433]/60 hover:border-[#D97706]/50'
+                                }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded bg-[#D97706]/10 text-[#D97706]">
+                                        <Sun size={20} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-bold font-display text-[#0F172A] sm:text-[#FFFFFF]">White Mode</h4>
+                                        <p className="text-xs text-[#64748B] sm:text-[#AAB7B8]">Crisp clean paper slate with deep navy text.</p>
+                                    </div>
+                                </div>
+                                {theme === 'light' && (
+                                    <span className="text-xs font-mono-stamp px-2 py-0.5 bg-[#D97706]/20 border border-[#D97706]/40 text-[#D97706] rounded uppercase font-bold">Active</span>
+                                )}
+                            </div>
                         </div>
                     </section>
 

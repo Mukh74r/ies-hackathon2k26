@@ -576,6 +576,7 @@ export interface LanguageContextType {
     t: (key: string) => string;
     theme: string;
     setTheme: (theme: string) => void;
+    toggleTheme: () => void;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -587,7 +588,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
 
     const [theme, setThemeState] = useState<string>(() => {
-        return localStorage.getItem('deephub_theme') || 'cyber-dark';
+        return localStorage.getItem('deephub_theme') || 'dark';
     });
 
     const triggerDOMTranslation = (code: string) => {
@@ -726,6 +727,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         document.documentElement.setAttribute('data-theme', newTheme);
     };
 
+    const toggleTheme = () => {
+        const nextTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(nextTheme);
+    };
+
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
     }, [theme]);
@@ -738,7 +744,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     return (
-        <LanguageContext.Provider value={{ currentLanguage, setLanguageByCode, t, theme, setTheme }}>
+        <LanguageContext.Provider value={{ currentLanguage, setLanguageByCode, t, theme, setTheme, toggleTheme }}>
             {children}
         </LanguageContext.Provider>
     );
