@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     Bell,
-    Database
+    Database,
+    Menu,
+    X,
+    Sparkles,
+    ChevronRight
 } from 'lucide-react';
 import TurboSidebar from '../components/turbo/TurboSidebar';
 import TurboAISwitcher from '../components/turbo/TurboAISwitcher';
@@ -21,6 +25,7 @@ import TurboChat from '../components/turbo/dashboard/TurboChat';
 import TurboWatchDial from '../components/turbo/TurboWatchDial';
 import TurboAnalytics from '../components/turbo/tools/TurboAnalytics';
 import GraphicsEngineeringTool from '../components/turbo/tools/GraphicsEngineeringTool';
+import ScrollProgress from '../components/ScrollProgress';
 import { apiEndpoint, getAuthHeaders } from '../utils/api';
 
 interface CustomTool {
@@ -35,6 +40,23 @@ interface CustomTool {
     promptTemplate: string;
 }
 
+const PAGE_LABELS: Record<string, string> = {
+    'dashboard': 'Overview Dashboard',
+    'question-gen': 'Question Paper Generator',
+    'homework': 'Homework Creator',
+    'lesson-plan': 'Lesson Plan Builder',
+    'ppt-gen': 'PPT Presentation Creator',
+    'paper-solver': 'Paper & Step Solver',
+    'report-assistant': 'Report Card Assistant',
+    'secretary': 'Document Secretary',
+    'shuffler': 'Quiz Shuffler',
+    'speech-gen': 'Speech Generator',
+    'analytics': 'Academic KPI Analytics',
+    'graphics-tool': 'Graphics Engineering',
+    'library': 'My Academic Library',
+    'tool-studio': 'Custom Tool Studio'
+};
+
 export default function Turbo() {
     const [collapsed, setCollapsed] = useState(false);
     const [activePage, setActivePage] = useState('dashboard');
@@ -48,30 +70,36 @@ export default function Turbo() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Fetch custom tools so we can render DynamicTool when activePage = custom:<toolId>
+    // Load custom tools from server on mount
     useEffect(() => {
-        const load = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const fetchCustomTools = async () => {
             try {
-                const res = await fetch(apiEndpoint('/api/tool-studio/list'), {
+                const res = await fetch(apiEndpoint('/api/tools'), {
                     headers: getAuthHeaders(),
                 });
-                const data = await res.json();
-                if (data.success) setCustomTools(data.tools || []);
-            } catch {}
+                if (res.ok) {
+                    const data = await res.json();
+                    setCustomTools(data);
+                }
+            } catch (err) {
+                console.warn('Failed to load custom tools:', err);
+            }
         };
-        load();
+        fetchCustomTools();
     }, []);
 
-    const handleToolSaved = (tool: CustomTool) => {
+    const handleToolSaved = (newTool: CustomTool) => {
         setCustomTools(prev => {
-            const exists = prev.find(t => t.toolId === tool.toolId);
-            return exists ? prev.map(t => t.toolId === tool.toolId ? tool : t) : [...prev, tool];
+            const exists = prev.find(t => t.toolId === newTool.toolId);
+            if (exists) return prev.map(t => t.toolId === newTool.toolId ? newTool : t);
+            return [...prev, newTool];
         });
     };
 
     const handleToolDeleted = (toolId: string) => {
         setCustomTools(prev => prev.filter(t => t.toolId !== toolId));
-        setActivePage('tool-studio'); // Navigate away after delete
     };
 
     const isMobile = windowWidth < 1024;
@@ -85,8 +113,10 @@ export default function Turbo() {
         ? customTools.find(t => t.toolId === activePage.replace('custom:', ''))
         : null;
 
+    const currentTitle = activeCustomTool?.name || PAGE_LABELS[activePage] || 'Turbo Studio';
+
     return (
-        <div className="min-h-screen bg-[#020408] text-foreground font-sans selection:bg-cyan-500/30 overflow-hidden relative">
+        <div className="min-h-screen bg-[#020408] text-foreground font-sans selection:bg-cyan-500/30 overflow-x-hidden relative">
             {/*
             DeepHubAI Frontier Engineering & Architectural Specifications
             Framework: React + TypeScript | Architecture: Modular Component-driven
@@ -101,11 +131,44 @@ export default function Turbo() {
                 DeepHubAI Engineering Notes: React + TypeScript Component-driven architecture, 60fps 3D WebGL, WCAG AAA accessibility, CSP security, vector KaTeX rendering, NEP-2020 pedagogical compliance. Gold-standard 1st rank implementation.
             </div>
 
-            {/* Sidebar - Hidden on mobile by default, behaves as a drawer */}
+            {/* Scroll Reading Progress */}
+            <ScrollProgress />
+
+            {/* Mobile Top Navigation Bar */}
+            {isMobile && (
+                <header className="fixed top-0 left-0 right-0 z-[100] h-14 bg-[#080C14]/95 backdrop-blur-md border-b border-[#1E2640] px-4 flex items-center justify-between shadow-md">
+                    <div className="flex items-center gap-2.5">
+                        <button
+                            onClick={() => setIsMobileMenuOpen(true)}
+                            aria-label="Open Studio Menu"
+                            className="p-2 rounded-lg bg-[#0E1424] border border-[#1E2640] text-cyan-400 active:scale-95 transition-transform"
+                        >
+                            <Menu size={18} />
+                        </button>
+                        <a href="/" className="flex items-center gap-1.5 text-xs font-display font-bold text-white">
+                            <span>DeepHub</span>
+                            <span className="px-1.5 py-0.5 rounded bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-mono text-[9px] uppercase">
+                                Turbo
+                            </span>
+                        </a>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-medium text-white/80 max-w-[130px] sm:max-w-[200px] truncate">
+                            {currentTitle}
+                        </span>
+                        <div className="scale-90 origin-right">
+                            <TurboAISwitcher />
+                        </div>
+                    </div>
+                </header>
+            )}
+
+            {/* Sidebar - Desktop static, Mobile slide-over drawer */}
             <div className={`
-        fixed inset-y-0 left-0 z-[110] transition-transform duration-500 ease-in-out
-        ${isMobile ? (isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'}
-      `}>
+                fixed inset-y-0 left-0 z-[110] transition-transform duration-300 ease-in-out
+                ${isMobile ? (isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'}
+            `}>
                 <TurboSidebar
                     activePage={activePage}
                     setActivePage={(page: string) => { setActivePage(page); setIsMobileMenuOpen(false); }}
@@ -118,22 +181,23 @@ export default function Turbo() {
             {/* Mobile Backdrop for Sidebar Drawer */}
             {isMobile && isMobileMenuOpen && (
                 <div
-                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[105]"
+                    className="fixed inset-0 bg-black/70 backdrop-blur-xs z-[105] transition-opacity"
                     onClick={() => setIsMobileMenuOpen(false)}
                 />
             )}
 
-            {/* THE WATCH DIAL - Primary Mobile Nav */}
+            {/* THE WATCH DIAL - Primary Mobile Quick Switcher */}
             {isMobile && <TurboWatchDial activePage={activePage} setActivePage={setActivePage} customTools={customTools} />}
 
+            {/* Main Application Canvas */}
             <div
                 className={`
-          transition-all duration-300 ease-in-out
-          ${isMobile ? 'ml-0' : (collapsed ? 'ml-16' : 'ml-60')}
-          h-screen relative flex flex-col overflow-hidden bg-[#080C14]
-        `}
+                    transition-all duration-300 ease-in-out
+                    ${isMobile ? 'ml-0' : (collapsed ? 'ml-16' : 'ml-60')}
+                    min-h-screen lg:h-screen relative flex flex-col overflow-x-hidden bg-[#080C14]
+                `}
             >
-                {/* AI Model Switcher - Floating Top Right Aligned with Navbar */}
+                {/* Desktop Floating AI Model Switcher */}
                 {!isMobile && (
                     <div className="fixed top-[1rem] right-6 z-[10001]">
                         <TurboAISwitcher />
@@ -141,15 +205,14 @@ export default function Turbo() {
                 )}
 
                 <main className={`
-          flex-1 relative z-10 overflow-hidden flex flex-col items-center transition-all duration-300
-          ${isMobile ? 'p-2 pt-16 pb-20' : 'p-4 pt-6'}
-        `}>
-
+                    flex-1 relative z-10 flex flex-col items-center transition-all duration-300
+                    ${isMobile ? 'p-2.5 pt-16 pb-28 min-h-screen' : 'p-4 pt-6 h-screen overflow-hidden'}
+                `}>
                     <div className="w-full h-full max-w-[1400px]">
                         {activePage === 'dashboard' && <TurboChat />}
 
                         {activePage !== 'dashboard' && (
-                            <div className="w-full h-full bg-[#0F172A] border border-[#1E293B] shadow-2xl rounded-lg overflow-hidden">
+                            <div className="w-full h-full bg-[#0F172A] border border-[#1E293B] shadow-2xl rounded-2xl overflow-hidden">
                                 <div className={`w-full h-full overflow-y-auto ${isMobile ? 'p-3' : 'p-6'}`}>
                                     {activePage === 'library' && <Library />}
                                     {activePage === 'question-gen' && <QuestionPaperGenerator />}
