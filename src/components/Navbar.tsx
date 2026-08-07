@@ -285,7 +285,7 @@ export default function Navbar() {
             {/* =========================
           CENTER PILL NAV (ALL)
          ========================= */}
-            <header className="header__el p-safe-x flex items-center bg-[#FDFAF3] border-b border-[#D8CBB0] shadow-sm py-2" role="banner">
+            <header className="header__el p-safe-x flex items-center bg-[#0B101D] border-b border-[#1E293B] shadow-md py-2.5 px-6" role="banner">
                 <nav className="navbar-scroll-container flex items-center gap-6">
                     {LINKS.map(l => {
                         const isActive = location.pathname === l.to;
@@ -295,8 +295,8 @@ export default function Navbar() {
                                 to={l.to} 
                                 className={`text-sm font-sans-academic transition-colors px-2 py-1 ${
                                     isActive 
-                                        ? 'text-[#A6522C] border-b-2 border-[#A6522C] font-bold' 
-                                        : 'text-[#6B5D4F] hover:text-[#2B211A] font-medium'
+                                        ? 'text-[#38BDF8] border-b-2 border-[#38BDF8] font-bold' 
+                                        : 'text-[#94A3B8] hover:text-[#F8FAFC] font-medium'
                                 }`}
                             >
                                 {l.label}
@@ -309,49 +309,45 @@ export default function Navbar() {
                 <div className="relative ml-auto z-50">
                     <button
                         onClick={() => setLangOpen(prev => !prev)}
-                        className="flex items-center gap-2 px-3 py-1 rounded border border-[#8A6D3B]/40 bg-[#8A6D3B]/10 text-xs font-mono-stamp text-[#8A6D3B] hover:bg-[#8A6D3B]/20 transition-all"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded border border-[#38BDF8]/40 bg-[#38BDF8]/10 text-xs font-mono-stamp text-[#38BDF8] hover:bg-[#38BDF8]/20 transition-all"
                         title="Switch Indian Regional Language"
                     >
                         <span>{currentLanguage.code.toUpperCase()}</span>
-                        <span className="text-[10px] text-[#6B5D4F]">({currentLanguage.name})</span>
+                        <span className="text-[10px] text-[#94A3B8]">({currentLanguage.name})</span>
                         <ChevronDown size={12} className={`transition-transform ${langOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     <AnimatePresence>
                         {langOpen && (
                             <motion.div
-                                initial={{ opacity: 0, y: 6 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 6 }}
-                                className="absolute top-full right-0 mt-2 w-56 py-2 bg-[#FDFAF3] border border-[#D8CBB0] rounded shadow-md z-[10005] max-h-72 overflow-y-auto"
+                                initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                                className="absolute right-0 top-full mt-2 w-64 p-2 bg-[#0F172A] border border-[#1E293B] shadow-2xl rounded-lg grid grid-cols-2 gap-1 z-[9999]"
                             >
-                                <div className="px-3 py-1.5 text-[10px] uppercase font-mono-stamp text-[#8A6D3B] border-b border-[#D8CBB0] mb-1 flex items-center gap-1.5">
-                                    <Globe size={12} />
-                                    <span>Regional Languages</span>
+                                <div className="col-span-2 px-2 py-1 text-[10px] font-mono-stamp text-[#94A3B8] uppercase border-b border-[#1E293B] mb-1">
+                                    Regional Indian Languages
                                 </div>
-                                {INDIAN_LANGUAGES.map((lang) => {
-                                    const active = currentLanguage.code === lang.code;
-                                    return (
-                                        <button
-                                            key={lang.code}
-                                            onClick={() => {
-                                                setLanguageByCode(lang.code);
-                                                setLangOpen(false);
-                                            }}
-                                            className={`
-                                                w-full flex items-center justify-between px-3 py-2 text-left text-xs transition-colors font-sans-academic
-                                                ${active ? 'bg-[#A6522C]/10 text-[#A6522C] font-bold border-l-2 border-[#A6522C]' : 'text-[#2B211A] hover:bg-[#EFE8D8]'}
-                                            `}
-                                        >
-                                            <div className="flex items-center gap-2 truncate">
-                                                <span className="text-[10px] font-mono-stamp px-1 py-0.5 border border-[#8A6D3B]/30 bg-[#8A6D3B]/10 text-[#8A6D3B] rounded">{lang.code.toUpperCase()}</span>
-                                                <span className="font-medium">{lang.nativeName}</span>
-                                                <span className="text-[10px] text-[#6B5D4F]">({lang.name})</span>
-                                            </div>
-                                            {active && <Check size={12} className="text-[#A6522C] flex-shrink-0" />}
-                                        </button>
-                                    );
-                                })}
+                                {INDIAN_LANGUAGES.map((lang) => (
+                                    <button
+                                        key={lang.code}
+                                        onClick={() => {
+                                            setLanguageByCode(lang.code);
+                                            setLangOpen(false);
+                                        }}
+                                        className={`flex items-center justify-between px-2 py-1.5 rounded text-xs text-left transition-colors ${
+                                            currentLanguage.code === lang.code
+                                                ? 'bg-[#38BDF8]/20 text-[#38BDF8] font-bold border border-[#38BDF8]/40'
+                                                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-[#F8FAFC]'
+                                        }`}
+                                    >
+                                        <div className="flex flex-col">
+                                            <span className="font-mono-stamp text-[11px] uppercase">{lang.code}</span>
+                                            <span className="text-[10px] text-[#94A3B8]">{lang.name}</span>
+                                        </div>
+                                        {currentLanguage.code === lang.code && <Check size={12} className="text-[#38BDF8]" />}
+                                    </button>
+                                ))}
                             </motion.div>
                         )}
                     </AnimatePresence>

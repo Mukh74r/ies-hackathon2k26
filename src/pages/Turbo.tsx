@@ -117,7 +117,7 @@ export default function Turbo() {
                 className={`
           transition-all duration-300 ease-in-out
           ${isMobile ? 'ml-0' : (collapsed ? 'ml-16' : 'ml-60')}
-          h-screen relative flex flex-col overflow-hidden bg-[#F7F1E3]
+          h-screen relative flex flex-col overflow-hidden bg-[#080C14]
         `}
             >
                 {/* AI Model Switcher - Floating Top Right Aligned with Navbar */}
@@ -136,7 +136,7 @@ export default function Turbo() {
                         {activePage === 'dashboard' && <TurboChat />}
 
                         {activePage !== 'dashboard' && (
-                            <div className="w-full h-full bg-[#FDFAF3] border border-[#D8CBB0] shadow-[0_2px_12px_rgba(43,33,26,0.06)] rounded-sm overflow-hidden">
+                            <div className="w-full h-full bg-[#0F172A] border border-[#1E293B] shadow-2xl rounded-lg overflow-hidden">
                                 <div className={`w-full h-full overflow-y-auto ${isMobile ? 'p-3' : 'p-6'}`}>
                                     {activePage === 'library' && <Library />}
                                     {activePage === 'question-gen' && <QuestionPaperGenerator />}

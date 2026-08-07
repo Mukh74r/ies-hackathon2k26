@@ -4,103 +4,104 @@
 
 @layer base {
   :root {
-    --background: #F7F1E3;
-    --foreground: #2B211A;
+    --background: #080C14;
+    --foreground: #F8FAFC;
 
-    --card: #FDFAF3;
-    --card-foreground: #2B211A;
+    --card: #0F172A;
+    --card-foreground: #F8FAFC;
 
-    --popover: #FDFAF3;
-    --popover-foreground: #2B211A;
+    --popover: #0F172A;
+    --popover-foreground: #F8FAFC;
 
-    --primary: #A6522C;
-    --primary-foreground: #FDFAF3;
+    --primary: #38BDF8;
+    --primary-foreground: #080C14;
 
-    --secondary: #8A6D3B;
-    --secondary-foreground: #FDFAF3;
+    --secondary: #34D399;
+    --secondary-foreground: #080C14;
 
-    --muted: #EFE8D8;
-    --muted-foreground: #6B5D4F;
+    --muted: #1E293B;
+    --muted-foreground: #94A3B8;
 
-    --accent: #A6522C;
-    --accent-foreground: #FDFAF3;
+    --accent: #38BDF8;
+    --accent-foreground: #080C14;
 
-    --destructive: #A6522C;
-    --destructive-foreground: #FDFAF3;
+    --destructive: #EF4444;
+    --destructive-foreground: #F8FAFC;
 
-    --border: #D8CBB0;
-    --input: #D8CBB0;
-    --ring: #A6522C;
+    --border: #1E293B;
+    --input: #1E293B;
+    --ring: #38BDF8;
 
-    --radius: 0.25rem;
+    --radius: 0.5rem;
   }
 }
 
 @layer base {
   * {
-    border-color: #D8CBB0;
+    border-color: #1E293B;
   }
 
   html {
     scroll-behavior: smooth;
     font-size: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);
-    background-color: #F7F1E3;
-    color: #2B211A;
+    background-color: #080C14;
+    color: #F8FAFC;
   }
 
   body {
-    background-color: #F7F1E3;
-    color: #2B211A;
-    font-family: "IBM Plex Sans", -apple-system, sans-serif;
+    background-color: #080C14;
+    color: #F8FAFC;
+    font-family: "Inter", -apple-system, sans-serif;
     line-height: 1.6;
     letter-spacing: -0.01em;
   }
 
-  h1, h2, h3, h4, .font-serif-academic {
-    font-family: "Lora", "Source Serif 4", Georgia, serif;
-    color: #2B211A;
+  h1, h2, h3, h4, .font-serif-academic, .font-display {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    color: #F8FAFC;
+    letter-spacing: -0.02em;
   }
 }
 
 @layer utilities {
-  .font-serif-academic {
-    font-family: "Lora", "Source Serif 4", Georgia, serif;
+  .font-display, .font-serif-academic {
+    font-family: "Plus Jakarta Sans", sans-serif;
   }
 
   .font-sans-academic {
-    font-family: "IBM Plex Sans", sans-serif;
+    font-family: "Inter", sans-serif;
   }
 
   .font-mono-stamp {
-    font-family: "IBM Plex Mono", monospace;
+    font-family: "Space Mono", monospace;
     font-variant: small-caps;
     letter-spacing: 0.05em;
   }
 
-  /* Paper sheet card shadow */
+  /* Paper sheet card shadow for dark mode */
   .paper-sheet {
-    background-color: #FDFAF3;
-    border: 1px solid #D8CBB0;
-    box-shadow: 0 2px 8px rgba(43, 33, 26, 0.05), 0 1px 2px rgba(43, 33, 26, 0.03);
+    background-color: #0F172A;
+    border: 1px solid #1E293B;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
 
   /* Teacher Red Pen Correction Mark Motif */
   .red-pen-mark {
-    border-bottom: 2px solid #A6522C;
-    color: #A6522C;
+    border-bottom: 2px solid #38BDF8;
+    color: #38BDF8;
   }
 
   .red-pen-badge {
-    background-color: rgba(166, 82, 44, 0.08);
-    border: 1px solid rgba(166, 82, 44, 0.3);
-    color: #A6522C;
+    background-color: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38BDF8;
   }
 
   .gold-stamp-badge {
-    background-color: rgba(138, 109, 59, 0.1);
-    border: 1px solid rgba(138, 109, 59, 0.3);
-    color: #8A6D3B;
-    font-family: "IBM Plex Mono", monospace;
+    background-color: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    color: #34D399;
+    font-family: "Space Mono", monospace;
     text-transform: uppercase;
   }
 

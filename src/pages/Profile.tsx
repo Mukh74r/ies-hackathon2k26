@@ -419,20 +419,20 @@ export default function Profile() {
                                         `}
                                     >
                                         <div className="flex items-center justify-between w-full mb-2">
-                                            <div className={`p-2 rounded ${isCurrentRole ? 'bg-[#A6522C]/10 text-[#A6522C]' : 'bg-[#EFE8D8] text-[#6B5D4F]'}`}>
+                                            <div className={`p-2 rounded ${isCurrentRole ? 'bg-[#38BDF8]/10 text-[#38BDF8]' : 'bg-[#1E293B] text-[#94A3B8]'}`}>
                                                 <RoleIcon size={18} />
                                             </div>
                                             {isCurrentRole ? (
-                                                <CheckCircle size={16} className="text-[#A6522C] flex-shrink-0" />
+                                                <CheckCircle size={16} className="text-[#38BDF8] flex-shrink-0" />
                                             ) : (
-                                                <span className="text-[10px] font-mono-stamp px-2 py-0.5 border border-[#D8CBB0] text-[#6B5D4F]">
+                                                <span className="text-[10px] font-mono-stamp px-2 py-0.5 border border-[#1E293B] text-[#94A3B8] rounded">
                                                     Select
                                                 </span>
                                             )}
                                         </div>
-                                        <h4 className="text-sm font-bold font-serif-academic truncate w-full text-[#2B211A]">{roleOption.title}</h4>
-                                        <span className="text-[10px] font-mono-stamp uppercase text-[#8A6D3B] mt-0.5">{roleOption.badge}</span>
-                                        <p className="text-xs text-[#6B5D4F] leading-relaxed mt-2 font-sans-academic">{roleOption.desc}</p>
+                                        <h4 className="text-sm font-bold font-display truncate w-full text-[#F8FAFC]">{roleOption.title}</h4>
+                                        <span className="text-[10px] font-mono-stamp uppercase text-[#38BDF8] mt-0.5">{roleOption.badge}</span>
+                                        <p className="text-xs text-[#94A3B8] leading-relaxed mt-2 font-sans-academic">{roleOption.desc}</p>
                                     </button>
                                 );
                             })}
@@ -440,28 +440,28 @@ export default function Profile() {
                     </section>
 
                     {/* REGIONAL & INDIAN LANGUAGE SELECTOR CARD */}
-                    <section className="paper-sheet p-6 rounded-none relative">
+                    <section className="bg-[#0F172A] border border-[#1E293B] p-6 rounded-lg relative shadow-md">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 rounded bg-[#8A6D3B]/10 border border-[#8A6D3B]/30 text-[#8A6D3B]">
+                                <div className="p-2 rounded bg-[#38BDF8]/10 border border-[#38BDF8]/30 text-[#38BDF8]">
                                     <Globe size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold font-serif-academic text-[#2B211A] tracking-wide flex items-center gap-2">
+                                    <h3 className="text-lg font-bold font-display text-[#F8FAFC] tracking-wide flex items-center gap-2">
                                         {t('languageSettings')}
-                                        <span className="text-[10px] px-2 py-0.5 rounded-sm border border-[#8A6D3B]/40 bg-[#8A6D3B]/10 text-[#8A6D3B] font-mono-stamp uppercase">
+                                        <span className="text-[10px] px-2 py-0.5 rounded border border-[#38BDF8]/40 bg-[#38BDF8]/10 text-[#38BDF8] font-mono-stamp uppercase">
                                             11 Languages
                                         </span>
                                     </h3>
-                                    <p className="text-xs text-[#6B5D4F] mt-0.5 font-sans-academic">
+                                    <p className="text-xs text-[#94A3B8] mt-0.5 font-sans-academic">
                                         {t('languageSubtitle')}
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-1 border border-[#D8CBB0] bg-[#FDFAF3] text-xs font-mono-stamp text-[#8A6D3B]">
+                            <div className="flex items-center gap-2 px-3 py-1 border border-[#1E293B] bg-[#080C14] text-xs font-mono-stamp text-[#38BDF8] rounded-md">
                                 <span className="font-bold">{currentLanguage.code.toUpperCase()}</span>
-                                <span className="font-sans-academic font-bold text-[#2B211A]">{currentLanguage.nativeName}</span>
-                                <span className="text-[#6B5D4F]">({currentLanguage.name})</span>
+                                <span className="font-sans-academic font-bold text-[#F8FAFC]">{currentLanguage.nativeName}</span>
+                                <span className="text-[#94A3B8]">({currentLanguage.name})</span>
                             </div>
                         </div>
 
@@ -474,21 +474,21 @@ export default function Profile() {
                                         key={lang.code}
                                         onClick={() => setLanguageByCode(lang.code)}
                                         className={`
-                                            relative flex flex-col items-start p-3 border text-left transition-colors group
+                                            relative flex flex-col items-start p-3 border text-left transition-colors group rounded-md
                                             ${isSelected 
-                                                ? 'bg-[#FDFAF3] border-[#A6522C] border-l-4 text-[#2B211A]' 
-                                                : 'bg-[#FDFAF3] border-[#D8CBB0] text-[#6B5D4F] hover:bg-[#EFE8D8]'
+                                                ? 'bg-[#080C14] border-[#38BDF8] border-l-4 text-[#F8FAFC]' 
+                                                : 'bg-[#080C14] border-[#1E293B] text-[#94A3B8] hover:bg-[#1E293B] hover:text-[#F8FAFC]'
                                             }
                                         `}
                                     >
                                         <div className="flex items-center justify-between w-full mb-1">
-                                            <span className="text-[10px] font-mono-stamp font-bold uppercase px-1.5 py-0.5 border border-[#8A6D3B]/30 bg-[#8A6D3B]/10 text-[#8A6D3B]">{lang.code}</span>
+                                            <span className="text-[10px] font-mono-stamp font-bold uppercase px-1.5 py-0.5 border border-[#38BDF8]/30 bg-[#38BDF8]/10 text-[#38BDF8] rounded">{lang.code}</span>
                                             {isSelected && (
-                                                <CheckCircle size={14} className="text-[#A6522C] flex-shrink-0" />
+                                                <CheckCircle size={14} className="text-[#38BDF8] flex-shrink-0" />
                                             )}
                                         </div>
-                                        <span className="text-sm font-bold font-sans-academic truncate w-full text-[#2B211A]">{lang.nativeName}</span>
-                                        <span className="text-[10px] text-[#6B5D4F] truncate w-full font-sans-academic">{lang.name}</span>
+                                        <span className="text-sm font-bold font-sans-academic truncate w-full text-[#F8FAFC]">{lang.nativeName}</span>
+                                        <span className="text-[10px] text-[#94A3B8] truncate w-full font-sans-academic">{lang.name}</span>
                                     </button>
                                 );
                             })}
@@ -496,38 +496,34 @@ export default function Profile() {
                     </section>
 
                     {/* THEME & APPEARANCE CARD */}
-                    <section className="paper-sheet p-6 rounded-none relative">
+                    <section className="bg-[#0F172A] border border-[#1E293B] p-6 rounded-lg relative shadow-md">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 rounded bg-[#8A6D3B]/10 border border-[#8A6D3B]/30 text-[#8A6D3B]">
+                                <div className="p-2 rounded bg-[#38BDF8]/10 border border-[#38BDF8]/30 text-[#38BDF8]">
                                     <Palette size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold font-serif-academic text-[#2B211A] tracking-wide">
+                                    <h3 className="text-lg font-bold font-display text-[#F8FAFC] tracking-wide">
                                         Site Display Theme
                                     </h3>
-                                    <p className="text-xs text-[#6B5D4F] mt-0.5 font-sans-academic">
-                                        DeepHub AI is configured exclusively in Contrast Paper mode for academic reading clarity.
+                                    <p className="text-xs text-[#94A3B8] mt-0.5 font-sans-academic">
+                                        DeepHub AI is configured in Modern Dark Studio mode for maximum reading comfort and clarity.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="p-4 border border-[#A6522C] border-l-4 bg-[#FDFAF3] flex items-center justify-between">
+                        <div className="p-4 border border-[#38BDF8] border-l-4 bg-[#080C14] rounded-md flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 rounded bg-[#A6522C]/10 text-[#A6522C]">
-                                    <Feather size={20} />
+                                <div className="p-2 rounded bg-[#38BDF8]/10 text-[#38BDF8]">
+                                    <Sparkles size={20} />
                                 </div>
                                 <div>
-                                    <h4 className="text-sm font-bold font-serif-academic text-[#2B211A]">Contrast Paper (Academic Parchment)</h4>
-                                    <p className="text-xs text-[#6B5D4F] font-sans-academic mt-0.5">
-                                        Warm paper tones (#F7F1E3), aged card sheets (#FDFAF3), terracotta red pen marks (#A6522C) & faint ruled lines (#D8CBB0).
-                                    </p>
+                                    <h4 className="text-sm font-bold font-display text-[#F8FAFC]">Sleek Modern Dark</h4>
+                                    <p className="text-xs text-[#94A3B8]">High contrast, crisp typography with Plus Jakarta Sans & Inter font hierarchy.</p>
                                 </div>
                             </div>
-                            <span className="text-[10px] font-mono-stamp uppercase tracking-wider px-2 py-1 border border-[#A6522C] bg-[#A6522C]/10 text-[#A6522C]">
-                                ACTIVE THEME
-                            </span>
+                            <span className="text-xs font-mono-stamp px-2.5 py-1 bg-[#38BDF8]/20 border border-[#38BDF8]/40 text-[#38BDF8] rounded uppercase">Active Mode</span>
                         </div>
                     </section>
 

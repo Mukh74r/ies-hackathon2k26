@@ -39,15 +39,15 @@ const SidebarItem = ({ icon: Icon, emoji, label, active, collapsed, onClick, bad
         <div
             onClick={onClick}
             className={`
-                relative flex items-center gap-3 px-3 py-2.5 my-0.5 cursor-pointer transition-colors group font-sans-academic
+                relative flex items-center gap-3 px-3 py-2.5 my-0.5 cursor-pointer transition-colors group font-sans-academic rounded-md mx-2
                 ${active
-                    ? 'bg-[#FDFAF3] text-[#A6522C] border-l-4 border-[#A6522C] font-bold'
-                    : 'text-[#6B5D4F] hover:bg-[#EFE8D8] hover:text-[#2B211A]'
+                    ? 'bg-[#1E293B] text-[#38BDF8] border-l-4 border-[#38BDF8] font-bold'
+                    : 'text-[#94A3B8] hover:bg-[#0F172A] hover:text-[#F8FAFC]'
                 }
                 ${collapsed ? 'justify-center' : ''}
             `}
         >
-            {Icon && <Icon size={18} className={`${active ? 'text-[#A6522C]' : 'text-[#6B5D4F] group-hover:text-[#2B211A]'}`} />}
+            {Icon && <Icon size={18} className={`${active ? 'text-[#38BDF8]' : 'text-[#94A3B8] group-hover:text-[#F8FAFC]'}`} />}
             {emoji && <span className="text-sm">{emoji}</span>}
 
             {!collapsed && (
@@ -57,14 +57,14 @@ const SidebarItem = ({ icon: Icon, emoji, label, active, collapsed, onClick, bad
             )}
 
             {!collapsed && badge && (
-                <span className="text-[9px] font-mono-stamp uppercase tracking-wider px-1 py-0.5 border border-[#8A6D3B]/40 bg-[#8A6D3B]/10 text-[#8A6D3B] rounded-sm">
+                <span className="text-[9px] font-mono-stamp uppercase tracking-wider px-1.5 py-0.5 border border-[#38BDF8]/40 bg-[#38BDF8]/10 text-[#38BDF8] rounded">
                     {badge}
                 </span>
             )}
 
             {/* Tooltip for collapsed state */}
             {collapsed && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-[#FDFAF3] border border-[#D8CBB0] text-xs text-[#2B211A] shadow-sm rounded-sm opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none font-sans-academic">
+                <div className="absolute left-full ml-2 px-2 py-1 bg-[#0F172A] border border-[#1E293B] text-xs text-[#F8FAFC] shadow-xl rounded-md opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none font-sans-academic">
                     {label}
                 </div>
             )}
@@ -97,7 +97,7 @@ export default function TurboSidebar({ activePage, setActivePage, collapsed, set
     const [searchQuery, setSearchQuery] = useState('');
 
     const menuItems: { id: string; label: string; icon?: LucideIcon; badge?: string }[] = [
-        { id: 'dashboard', label: 'Overview Sheet', icon: LayoutDashboard },
+        { id: 'dashboard', label: 'Overview Studio', icon: LayoutDashboard },
         { id: 'question-gen', label: 'Question Generator', icon: FileText },
         { id: 'lesson-plan', label: 'Lesson Plan Builder', icon: Brain },
         { id: 'ppt-gen', label: 'PPT Creator', icon: Presentation },
@@ -122,22 +122,22 @@ export default function TurboSidebar({ activePage, setActivePage, collapsed, set
     return (
         <aside
             className={`
-                relative h-full bg-[#F7F1E3] border-r border-[#D8CBB0]
+                relative h-full bg-[#0B101D] border-r border-[#1E293B]
                 transition-all duration-300 ease-in-out flex flex-col
                 ${collapsed ? 'w-16' : 'w-60'}
             `}
         >
             {/* Sidebar Search Area */}
             {!collapsed && (
-                <div className="px-3 py-3 border-b border-[#D8CBB0] bg-[#FDFAF3]">
+                <div className="px-3 py-3 border-b border-[#1E293B] bg-[#0F172A]">
                     <div className="relative group">
-                        <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#6B5D4F]" />
+                        <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Find Tool..."
-                            className="w-full bg-[#F7F1E3] border border-[#D8CBB0] rounded-sm py-1.5 pl-8 pr-2 text-xs text-[#2B211A] placeholder:text-[#6B5D4F] focus:outline-none focus:border-[#A6522C] font-sans-academic"
+                            className="w-full bg-[#0B101D] border border-[#1E293B] rounded-md py-1.5 pl-8 pr-2 text-xs text-[#F8FAFC] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#38BDF8] font-sans-academic"
                         />
                     </div>
                 </div>

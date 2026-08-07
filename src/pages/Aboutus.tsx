@@ -85,9 +85,9 @@ const row2 = [...products.slice(12), ...products.slice(0, 12), ...products.slice
 
 export default function Aboutus() {
     return (
-        <div className="bg-[#F7F1E3] min-h-screen text-[#2B211A] relative">
+        <div className="bg-[#080C14] min-h-screen text-[#F8FAFC] relative font-sans-academic">
 
-            <section className="relative w-full overflow-hidden border-b border-[#D8CBB0] bg-[#FDFAF3]">
+            <section className="relative w-full overflow-hidden border-b border-[#1E293B] bg-[#0F172A]">
                 <Hero hideAstronaut={true} />
             </section>
 
@@ -99,15 +99,15 @@ export default function Aboutus() {
                 {/* ── AI Tool Carousel ─────────────────────────────────── */}
                 <section
                     id="product"
-                    className="relative py-16 scroll-mt-24 overflow-hidden bg-[#F7F1E3] border-b border-[#D8CBB0]"
+                    className="relative py-16 scroll-mt-24 overflow-hidden bg-[#080C14] border-b border-[#1E293B]"
                 >
                     <div className="max-w-7xl mx-auto px-6 mb-12">
                         <FadeInSection>
-                            <h2 className="text-clamp-title font-serif-academic font-bold uppercase text-[#2B211A]">
+                            <h2 className="text-clamp-title font-display font-bold uppercase text-[#F8FAFC]">
                                 Integrated <br />
-                                <span className="text-[#A6522C]">Intelligence</span>
+                                <span className="text-[#38BDF8]">Intelligence</span>
                             </h2>
-                            <p className="text-[#6B5D4F] max-w-xl font-sans-academic text-lg tracking-wide">
+                            <p className="text-[#94A3B8] max-w-xl font-sans-academic text-lg tracking-wide">
                                 Explore Academic AI Innovations for Indian Educators & Scholars.
                             </p>
                         </FadeInSection>
@@ -146,19 +146,19 @@ export default function Aboutus() {
 
                         <div
                             className="absolute inset-0 pointer-events-none z-10"
-                            style={{ background: "radial-gradient(circle at center, transparent 40%, #F7F1E3 98%)" }}
+                            style={{ background: "radial-gradient(circle at center, transparent 40%, #080C14 98%)" }}
                         />
                     </div>
                 </section>
 
                 <div className="max-w-7xl mx-auto px-6 pb-20">
-                    <section id="about" className="scroll-mt-32 py-16 border-t border-[#D8CBB0]">
+                    <section id="about" className="scroll-mt-32 py-16 border-t border-[#1E293B]">
                         <About />
                     </section>
-                    <section id="values" className="scroll-mt-32 py-16 border-t border-[#D8CBB0]">
+                    <section id="values" className="scroll-mt-32 py-16 border-t border-[#1E293B]">
                         <Values />
                     </section>
-                    <section id="contact" className="scroll-mt-32 py-16 border-t border-[#D8CBB0]">
+                    <section id="contact" className="scroll-mt-32 py-16 border-t border-[#1E293B]">
                         <Contact />
                     </section>
                 </div>
