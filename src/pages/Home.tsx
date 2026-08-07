@@ -197,7 +197,7 @@ export default function Home() {
                         onClick={() => navigate('/turbo')}
                         className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#FFFFFF] hover:bg-[#F1F5F9] text-black font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98"
                     >
-                        <span>Discover our story</span>
+                        <span>Discover Turbo</span>
                         <ArrowRight size={16} />
                     </button>
                     <button
