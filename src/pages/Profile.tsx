@@ -11,7 +11,9 @@ import {
     CheckCircle,
     Globe,
     Palette,
-    Sparkles
+    Sparkles,
+    GraduationCap,
+    BookOpen
 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import Footer1 from '../components/Footer1';
@@ -395,19 +397,20 @@ export default function Profile() {
                                 {
                                     id: 'student',
                                     title: 'Student / Scholar',
-                                    icon: '🎓',
+                                    icon: GraduationCap,
                                     badge: 'Learning Suite',
                                     desc: 'Paper Solver, Concept Explainer, Quiz Practice & My Library'
                                 },
                                 {
                                     id: 'teacher',
                                     title: 'Educator / Teacher',
-                                    icon: '👩‍🏫',
+                                    icon: BookOpen,
                                     badge: 'Teaching Suite',
                                     desc: 'Lesson Builder, Question Paper Generator, PPT Creator & Homework'
                                 }
                             ].map((roleOption) => {
                                 const isCurrentRole = user?.role === roleOption.id || (!user?.role && roleOption.id === 'student');
+                                const RoleIcon = roleOption.icon;
                                 return (
                                     <button
                                         key={roleOption.id}
@@ -421,7 +424,9 @@ export default function Profile() {
                                         `}
                                     >
                                         <div className="flex items-center justify-between w-full mb-2">
-                                            <span className="text-2xl">{roleOption.icon}</span>
+                                            <div className="p-2 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                                                <RoleIcon size={20} />
+                                            </div>
                                             {isCurrentRole ? (
                                                 <CheckCircle size={16} className="text-indigo-400 flex-shrink-0" />
                                             ) : (
@@ -459,7 +464,7 @@ export default function Profile() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-medium text-cyan-300 self-start sm:self-auto">
-                                <span>{currentLanguage.flag}</span>
+                                <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 bg-cyan-500/20 text-cyan-300 rounded font-bold">{currentLanguage.code}</span>
                                 <span className="font-bold">{currentLanguage.nativeName}</span>
                                 <span className="text-white/40">({currentLanguage.name})</span>
                             </div>
@@ -482,7 +487,7 @@ export default function Profile() {
                                         `}
                                     >
                                         <div className="flex items-center justify-between w-full mb-1">
-                                            <span className="text-lg">{lang.flag}</span>
+                                            <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 bg-white/10 text-cyan-300 rounded">{lang.code}</span>
                                             {isSelected && (
                                                 <CheckCircle size={14} className="text-cyan-400 flex-shrink-0" />
                                             )}
