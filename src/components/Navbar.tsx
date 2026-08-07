@@ -286,7 +286,7 @@ export default function Navbar() {
             {/* =========================
           CENTER PILL NAV (ALL)
          ========================= */}
-            <header className="header__el p-safe-x flex items-center bg-[#0B101D] border-b border-[#1E293B] shadow-md py-2.5 px-6" role="banner">
+            <header className="header__el p-safe-x flex items-center bg-[#0F1B2A] border-b border-[#2E3B4E] shadow-lg py-2.5 px-6" role="banner">
                 <nav className="navbar-scroll-container flex items-center gap-6">
                     {LINKS.map(l => {
                         const isActive = location.pathname === l.to;
@@ -296,8 +296,8 @@ export default function Navbar() {
                                 to={l.to} 
                                 className={`text-sm font-sans-academic transition-colors px-2 py-1 ${
                                     isActive 
-                                        ? 'text-[#38BDF8] border-b-2 border-[#38BDF8] font-bold' 
-                                        : 'text-[#94A3B8] hover:text-[#F8FAFC] font-medium'
+                                        ? 'text-[#FF9900] border-b-2 border-[#FF9900] font-bold' 
+                                        : 'text-[#AAB7B8] hover:text-[#FFFFFF] font-medium'
                                 }`}
                             >
                                 {l.label}
@@ -310,12 +310,12 @@ export default function Navbar() {
                 <div className="relative ml-auto z-50">
                     <button
                         onClick={() => setLangOpen(prev => !prev)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded border border-[#38BDF8]/40 bg-[#38BDF8]/10 text-xs font-mono-stamp text-[#38BDF8] hover:bg-[#38BDF8]/20 transition-all"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#2E3B4E] bg-[#1A2433] text-xs font-mono-stamp text-[#FF9900] hover:border-[#FF9900]/60 hover:bg-[#232F3E] transition-all"
                         title="Switch Indian Regional Language"
                     >
                         <span>{currentLanguage.code.toUpperCase()}</span>
-                        <span className="text-[10px] text-[#94A3B8]">({currentLanguage.name})</span>
-                        <ChevronDown size={12} className={`transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+                        <span className="text-[10px] text-[#AAB7B8]">({currentLanguage.name})</span>
+                        <ChevronDown size={12} className={`transition-transform text-[#FF9900] ${langOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     <AnimatePresence>
@@ -324,9 +324,9 @@ export default function Navbar() {
                                 initial={{ opacity: 0, y: 8, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                                className="absolute right-0 top-full mt-2 w-64 p-2 bg-[#0F172A] border border-[#1E293B] shadow-2xl rounded-lg grid grid-cols-2 gap-1 z-[9999]"
+                                className="absolute right-0 top-full mt-2 w-64 p-2 bg-[#1A2433] border border-[#2E3B4E] shadow-2xl rounded-lg grid grid-cols-2 gap-1 z-[9999]"
                             >
-                                <div className="col-span-2 px-2 py-1 text-[10px] font-mono-stamp text-[#94A3B8] uppercase border-b border-[#1E293B] mb-1">
+                                <div className="col-span-2 px-2 py-1 text-[10px] font-mono-stamp text-[#AAB7B8] uppercase border-b border-[#2E3B4E] mb-1">
                                     Regional Indian Languages
                                 </div>
                                 {INDIAN_LANGUAGES.map((lang) => (
@@ -338,15 +338,15 @@ export default function Navbar() {
                                         }}
                                         className={`flex items-center justify-between px-2 py-1.5 rounded text-xs text-left transition-colors ${
                                             currentLanguage.code === lang.code
-                                                ? 'bg-[#38BDF8]/20 text-[#38BDF8] font-bold border border-[#38BDF8]/40'
-                                                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-[#F8FAFC]'
+                                                ? 'bg-[#FF9900]/20 text-[#FF9900] font-bold border border-[#FF9900]/40'
+                                                : 'text-[#AAB7B8] hover:bg-[#232F3E] hover:text-[#FFFFFF]'
                                         }`}
                                     >
                                         <div className="flex flex-col">
                                             <span className="font-mono-stamp text-[11px] uppercase">{lang.code}</span>
-                                            <span className="text-[10px] text-[#94A3B8]">{lang.name}</span>
+                                            <span className="text-[10px] text-[#AAB7B8]">{lang.name}</span>
                                         </div>
-                                        {currentLanguage.code === lang.code && <Check size={12} className="text-[#38BDF8]" />}
+                                        {currentLanguage.code === lang.code && <Check size={12} className="text-[#FF9900]" />}
                                     </button>
                                 ))}
                             </motion.div>

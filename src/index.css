@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: #080C14;
-    --foreground: #F8FAFC;
+    --background: #0F1B2A;
+    --foreground: #F2F3F3;
 
-    --card: #0F172A;
-    --card-foreground: #F8FAFC;
+    --card: #1A2433;
+    --card-foreground: #F2F3F3;
 
-    --popover: #0F172A;
-    --popover-foreground: #F8FAFC;
+    --popover: #1A2433;
+    --popover-foreground: #F2F3F3;
 
-    --primary: #38BDF8;
-    --primary-foreground: #080C14;
+    --primary: #FF9900;
+    --primary-foreground: #0F1B2A;
 
-    --secondary: #34D399;
-    --secondary-foreground: #080C14;
+    --secondary: #00A4E4;
+    --secondary-foreground: #0F1B2A;
 
-    --muted: #1E293B;
-    --muted-foreground: #94A3B8;
+    --muted: #232F3E;
+    --muted-foreground: #AAB7B8;
 
-    --accent: #38BDF8;
-    --accent-foreground: #080C14;
+    --accent: #FF9900;
+    --accent-foreground: #0F1B2A;
 
     --destructive: #EF4444;
-    --destructive-foreground: #F8FAFC;
+    --destructive-foreground: #F2F3F3;
 
-    --border: #1E293B;
-    --input: #1E293B;
-    --ring: #38BDF8;
+    --border: #2E3B4E;
+    --input: #2E3B4E;
+    --ring: #FF9900;
 
     --radius: 0.5rem;
   }
@@ -38,19 +38,19 @@
 
 @layer base {
   * {
-    border-color: #1E293B;
+    border-color: #2E3B4E;
   }
 
   html {
     scroll-behavior: smooth;
     font-size: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);
-    background-color: #080C14;
-    color: #F8FAFC;
+    background-color: #0F1B2A;
+    color: #F2F3F3;
   }
 
   body {
-    background-color: #080C14;
-    color: #F8FAFC;
+    background-color: #0F1B2A;
+    color: #F2F3F3;
     font-family: "Inter", -apple-system, sans-serif;
     line-height: 1.6;
     letter-spacing: -0.01em;
@@ -58,7 +58,7 @@
 
   h1, h2, h3, h4, .font-serif-academic, .font-display {
     font-family: "Plus Jakarta Sans", sans-serif;
-    color: #F8FAFC;
+    color: #F2F3F3;
     letter-spacing: -0.02em;
   }
 }
