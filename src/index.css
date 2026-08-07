@@ -684,3 +684,91 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
+
+/* ===================================================
+   DEEPHUB DYNAMIC SITE THEMES ([data-theme])
+   =================================================== */
+
+/* 1. Cyber Dark (Default) */
+[data-theme="cyber-dark"],
+html[data-theme="cyber-dark"] body {
+  --background: 222 47% 4%;
+  --foreground: 210 40% 98%;
+  --card: 222 47% 6%;
+  --card-foreground: 210 40% 98%;
+  --primary: 189 94% 43%;
+  --primary-foreground: 222 47% 4%;
+  --border: 215 27.9% 16.9%;
+  --ring: 189 94% 43%;
+}
+
+/* 2. Midnight Blue */
+[data-theme="midnight-blue"],
+html[data-theme="midnight-blue"] body {
+  --background: 225 50% 6%;
+  --foreground: 210 40% 98%;
+  --card: 224 45% 9%;
+  --card-foreground: 210 40% 98%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 222 47% 4%;
+  --border: 220 40% 20%;
+  --ring: 217 91% 60%;
+  background-color: #050a18 !important;
+}
+
+[data-theme="midnight-blue"] [class*="bg-["],
+[data-theme="midnight-blue"] [class*="bg-"] {
+  background-color: #060e24 !important;
+}
+
+/* 3. Emerald Neon */
+[data-theme="emerald-neon"],
+html[data-theme="emerald-neon"] body {
+  --background: 160 50% 4%;
+  --foreground: 150 40% 98%;
+  --card: 160 45% 7%;
+  --card-foreground: 150 40% 98%;
+  --primary: 160 84% 39%;
+  --primary-foreground: 160 50% 4%;
+  --border: 160 30% 18%;
+  --ring: 160 84% 39%;
+  background-color: #030f0a !important;
+}
+
+[data-theme="emerald-neon"] [class*="bg-["],
+[data-theme="emerald-neon"] [class*="bg-"] {
+  background-color: #04160f !important;
+}
+
+/* 4. Solar Light */
+[data-theme="solar-light"],
+[data-theme="light-mode"],
+html[data-theme="solar-light"] body,
+html[data-theme="light-mode"] body {
+  --background: 210 20% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --primary: 221 83% 53%;
+  --primary-foreground: 210 40% 98%;
+  --border: 214 32% 91%;
+  --ring: 221 83% 53%;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+[data-theme="solar-light"] [class*="bg-["],
+[data-theme="light-mode"] [class*="bg-"] {
+  background-color: #f1f5f9 !important;
+}
+
+[data-theme="solar-light"] .text-white,
+[data-theme="light-mode"] .text-white {
+  color: #0f172a !important;
+}
+
+[data-theme="solar-light"] .text-white\/70,
+[data-theme="light-mode"] .text-white\/70 {
+  color: #475569 !important;
+}
+

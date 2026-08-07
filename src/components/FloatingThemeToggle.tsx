@@ -1,25 +1,64 @@
-// src/components/FloatingThemeToggle.tsx
-import React, { useState, useEffect } from "react";
-import Sun from "../assets/sun.svg";
-import Moon from "../assets/moon.svg";
+import React, { useState } from "react";
+import { Palette, Sparkles, Moon, Sun, Shield, Layers } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
+
+const THEMES = [
+    { id: "cyber-dark", name: "Cyber Dark", icon: "🌌", color: "from-cyan-500 to-blue-600" },
+    { id: "midnight-blue", name: "Midnight Blue", icon: "🌃", color: "from-blue-600 to-indigo-700" },
+    { id: "emerald-neon", name: "Emerald Neon", icon: "❇️", color: "from-emerald-500 to-teal-600" },
+    { id: "solar-light", name: "Solar Light", icon: "☀️", color: "from-amber-400 to-orange-500" },
+];
 
 export default function FloatingThemeToggle() {
-    const [theme, setTheme] = useState<string>(
-        document.documentElement.getAttribute("data-theme") || "dark"
-    );
+    const { theme, setTheme } = useLanguage();
+    const [isOpen, setIsOpen] = useState(false);
 
-    useEffect(() => {
-        document.documentElement.setAttribute("data-theme", theme);
-    }, [theme]);
+    const currentThemeObj = THEMES.find(t => t.id === theme) || THEMES[0];
 
     return (
-        <button
-            className="floating-theme-toggle"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            aria-label="Toggle theme"
-        >
-            <img src={Sun} className="sun-icon" alt="" />
-            <img src={Moon} className="moon-icon" alt="" />
-        </button>
+        <div className="fixed bottom-6 right-6 z-[9999]">
+            {isOpen && (
+                <div className="mb-3 p-2 rounded-2xl bg-[#080d1a]/90 border border-white/10 backdrop-blur-xl shadow-2xl flex flex-col gap-1.5 min-w-[160px] animate-in fade-in slide-in-from-bottom-3 duration-200">
+                    <div className="px-2 py-1 text-[10px] uppercase font-mono font-bold text-white/40 tracking-wider flex items-center gap-1.5 border-b border-white/5 pb-1.5">
+                        <Palette size={11} />
+                        <span>Site Theme</span>
+                    </div>
+                    {THEMES.map((tOption) => {
+                        const active = theme === tOption.id;
+                        return (
+                            <button
+                                key={tOption.id}
+                                onClick={() => {
+                                    setTheme(tOption.id);
+                                    setIsOpen(false);
+                                }}
+                                className={`
+                                    w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all
+                                    ${active 
+                                        ? 'bg-white/15 text-white shadow-inner border border-white/20' 
+                                        : 'text-white/60 hover:bg-white/5 hover:text-white'
+                                    }
+                                `}
+                            >
+                                <span className="flex items-center gap-2">
+                                    <span>{tOption.icon}</span>
+                                    <span>{tOption.name}</span>
+                                </span>
+                                {active && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+
+            <button
+                onClick={() => setIsOpen(prev => !prev)}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-black/70 border border-white/20 text-xs font-bold text-white shadow-2xl backdrop-blur-md hover:scale-105 hover:border-white/40 active:scale-95 transition-all"
+                title="Switch Visual Site Theme"
+            >
+                <span className="text-sm">{currentThemeObj.icon}</span>
+                <span className="hidden sm:inline text-[11px] font-mono tracking-wide">{currentThemeObj.name}</span>
+            </button>
+        </div>
     );
 }

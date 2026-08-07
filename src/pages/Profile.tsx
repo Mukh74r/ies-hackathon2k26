@@ -368,16 +368,76 @@ export default function Profile() {
                         </div>
                     </section>
 
-                    {/* Platform Version Notice */}
-                    <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl border border-indigo-500/20 bg-indigo-500/[0.05]">
-                        <span className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center">
-                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse inline-block" />
-                        </span>
-                        <p className="text-[12px] text-indigo-300/70 leading-relaxed">
-                            <span className="font-semibold text-indigo-300">Educator version</span> is currently available.
-                            Updates for other professionals will be released soon on this platform.
-                        </p>
-                    </div>
+                    {/* USER ROLE & FUNCTIONAL WORKSPACE SELECTOR CARD */}
+                    <section className="rounded-2xl border border-indigo-500/20 bg-gradient-to-b from-indigo-500/10 via-black/40 to-transparent p-6 relative overflow-hidden backdrop-blur-xl shadow-[0_0_30px_rgba(99,102,241,0.15)]">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 rounded-xl bg-indigo-500/20 border border-indigo-400/30 text-indigo-400 shadow-inner">
+                                    <UserIcon size={22} />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-black text-white tracking-wide flex items-center gap-2">
+                                        Account Role & Workspace Focus
+                                        <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono uppercase tracking-wider">
+                                            {user?.role === 'teacher' ? 'Educator Mode' : 'Student Mode'}
+                                        </span>
+                                    </h3>
+                                    <p className="text-xs text-white/50 mt-0.5">
+                                        Select your functional role to customize tools, dashboards, and AI workspace presets.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* ROLE SELECTION CARDS */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
+                            {[
+                                {
+                                    id: 'student',
+                                    title: 'Student / Scholar',
+                                    icon: '🎓',
+                                    badge: 'Learning Suite',
+                                    desc: 'Paper Solver, Concept Explainer, Quiz Practice & My Library'
+                                },
+                                {
+                                    id: 'teacher',
+                                    title: 'Educator / Teacher',
+                                    icon: '👩‍🏫',
+                                    badge: 'Teaching Suite',
+                                    desc: 'Lesson Builder, Question Paper Generator, PPT Creator & Homework'
+                                }
+                            ].map((roleOption) => {
+                                const isCurrentRole = user?.role === roleOption.id || (!user?.role && roleOption.id === 'student');
+                                return (
+                                    <button
+                                        key={roleOption.id}
+                                        onClick={() => updateDeepHubUser({ role: roleOption.id })}
+                                        className={`
+                                            relative flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 group
+                                            ${isCurrentRole
+                                                ? 'bg-indigo-500/20 border-indigo-400 text-white shadow-[0_0_20px_rgba(99,102,241,0.25)] ring-1 ring-indigo-400/50'
+                                                : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20 hover:text-white'
+                                            }
+                                        `}
+                                    >
+                                        <div className="flex items-center justify-between w-full mb-2">
+                                            <span className="text-2xl">{roleOption.icon}</span>
+                                            {isCurrentRole ? (
+                                                <CheckCircle size={16} className="text-indigo-400 flex-shrink-0" />
+                                            ) : (
+                                                <span className="text-[9px] px-2 py-0.5 rounded bg-white/5 text-white/40 group-hover:text-white/60 font-mono">
+                                                    Select
+                                                </span>
+                                            )}
+                                        </div>
+                                        <h4 className="text-sm font-bold truncate w-full text-white">{roleOption.title}</h4>
+                                        <span className="text-[9px] font-mono uppercase tracking-wider text-indigo-300 mt-0.5">{roleOption.badge}</span>
+                                        <p className="text-[11px] text-white/40 group-hover:text-white/60 leading-tight mt-2">{roleOption.desc}</p>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </section>
 
                     {/* REGIONAL & INDIAN LANGUAGE SELECTOR CARD */}
                     <section className="rounded-2xl border border-cyan-500/20 bg-gradient-to-b from-cyan-500/10 via-black/40 to-transparent p-6 relative overflow-hidden backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.15)]">

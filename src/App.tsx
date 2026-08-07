@@ -8,6 +8,7 @@ import { ProductToaster } from "./components/product/ProductToaster";
 
 // Existing Components
 import Navbar from "./components/Navbar";
+import FloatingThemeToggle from "./components/FloatingThemeToggle";
 
 // ⚠️  MAINTENANCE MODE — set to false to go live
 const MAINTENANCE_MODE = false;
@@ -109,6 +110,9 @@ function LayoutWrapper() {
                     </Routes>
                 </React.Suspense>
             </main>
+
+            {/* Global Theme Toggle Floating Widget */}
+            <FloatingThemeToggle />
 
             {/* Global Feedback Provider (Shadcn/Lovable system) */}
             <ProductToaster />
