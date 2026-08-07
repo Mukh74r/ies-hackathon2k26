@@ -115,32 +115,29 @@ export default function Turbo() {
 
             <div
                 className={`
-          transition-all duration-500 ease-in-out
-          ${isMobile ? 'ml-0' : (collapsed ? 'ml-20' : 'ml-64')}
-          h-screen relative flex flex-col overflow-hidden
+          transition-all duration-300 ease-in-out
+          ${isMobile ? 'ml-0' : (collapsed ? 'ml-16' : 'ml-60')}
+          h-screen relative flex flex-col overflow-hidden bg-[#F7F1E3]
         `}
             >
-                {/* Global Neural Background Accents - Replaced with Mesh Gradient */}
-                <div className="absolute inset-0 pointer-events-none z-0 bg-mesh opacity-80" />
-
                 {/* AI Model Switcher - Floating Top Right Aligned with Navbar */}
                 {!isMobile && (
-                    <div className="fixed top-[1.2rem] right-6 z-[10001]">
+                    <div className="fixed top-[1rem] right-6 z-[10001]">
                         <TurboAISwitcher />
                     </div>
                 )}
 
                 <main className={`
-          flex-1 relative z-10 overflow-hidden flex flex-col items-center transition-all duration-500
-          ${isMobile ? 'p-3 pt-20 pb-24' : 'p-6 pt-10'}
+          flex-1 relative z-10 overflow-hidden flex flex-col items-center transition-all duration-300
+          ${isMobile ? 'p-2 pt-16 pb-20' : 'p-4 pt-6'}
         `}>
 
                     <div className="w-full h-full max-w-[1400px]">
                         {activePage === 'dashboard' && <TurboChat />}
 
                         {activePage !== 'dashboard' && (
-                            <div className={`w-full h-full glass-panel rounded-[2rem] overflow-hidden ${isMobile ? 'rounded-2xl' : ''}`}>
-                                <div className={`w-full h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 ${isMobile ? 'p-4' : 'p-6'}`}>
+                            <div className="w-full h-full bg-[#FDFAF3] border border-[#D8CBB0] shadow-[0_2px_12px_rgba(43,33,26,0.06)] rounded-sm overflow-hidden">
+                                <div className={`w-full h-full overflow-y-auto ${isMobile ? 'p-3' : 'p-6'}`}>
                                     {activePage === 'library' && <Library />}
                                     {activePage === 'question-gen' && <QuestionPaperGenerator />}
                                     {activePage === 'homework' && <HomeworkCreator />}
@@ -176,8 +173,6 @@ export default function Turbo() {
                             </div>
                         )}
                     </div>
-
-
                 </main>
             </div>
         </div>

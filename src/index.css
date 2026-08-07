@@ -4,79 +4,104 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    --background: #F7F1E3;
+    --foreground: #2B211A;
 
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 100%;
+    --card: #FDFAF3;
+    --card-foreground: #2B211A;
 
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 100%;
+    --popover: #FDFAF3;
+    --popover-foreground: #2B211A;
 
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
+    --primary: #A6522C;
+    --primary-foreground: #FDFAF3;
 
-    --secondary: 0 0% 8%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: #8A6D3B;
+    --secondary-foreground: #FDFAF3;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    --muted: #EFE8D8;
+    --muted-foreground: #6B5D4F;
 
-    --accent: 0 0% 100%;
-    --accent-foreground: 0 0% 0%;
+    --accent: #A6522C;
+    --accent-foreground: #FDFAF3;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: #A6522C;
+    --destructive-foreground: #FDFAF3;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 15%;
-    --ring: 0 0% 100%;
+    --border: #D8CBB0;
+    --input: #D8CBB0;
+    --ring: #A6522C;
 
-    --radius: 0.75rem;
-
-    /* Custom design tokens */
-    --glow-primary: 0 0% 100%;
-    --glow-secondary: 0 0% 80%;
-    --gradient-start: 0 0% 100%;
-    --gradient-end: 0 0% 70%;
-
-    /* Cube colors */
-    --cube-stroke: 0 0% 100%;
-    --cube-accent: 0 0% 80%;
-  }
-
-  .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    --radius: 0.25rem;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: #D8CBB0;
   }
 
   html {
     scroll-behavior: smooth;
-    /* Universal Fluid Typography Scaling */
-    /* 16px at 320px -> 20px at 1200px */
-    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.25rem);
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);
+    background-color: #F7F1E3;
+    color: #2B211A;
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    background-color: #F7F1E3;
+    color: #2B211A;
+    font-family: "IBM Plex Sans", -apple-system, sans-serif;
     line-height: 1.6;
     letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, .font-serif-academic {
+    font-family: "Lora", "Source Serif 4", Georgia, serif;
+    color: #2B211A;
   }
 }
 
 @layer utilities {
-  .font-display {
-    font-family: "Outfit", sans-serif;
+  .font-serif-academic {
+    font-family: "Lora", "Source Serif 4", Georgia, serif;
   }
 
-  .font-mono-custom {
-    font-family: "Space Mono", monospace;
+  .font-sans-academic {
+    font-family: "IBM Plex Sans", sans-serif;
+  }
+
+  .font-mono-stamp {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant: small-caps;
+    letter-spacing: 0.05em;
+  }
+
+  /* Paper sheet card shadow */
+  .paper-sheet {
+    background-color: #FDFAF3;
+    border: 1px solid #D8CBB0;
+    box-shadow: 0 2px 8px rgba(43, 33, 26, 0.05), 0 1px 2px rgba(43, 33, 26, 0.03);
+  }
+
+  /* Teacher Red Pen Correction Mark Motif */
+  .red-pen-mark {
+    border-bottom: 2px solid #A6522C;
+    color: #A6522C;
+  }
+
+  .red-pen-badge {
+    background-color: rgba(166, 82, 44, 0.08);
+    border: 1px solid rgba(166, 82, 44, 0.3);
+    color: #A6522C;
+  }
+
+  .gold-stamp-badge {
+    background-color: rgba(138, 109, 59, 0.1);
+    border: 1px solid rgba(138, 109, 59, 0.3);
+    color: #8A6D3B;
+    font-family: "IBM Plex Mono", monospace;
+    text-transform: uppercase;
   }
 
   /* Universal Fluid Typography Scaling Utilities */

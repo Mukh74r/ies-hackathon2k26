@@ -313,43 +313,34 @@ export default function Profile() {
 
                         {/* Name + meta */}
                         <div className="flex-1 min-w-0 text-center sm:text-left">
-                            <h1 className="text-xl font-bold text-white tracking-tight leading-none truncate">
+                            <h1 className="text-xl font-bold font-serif-academic text-[#2B211A] tracking-tight leading-none truncate">
                                 {user?.name || user?.username}
                             </h1>
-                            <p className="mt-1 text-[11px] text-white/40 flex items-center justify-center sm:justify-start gap-1.5">
-                                <Shield size={10} className="text-emerald-400 flex-shrink-0" />
-                                {user?.provider === 'google' ? 'Verified via Google' : user?.specialization || 'Neural Explorer'}
-                                <span className="text-white/20">·</span>
+                            <p className="mt-1 text-xs text-[#6B5D4F] flex items-center justify-center sm:justify-start gap-1.5 font-sans-academic">
+                                <Shield size={12} className="text-[#A6522C] flex-shrink-0" />
+                                {user?.provider === 'google' ? 'Verified via Google' : user?.specialization || 'Academic Educator'}
+                                <span className="text-[#D8CBB0]">·</span>
                                 <span>{user?.email}</span>
                             </p>
                             <div className="flex flex-wrap justify-center sm:justify-start gap-1.5 mt-3 items-center">
                                 {[
                                     'DeepHub V4',
                                     user?.role === 'teacher' ? 'Educator' : 'Student',
-                                    'Beta Access'
+                                    'Academic Edition'
                                 ].map(tag => (
-                                    <span key={tag} className="px-2 py-0.5 rounded-md bg-white/5 border border-white/[0.07] text-[9px] uppercase font-semibold tracking-widest text-white/35">
+                                    <span key={tag} className="px-2 py-0.5 rounded-sm bg-[#8A6D3B]/10 border border-[#8A6D3B]/30 text-[10px] uppercase font-mono-stamp text-[#8A6D3B]">
                                         {tag}
                                     </span>
                                 ))}
 
                                 {/* Subscription status */}
                                 {proStatus?.isPro ? (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest"
-                                        style={{ background: "rgba(34,211,238,0.10)", border: "1px solid rgba(34,211,238,0.30)", color: "#22d3ee" }}>
-                                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse inline-block" />
-                                        Pro
-                                        {proStatus.proExpiresAt && (
-                                            <span className="text-cyan-400/60 font-normal normal-case tracking-normal">
-                                                · expires {new Date(proStatus.proExpiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                            </span>
-                                        )}
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[10px] font-mono-stamp uppercase border border-[#A6522C] bg-[#A6522C]/10 text-[#A6522C]">
+                                        Pro Educator
                                     </span>
                                 ) : (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest"
-                                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.30)" }}>
-                                        <span className="w-1.5 h-1.5 rounded-full bg-white/25 inline-block" />
-                                        Free Plan
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[10px] font-mono-stamp uppercase border border-[#D8CBB0] bg-[#EFE8D8] text-[#6B5D4F]">
+                                        Free Edition
                                     </span>
                                 )}
                             </div>
@@ -359,37 +350,37 @@ export default function Profile() {
                         <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
                             <button
                                 onClick={handleEditStart}
-                                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-black text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 transition-all shadow-md"
+                                className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-[#A6522C] text-[#FDFAF3] text-xs font-semibold uppercase font-sans-academic hover:bg-[#8e4423] transition-colors"
                             >
-                                <Edit2 size={11} />
-                                Edit Profile
+                                <Edit2 size={12} />
+                                Edit Details
                             </button>
                             <button
                                 onClick={() => { logout(); navigate('/aboutus'); }}
-                                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/50 text-[11px] font-bold uppercase tracking-wider hover:bg-white/10 hover:text-white/70 transition-all"
+                                className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-[#FDFAF3] border border-[#D8CBB0] text-[#6B5D4F] text-xs font-semibold uppercase font-sans-academic hover:bg-[#EFE8D8] transition-colors"
                             >
-                                <LogOut size={11} />
-                                Logout
+                                <LogOut size={12} />
+                                Exit Session
                             </button>
                         </div>
                     </section>
 
                     {/* USER ROLE & FUNCTIONAL WORKSPACE SELECTOR CARD */}
-                    <section className="rounded-2xl border border-indigo-500/20 bg-gradient-to-b from-indigo-500/10 via-black/40 to-transparent p-6 relative overflow-hidden backdrop-blur-xl shadow-[0_0_30px_rgba(99,102,241,0.15)]">
+                    <section className="paper-sheet p-6 rounded-none relative">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <div className="flex items-center gap-3">
-                                <div className="p-2.5 rounded-xl bg-indigo-500/20 border border-indigo-400/30 text-indigo-400 shadow-inner">
-                                    <UserIcon size={22} />
+                                <div className="p-2 rounded bg-[#8A6D3B]/10 border border-[#8A6D3B]/30 text-[#8A6D3B]">
+                                    <UserIcon size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-black text-white tracking-wide flex items-center gap-2">
-                                        Account Role & Workspace Focus
-                                        <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono uppercase tracking-wider">
+                                    <h3 className="text-lg font-bold font-serif-academic text-[#2B211A] tracking-wide flex items-center gap-2">
+                                        Account Role & Workspace Mode
+                                        <span className="text-[10px] px-2 py-0.5 rounded-sm border border-[#8A6D3B]/40 bg-[#8A6D3B]/10 text-[#8A6D3B] font-mono-stamp uppercase">
                                             {user?.role === 'teacher' ? 'Educator Mode' : 'Student Mode'}
                                         </span>
                                     </h3>
-                                    <p className="text-xs text-white/50 mt-0.5">
-                                        Select your functional role to customize tools, dashboards, and AI workspace presets.
+                                    <p className="text-xs text-[#6B5D4F] mt-0.5 font-sans-academic">
+                                        Select your primary role to structure tools, paper generators, and workspace presets.
                                     </p>
                                 </div>
                             </div>
@@ -420,28 +411,28 @@ export default function Profile() {
                                         key={roleOption.id}
                                         onClick={() => updateDeepHubUser({ role: roleOption.id })}
                                         className={`
-                                            relative flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 group
+                                            relative flex flex-col items-start p-4 border text-left transition-colors group
                                             ${isCurrentRole
-                                                ? 'bg-indigo-500/20 border-indigo-400 text-white shadow-[0_0_20px_rgba(99,102,241,0.25)] ring-1 ring-indigo-400/50'
-                                                : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20 hover:text-white'
+                                                ? 'bg-[#FDFAF3] border-[#A6522C] border-l-4 text-[#2B211A]'
+                                                : 'bg-[#FDFAF3] border-[#D8CBB0] text-[#6B5D4F] hover:bg-[#EFE8D8]'
                                             }
                                         `}
                                     >
                                         <div className="flex items-center justify-between w-full mb-2">
-                                            <div className="p-2 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-                                                <RoleIcon size={20} />
+                                            <div className={`p-2 rounded ${isCurrentRole ? 'bg-[#A6522C]/10 text-[#A6522C]' : 'bg-[#EFE8D8] text-[#6B5D4F]'}`}>
+                                                <RoleIcon size={18} />
                                             </div>
                                             {isCurrentRole ? (
-                                                <CheckCircle size={16} className="text-indigo-400 flex-shrink-0" />
+                                                <CheckCircle size={16} className="text-[#A6522C] flex-shrink-0" />
                                             ) : (
-                                                <span className="text-[9px] px-2 py-0.5 rounded bg-white/5 text-white/40 group-hover:text-white/60 font-mono">
+                                                <span className="text-[10px] font-mono-stamp px-2 py-0.5 border border-[#D8CBB0] text-[#6B5D4F]">
                                                     Select
                                                 </span>
                                             )}
                                         </div>
-                                        <h4 className="text-sm font-bold truncate w-full text-white">{roleOption.title}</h4>
-                                        <span className="text-[9px] font-mono uppercase tracking-wider text-indigo-300 mt-0.5">{roleOption.badge}</span>
-                                        <p className="text-[11px] text-white/40 group-hover:text-white/60 leading-tight mt-2">{roleOption.desc}</p>
+                                        <h4 className="text-sm font-bold font-serif-academic truncate w-full text-[#2B211A]">{roleOption.title}</h4>
+                                        <span className="text-[10px] font-mono-stamp uppercase text-[#8A6D3B] mt-0.5">{roleOption.badge}</span>
+                                        <p className="text-xs text-[#6B5D4F] leading-relaxed mt-2 font-sans-academic">{roleOption.desc}</p>
                                     </button>
                                 );
                             })}
@@ -449,28 +440,28 @@ export default function Profile() {
                     </section>
 
                     {/* REGIONAL & INDIAN LANGUAGE SELECTOR CARD */}
-                    <section className="rounded-2xl border border-cyan-500/20 bg-gradient-to-b from-cyan-500/10 via-black/40 to-transparent p-6 relative overflow-hidden backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+                    <section className="paper-sheet p-6 rounded-none relative">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <div className="flex items-center gap-3">
-                                <div className="p-2.5 rounded-xl bg-cyan-500/20 border border-cyan-400/30 text-cyan-400 shadow-inner">
-                                    <Globe size={22} />
+                                <div className="p-2 rounded bg-[#8A6D3B]/10 border border-[#8A6D3B]/30 text-[#8A6D3B]">
+                                    <Globe size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-black text-white tracking-wide flex items-center gap-2">
+                                    <h3 className="text-lg font-bold font-serif-academic text-[#2B211A] tracking-wide flex items-center gap-2">
                                         {t('languageSettings')}
-                                        <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono uppercase tracking-wider">
+                                        <span className="text-[10px] px-2 py-0.5 rounded-sm border border-[#8A6D3B]/40 bg-[#8A6D3B]/10 text-[#8A6D3B] font-mono-stamp uppercase">
                                             11 Languages
                                         </span>
                                     </h3>
-                                    <p className="text-xs text-white/50 mt-0.5">
+                                    <p className="text-xs text-[#6B5D4F] mt-0.5 font-sans-academic">
                                         {t('languageSubtitle')}
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-medium text-cyan-300 self-start sm:self-auto">
-                                <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 bg-cyan-500/20 text-cyan-300 rounded font-bold">{currentLanguage.code}</span>
-                                <span className="font-bold">{currentLanguage.nativeName}</span>
-                                <span className="text-white/40">({currentLanguage.name})</span>
+                            <div className="flex items-center gap-2 px-3 py-1 border border-[#D8CBB0] bg-[#FDFAF3] text-xs font-mono-stamp text-[#8A6D3B]">
+                                <span className="font-bold">{currentLanguage.code.toUpperCase()}</span>
+                                <span className="font-sans-academic font-bold text-[#2B211A]">{currentLanguage.nativeName}</span>
+                                <span className="text-[#6B5D4F]">({currentLanguage.name})</span>
                             </div>
                         </div>
 
@@ -483,45 +474,40 @@ export default function Profile() {
                                         key={lang.code}
                                         onClick={() => setLanguageByCode(lang.code)}
                                         className={`
-                                            relative flex flex-col items-start p-3 rounded-xl border text-left transition-all duration-300 group
+                                            relative flex flex-col items-start p-3 border text-left transition-colors group
                                             ${isSelected 
-                                                ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-[0_0_20px_rgba(6,182,212,0.25)] ring-1 ring-cyan-400/50' 
-                                                : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20 hover:text-white'
+                                                ? 'bg-[#FDFAF3] border-[#A6522C] border-l-4 text-[#2B211A]' 
+                                                : 'bg-[#FDFAF3] border-[#D8CBB0] text-[#6B5D4F] hover:bg-[#EFE8D8]'
                                             }
                                         `}
                                     >
                                         <div className="flex items-center justify-between w-full mb-1">
-                                            <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 bg-white/10 text-cyan-300 rounded">{lang.code}</span>
+                                            <span className="text-[10px] font-mono-stamp font-bold uppercase px-1.5 py-0.5 border border-[#8A6D3B]/30 bg-[#8A6D3B]/10 text-[#8A6D3B]">{lang.code}</span>
                                             {isSelected && (
-                                                <CheckCircle size={14} className="text-cyan-400 flex-shrink-0" />
+                                                <CheckCircle size={14} className="text-[#A6522C] flex-shrink-0" />
                                             )}
                                         </div>
-                                        <span className="text-sm font-bold truncate w-full">{lang.nativeName}</span>
-                                        <span className="text-[10px] text-white/40 group-hover:text-white/60 truncate w-full">{lang.name}</span>
+                                        <span className="text-sm font-bold font-sans-academic truncate w-full text-[#2B211A]">{lang.nativeName}</span>
+                                        <span className="text-[10px] text-[#6B5D4F] truncate w-full font-sans-academic">{lang.name}</span>
                                     </button>
                                 );
                             })}
                         </div>
-
-                        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-[11px] text-white/50">
-                            <Sparkles size={13} className="text-cyan-400 flex-shrink-0" />
-                            <span>{t('activeLanguageNote')}</span>
-                        </div>
                     </section>
 
                     {/* THEME & APPEARANCE CARD */}
-                    <section className="rounded-2xl border border-violet-500/20 bg-gradient-to-b from-violet-500/10 via-black/40 to-transparent p-6 relative overflow-hidden backdrop-blur-xl shadow-[0_0_30px_rgba(139,92,246,0.15)]">
+                    <section className="paper-sheet p-6 rounded-none relative">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <div className="flex items-center gap-3">
-                                <div className="p-2.5 rounded-xl bg-violet-500/20 border border-violet-400/30 text-violet-400 shadow-inner">
-                                    <Palette size={22} />
+                                <div className="p-2 rounded bg-[#8A6D3B]/10 border border-[#8A6D3B]/30 text-[#8A6D3B]">
+                                    <Palette size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-black text-white tracking-wide">
-                                        {t('themeTitle')}
+                                    <h3 className="text-lg font-bold font-serif-academic text-[#2B211A] tracking-wide">
+                                        Parchment & Paper Display Mode
                                     </h3>
-                                    <p className="text-xs text-white/50 mt-0.5">
-                                        {t('themeSubtitle')}
+                                    <p className="text-xs text-[#6B5D4F] mt-0.5 font-sans-academic">
+                                        Select your preferred reading contrast for long grading and lesson planning sessions.
                                     </p>
                                 </div>
                             </div>
@@ -529,8 +515,8 @@ export default function Profile() {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {[
-                                { id: 'cyber-dark', label: 'Standard Dark', icon: Moon, bg: 'bg-[#020408]', border: 'border-cyan-500/30', glow: 'High-Contrast Cyber Dark' },
-                                { id: 'educator-gold', label: 'Educator Theme', icon: BookOpen, bg: 'bg-[#0f0d0a]', border: 'border-amber-500/40', glow: 'Warm Academic Parchment for Teachers' },
+                                { id: 'educator-gold', label: 'Academic Parchment (Teacher Mode)', icon: BookOpen, bg: 'bg-[#FDFAF3]', border: 'border-[#D8CBB0]', glow: 'Warm Paper & Red Pen Ink' },
+                                { id: 'cyber-dark', label: 'Contrast Paper', icon: Feather, bg: 'bg-[#FDFAF3]', border: 'border-[#D8CBB0]', glow: 'Dark Contrast Paper' },
                             ].map((thm) => {
                                 const isSelected = theme === thm.id;
                                 const ThemeIcon = thm.icon;
@@ -539,19 +525,19 @@ export default function Profile() {
                                         key={thm.id}
                                         onClick={() => setTheme(thm.id)}
                                         className={`
-                                            flex flex-col items-start p-3.5 rounded-xl border text-left transition-all duration-300 ${thm.bg}
+                                            flex flex-col items-start p-4 border text-left transition-colors ${thm.bg}
                                             ${isSelected
-                                                ? 'border-violet-400 shadow-[0_0_20px_rgba(139,92,246,0.3)] ring-1 ring-violet-400'
-                                                : `${thm.border} hover:border-violet-400/40 opacity-80 hover:opacity-100`
+                                                ? 'border-[#A6522C] border-l-4 text-[#2B211A]'
+                                                : `${thm.border} hover:bg-[#EFE8D8] text-[#6B5D4F]`
                                             }
                                         `}
                                     >
                                         <div className="flex items-center justify-between w-full mb-2">
-                                            <ThemeIcon size={16} className="text-amber-400" />
-                                            {isSelected && <CheckCircle size={14} className="text-violet-400" />}
+                                            <ThemeIcon size={18} className="text-[#A6522C]" />
+                                            {isSelected && <CheckCircle size={16} className="text-[#A6522C]" />}
                                         </div>
-                                        <span className="text-xs font-bold text-white mb-0.5">{thm.label}</span>
-                                        <span className="text-[10px] text-white/40">{thm.glow}</span>
+                                        <span className="text-sm font-bold font-serif-academic text-[#2B211A] mb-0.5">{thm.label}</span>
+                                        <span className="text-xs text-[#6B5D4F] font-sans-academic">{thm.glow}</span>
                                     </button>
                                 );
                             })}
