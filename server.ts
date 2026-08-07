@@ -45,20 +45,28 @@ const connectDB = async () => {
     // Only import Mongoose/MongoMemoryServer if NOT in DynamoDB mode
     const { default: mongoose } = await import("mongoose");
     const MONGO_URI = process.env.MONGO_URI;
+    const mongoOptions = {
+        maxPoolSize: 25,
+        minPoolSize: 5,
+        socketTimeoutMS: 45000,
+        serverSelectionTimeoutMS: 3000,
+        family: 4, // Fast IPv4 DNS resolution
+    };
+
     try {
         if (MONGO_URI && MONGO_URI !== "mongodb://127.0.0.1:27017/deephub_ai" && MONGO_URI !== "NOT_USED_DYNAMODB_ACTIVE") {
-            await mongoose.connect(MONGO_URI);
+            await mongoose.connect(MONGO_URI, mongoOptions);
             console.log("🍃 DB_CONNECTED (CLUSTERING_ACTIVE)");
         } else {
             try {
-                await mongoose.connect("mongodb://127.0.0.1:27017/deephub_ai", { serverSelectionTimeoutMS: 2000 });
+                await mongoose.connect("mongodb://127.0.0.1:27017/deephub_ai", mongoOptions);
                 console.log("🍃 DB_CONNECTED (LOCAL_NODE)");
             } catch {
                 console.log("⚠️  Local Node Offline. Initializing Volatile Memory Node...");
                 const { MongoMemoryServer } = await import("mongodb-memory-server");
                 const mongoServer = await MongoMemoryServer.create();
                 const uri = mongoServer.getUri();
-                await mongoose.connect(uri);
+                await mongoose.connect(uri, mongoOptions);
                 console.log("🧠 MEMORY_NODE_ONLINE (Zero-Config Mode)");
             }
         }
@@ -71,8 +79,10 @@ connectDB();
 
 /* ==================== PERFORMANCE ==================== */
 app.use(compression({
+    level: 6,
+    threshold: 1024,
     filter: (req, res) => {
-        if (req.url === "/api/neural-feed") return false;
+        if (req.url === "/api/neural-feed" || req.url === "/api/chat") return false;
         return compression.filter(req, res);
     }
 }));
@@ -85,12 +95,12 @@ app.use((req, res, next) => {
     // Only log if it's not a known bot scan
     if (!muteLogPaths.some(p => req.url.toLowerCase().includes(p))) {
         // Also suppress excessive /health checks
-        if (req.url !== '/health') {
+        if (req.url !== '/health' && req.url !== '/api/health') {
             console.log(`📡 [${req.method}] ${req.url}`);
         }
     }
     
-    res.setHeader("X-Neural-Source", "DeepHub-Core-v2-Patch-20-Ollama-Optimization");
+    res.setHeader("X-Neural-Source", "DeepHub-Core-v2-Optimized");
     next();
 });
 
@@ -104,7 +114,7 @@ app.use(helmet({
             "script-src-attr": ["'unsafe-inline'"],
             "style-src": ["'self'", "'unsafe-inline'", "https:", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net", "https://accounts.google.com"],
             "img-src": ["'self'", "data:", "blob:", "https:", "https://*.google.com", "https://*.gstatic.com", "https://images.unsplash.com", "https://github.com", "https://*.github.com"],
-            "connect-src": ["'self'", "https:", "https://huggingface.co", "https://*.huggingface.co", "https://newsapi.org", "https://*.newsapi.org", "https://cdn.jsdelivr.net", "https://*.gstatic.com", "https://tessdata.projectnaptha.com", "https://accounts.google.com", "https://www.googleapis.com", "https://api.razorpay.com", "https://*.razorpay.com"],
+            "connect-src": ["'self'", "https:", "https://huggingface.co", "https://*.huggingface.co", "https://newsapi.org", "https://*.newsapi.org", "https://cdn.jsdelivr.net", "https://*.gstatic.com", "https://tessdata.projectnaptha.com", "https://accounts.google.com", "https://googleapis.com", "https://*.googleapis.com", "https://api.razorpay.com", "https://*.razorpay.com"],
             "font-src": ["'self'", "https:", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net", "data:"],
             "frame-src": ["'self'", "https://accounts.google.com", "https://api.razorpay.com", "https://checkout.razorpay.com"],
             "object-src": ["'none'"],
@@ -118,7 +128,7 @@ app.use(helmet({
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 100, // Limit each IP to 100 requests per window
+    limit: 300, // Increased limit for smoother multi-tab user experience
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     message: { error: 'TOO_MANY_REQUESTS', message: 'Take a breath. Neural bandwidth exceeded.' }
@@ -129,8 +139,9 @@ app.use("/api/", limiter);
 app.use(
     cors({
         origin: "*",
-        methods: ["GET", "POST", "PATCH", "OPTIONS"],
+        methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
+        maxAge: 86400, // Cache preflight OPTIONS requests for 24h
     }),
 );
 
@@ -312,8 +323,10 @@ const server = app.listen(PORT, () => {
     console.log(`📂 MODE : ARCHITECTURAL_EVOLUTION_PHASE_2`);
 });
 
-// Set global timeout to 10 minutes for long AI tasks
+// Set global timeout to 10 minutes for long AI tasks, keep-alive 65s for zero connection churn
 server.timeout = 600000;
+server.keepAliveTimeout = 65000;
+server.headersTimeout = 66000;
 
 server.on('error', (err: any) => {
     console.error("❌ SERVER ERROR:", err);
@@ -326,7 +339,21 @@ server.on('close', () => {
     console.log("🛑 SERVER CLOSED");
 });
 
-// Prevent immediate exit - though app.listen should handle this
+const gracefulShutdown = (signal: string) => {
+    console.log(`🛑 Received ${signal}. Shutting down HTTP server gracefully...`);
+    server.close(() => {
+        console.log("⚡ HTTP server closed cleanly. Port liberated.");
+        process.exit(0);
+    });
+    setTimeout(() => {
+        console.error("⚠️ Forceful shutdown after 5s timeout.");
+        process.exit(1);
+    }, 5000);
+};
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
 process.on('uncaughtException', (err) => {
     console.error('❌ UNCAUGHT EXCEPTION:', err);
 });
