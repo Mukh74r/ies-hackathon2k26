@@ -26,6 +26,7 @@ import GraphicalBackend from '../components/GraphicalBackend';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
 import CommandPalette from '../components/CommandPalette';
 import Card3D from '../components/Card3D';
+import ScrollProgress from '../components/ScrollProgress';
 
 export default function Home() {
     const navigate = useNavigate();
@@ -129,6 +130,9 @@ export default function Home() {
         <div className="min-h-screen bg-[#000000] text-[#FFFFFF] font-sans-academic selection:bg-[#00A4E4]/25 transition-colors relative overflow-x-hidden">
             {/* Global Quick Command Palette (Cmd + K) */}
             <CommandPalette />
+
+            {/* Scroll Experience: Dynamic Reading Progress & Floating Return */}
+            <ScrollProgress />
 
             {/* Interactive Graphical Starfield Backend */}
             <GraphicalBackend />

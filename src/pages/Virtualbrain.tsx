@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Footer1 from "../components/Footer1";
 import Card3D from "../components/Card3D";
+import ScrollProgress from "../components/ScrollProgress";
 import "../index.css";
 import { Brain, Cpu, ExternalLink, BookOpen, Layers, Star, Compass } from "lucide-react";
 
@@ -216,6 +217,9 @@ export default function Virtualbrain() {
 
     return (
         <div className="min-h-screen bg-[#020408] text-white">
+            {/* Scroll Experience: Dynamic Reading Progress Bar & Back-to-Top Button */}
+            <ScrollProgress />
+
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 
                 {/* HEADER SECTION */}

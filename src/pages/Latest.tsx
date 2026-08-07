@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Footer1 from "../components/Footer1";
+import ScrollProgress from "../components/ScrollProgress";
 import "../index.css";
 import { Sparkles, RefreshCw, ExternalLink, Share2, Check, GraduationCap, BookOpen, School, Award, Lightbulb, Users, Compass } from "lucide-react";
 import { apiEndpoint } from "../utils/api";
@@ -324,6 +325,9 @@ Please summarize in 3 bullet points focusing on impact for teachers and students
 
     return (
         <div className="min-h-screen bg-[#020408] text-white">
+            {/* Scroll Experience: Dynamic Reading Progress Bar & Back-to-Top Button */}
+            <ScrollProgress />
+
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 
                 {/* HEADER */}

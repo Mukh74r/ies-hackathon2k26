@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Check, Lock, Zap, ArrowRight, ShieldCheck, Sparkles, Building2, UserCheck, HelpCircle } from "lucide-react";
 import Footer1 from "../components/Footer1";
+import ScrollProgress from "../components/ScrollProgress";
 
 const FREE_FEATURES = [
     { label: "Question Paper Generator", limit: "3 / month" },
@@ -160,6 +161,9 @@ export default function Pricing() {
 
     return (
         <div className="min-h-screen bg-[#000000] text-[#FFFFFF] font-sans-academic selection:bg-[#00A4E4]/30">
+            {/* Scroll Experience: Reading Progress & Return Indicator */}
+            <ScrollProgress />
+
             {/* Top Navbar */}
             <header className="border-b border-[#1E2640] px-4 sm:px-8 py-4 bg-[#000000]/90 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
