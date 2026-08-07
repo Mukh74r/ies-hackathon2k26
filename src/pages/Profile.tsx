@@ -527,13 +527,10 @@ export default function Profile() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {[
-                                { id: 'cyber-dark', label: 'Cyber Dark', icon: Moon, bg: 'bg-[#020408]', border: 'border-cyan-500/30', glow: 'Cyan Mesh' },
-                                { id: 'educator-gold', label: 'Educator Gold', icon: Award, bg: 'bg-[#0f0d0a]', border: 'border-amber-500/40', glow: 'Academic Parchment' },
-                                { id: 'midnight-blue', label: 'Midnight Blue', icon: Compass, bg: 'bg-[#0a1128]', border: 'border-blue-500/30', glow: 'Sapphire Glow' },
-                                { id: 'emerald-neon', label: 'Emerald Neon', icon: Sparkles, bg: 'bg-[#061412]', border: 'border-emerald-500/30', glow: 'Emerald Glow' },
-                                { id: 'solar-light', label: 'Solar Light', icon: Sun, bg: 'bg-[#0f172a]', border: 'border-amber-500/30', glow: 'Solar Accent' },
+                                { id: 'cyber-dark', label: 'Standard Dark', icon: Moon, bg: 'bg-[#020408]', border: 'border-cyan-500/30', glow: 'High-Contrast Cyber Dark' },
+                                { id: 'educator-gold', label: 'Educator Theme', icon: BookOpen, bg: 'bg-[#0f0d0a]', border: 'border-amber-500/40', glow: 'Warm Academic Parchment for Teachers' },
                             ].map((thm) => {
                                 const isSelected = theme === thm.id;
                                 const ThemeIcon = thm.icon;
