@@ -6,7 +6,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 // Note: Replace with your actual logo import
 import BrandLogo from "../assets/brand-logo-main.svg";
 
-import { Globe, ChevronDown, Check } from "lucide-react";
+import { Globe, ChevronDown, Check, Sun, Moon } from "lucide-react";
 import { useAI } from "../context/AIContext";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage, INDIAN_LANGUAGES } from "../context/LanguageContext";
@@ -16,7 +16,8 @@ import AIModelSwitcher from "./AIModelSwitcher";
 
 export default function Navbar() {
     const { user, logout } = useAuth();
-    const { currentLanguage, setLanguageByCode, t } = useLanguage();
+    const { currentLanguage, setLanguageByCode, t, theme, toggleTheme } = useLanguage();
+    const isLight = theme === 'light';
     const [astroHover, setAstroHover] = useState(false);
     const [astroOpen, setAstroOpen] = useState(false);
     const [langOpen, setLangOpen] = useState(false);
@@ -306,18 +307,40 @@ export default function Navbar() {
                     })}
                 </nav>
 
-                {/* GLOBAL INDIAN LANGUAGE SWITCHER STAMP */}
-                <div className="relative ml-auto z-50 notranslate" translate="no">
+                {/* RIGHT ACTIONS: THEME TOGGLE + LANGUAGE SWITCHER */}
+                <div className="flex items-center gap-2 ml-auto z-50 notranslate" translate="no">
+                    {/* THEME TOGGLE BUTTON */}
                     <button
-                        onClick={() => setLangOpen(prev => !prev)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#2E3B4E] bg-[#1A2433] text-xs font-mono-stamp text-[#FF9900] hover:border-[#FF9900]/60 hover:bg-[#232F3E] transition-all notranslate"
-                        title="Switch Indian Regional Language"
+                        onClick={toggleTheme}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-[#2E3B4E] bg-[#1A2433] text-xs font-mono-stamp text-[var(--foreground)] hover:border-[#FF9900]/60 hover:bg-[#232F3E] transition-all notranslate active:scale-95 shadow-sm"
+                        title={`Switch to ${isLight ? 'Dark Mode' : 'White Mode'}`}
                         translate="no"
                     >
-                        <span className="notranslate" translate="no">{currentLanguage.code.toUpperCase()}</span>
-                        <span className="text-[10px] text-[#AAB7B8] notranslate" translate="no">({currentLanguage.name})</span>
-                        <ChevronDown size={12} className={`transition-transform text-[#FF9900] ${langOpen ? 'rotate-180' : ''}`} />
+                        {isLight ? (
+                            <>
+                                <Sun size={13} className="text-[#D97706]" />
+                                <span className="hidden sm:inline text-[11px] font-mono-stamp font-bold text-[#0F172A]">White</span>
+                            </>
+                        ) : (
+                            <>
+                                <Moon size={13} className="text-[#FF9900]" />
+                                <span className="hidden sm:inline text-[11px] font-mono-stamp font-bold text-[#FF9900]">Dark</span>
+                            </>
+                        )}
                     </button>
+
+                    {/* GLOBAL INDIAN LANGUAGE SWITCHER STAMP */}
+                    <div className="relative notranslate" translate="no">
+                        <button
+                            onClick={() => setLangOpen(prev => !prev)}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#2E3B4E] bg-[#1A2433] text-xs font-mono-stamp text-[#FF9900] hover:border-[#FF9900]/60 hover:bg-[#232F3E] transition-all notranslate"
+                            title="Switch Indian Regional Language"
+                            translate="no"
+                        >
+                            <span className="notranslate" translate="no">{currentLanguage.code.toUpperCase()}</span>
+                            <span className="text-[10px] text-[#AAB7B8] notranslate" translate="no">({currentLanguage.name})</span>
+                            <ChevronDown size={12} className={`transition-transform text-[#FF9900] ${langOpen ? 'rotate-180' : ''}`} />
+                        </button>
 
                     <AnimatePresence>
                         {langOpen && (
@@ -355,6 +378,7 @@ export default function Navbar() {
                             </motion.div>
                         )}
                     </AnimatePresence>
+                    </div>
                 </div>
             </header>
 

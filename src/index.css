@@ -101,6 +101,60 @@
   font-family: inherit;
 }
 
+/* White mode overrides for custom hex containers so all text is 100% visible */
+[data-theme='light'] .bg-\[\#0F1B2A\],
+[data-theme='light'] .bg-\[\#080C14\],
+[data-theme='light'] .bg-\[\#0B121E\],
+[data-theme='light'] .bg-\[\#0F172A\] {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+}
+
+[data-theme='light'] .bg-\[\#1A2433\],
+[data-theme='light'] .bg-\[\#232F3E\] {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #E2E8F0 !important;
+}
+
+[data-theme='light'] .border-\[\#2E3B4E\],
+[data-theme='light'] .border-\[\#1E293B\],
+[data-theme='light'] .border-\[\#334155\] {
+  border-color: #E2E8F0 !important;
+}
+
+[data-theme='light'] .text-\[\#FFFFFF\],
+[data-theme='light'] .text-\[\#F8FAFC\],
+[data-theme='light'] .text-\[\#F2F3F3\] {
+  color: #0F172A !important;
+}
+
+[data-theme='light'] .text-\[\#AAB7B8\],
+[data-theme='light'] .text-\[\#94A3B8\],
+[data-theme='light'] .text-\[\#64748B\] {
+  color: #475569 !important;
+}
+
+[data-theme='light'] .text-\[\#FF9900\] {
+  color: #D97706 !important;
+}
+
+[data-theme='light'] .text-\[\#00A4E4\],
+[data-theme='light'] .text-\[\#38BDF8\] {
+  color: #0284C7 !important;
+}
+
+[data-theme='light'] .bg-\[\#FF9900\] {
+  background-color: #D97706 !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme='light'] .bg-\[\#00A4E4\],
+[data-theme='light'] .bg-\[\#38BDF8\] {
+  background-color: #0284C7 !important;
+  color: #FFFFFF !important;
+}
+
 @layer utilities {
   .font-display, .font-serif-academic {
     font-family: "Plus Jakarta Sans", sans-serif;
@@ -116,11 +170,17 @@
     letter-spacing: 0.05em;
   }
 
-  /* Paper sheet card shadow for dark mode */
+  /* Paper sheet card shadow for dark & light mode */
   .paper-sheet {
     background-color: #0F172A;
     border: 1px solid #1E293B;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  [data-theme='light'] .paper-sheet {
+    background-color: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
   }
 
   /* Teacher Red Pen Correction Mark Motif */
