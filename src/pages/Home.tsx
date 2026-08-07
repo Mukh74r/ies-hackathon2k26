@@ -25,6 +25,7 @@ import BrandLogo from '../assets/brand-logo-main.svg';
 import GraphicalBackend from '../components/GraphicalBackend';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
 import CommandPalette from '../components/CommandPalette';
+import Card3D from '../components/Card3D';
 
 export default function Home() {
     const navigate = useNavigate();
@@ -330,31 +331,32 @@ export default function Home() {
                     {/* 3 News Snapshot Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
                         {LATEST_AI_NEWS.map((item, idx) => (
-                            <div
-                                key={idx}
-                                onClick={() => navigate('/latest')}
-                                className="p-5 rounded-2xl bg-[#000000]/60 border border-[#1E2640] hover:border-[#00A4E4] transition-all card-lift flex flex-col justify-between cursor-pointer group shadow-md"
-                            >
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between text-[11px]">
-                                        <span className="px-2.5 py-0.5 rounded-full bg-[#00A4E4]/10 border border-[#00A4E4]/30 text-[#00A4E4] font-semibold font-mono-stamp">
-                                            {item.tag}
-                                        </span>
-                                        <span className="text-white/40 font-mono text-[10px]">{item.time}</span>
+                            <Card3D key={idx} depth={10} glare={true}>
+                                <div
+                                    onClick={() => navigate('/latest')}
+                                    className="p-5 rounded-2xl bg-[#000000]/70 border border-[#1E2640] hover:border-[#00A4E4] transition-all flex flex-col justify-between cursor-pointer group shadow-lg h-full min-h-[220px]"
+                                >
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between text-[11px]">
+                                            <span className="px-2.5 py-0.5 rounded-full bg-[#00A4E4]/10 border border-[#00A4E4]/30 text-[#00A4E4] font-semibold font-mono-stamp">
+                                                {item.tag}
+                                            </span>
+                                            <span className="text-white/40 font-mono text-[10px]">{item.time}</span>
+                                        </div>
+                                        <h3 className="text-sm font-bold text-white group-hover:text-[#00A4E4] transition-colors font-display line-clamp-2">
+                                            {item.title}
+                                        </h3>
+                                        <p className="text-xs text-[#94A3B8] leading-relaxed line-clamp-3 font-sans-academic">
+                                            {item.summary}
+                                        </p>
                                     </div>
-                                    <h3 className="text-sm font-bold text-white group-hover:text-[#00A4E4] transition-colors font-display line-clamp-2">
-                                        {item.title}
-                                    </h3>
-                                    <p className="text-xs text-[#94A3B8] leading-relaxed line-clamp-3 font-sans-academic">
-                                        {item.summary}
-                                    </p>
-                                </div>
 
-                                <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] font-semibold text-[#00A4E4]">
-                                    <span>Read Full Article</span>
-                                    <ExternalLink size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                                    <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] font-semibold text-[#00A4E4]">
+                                        <span>Read Full Article</span>
+                                        <ExternalLink size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                                    </div>
                                 </div>
-                            </div>
+                            </Card3D>
                         ))}
                     </div>
                 </div>
@@ -378,31 +380,30 @@ export default function Home() {
                     {WHY_CARDS.map((card, idx) => {
                         const Icon = card.icon;
                         return (
-                            <div
-                                key={idx}
-                                className="p-5 sm:p-6 rounded-2xl bg-[#0E1424]/90 backdrop-blur-md border border-[#1E2640] hover:border-[#00A4E4] transition-all card-lift shadow-xl flex flex-col justify-between"
-                            >
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="p-3 rounded-xl bg-[#000000] border border-[#1E2640] text-[#00A4E4]">
-                                            <Icon size={22} />
+                            <Card3D key={idx} depth={8} glare={true}>
+                                <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1424]/90 backdrop-blur-md border border-[#1E2640] hover:border-[#00A4E4] transition-all shadow-xl flex flex-col justify-between h-full min-h-[260px]">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="p-3 rounded-xl bg-[#000000] border border-[#1E2640] text-[#00A4E4]">
+                                                <Icon size={22} />
+                                            </div>
+                                            <span className="text-[10px] font-mono-stamp text-[#00A4E4] border border-[#00A4E4]/30 bg-[#00A4E4]/10 px-2 py-0.5 rounded">
+                                                {card.badge}
+                                            </span>
                                         </div>
-                                        <span className="text-[10px] font-mono-stamp text-[#00A4E4] border border-[#00A4E4]/30 bg-[#00A4E4]/10 px-2 py-0.5 rounded">
-                                            {card.badge}
-                                        </span>
+                                        <h3 className="text-base sm:text-lg font-bold text-[#FFFFFF] font-display">
+                                            {card.title}
+                                        </h3>
+                                        <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed font-sans-academic">
+                                            {card.desc}
+                                        </p>
                                     </div>
-                                    <h3 className="text-base sm:text-lg font-bold text-[#FFFFFF] font-display">
-                                        {card.title}
-                                    </h3>
-                                    <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed font-sans-academic">
-                                        {card.desc}
-                                    </p>
+                                    <div className="mt-6 pt-4 border-t border-[#1E2640] flex items-center justify-between text-xs font-semibold text-[#00A4E4]">
+                                        <span>Learn more</span>
+                                        <ArrowRight size={14} />
+                                    </div>
                                 </div>
-                                <div className="mt-6 pt-4 border-t border-[#1E2640] flex items-center justify-between text-xs font-semibold text-[#00A4E4]">
-                                    <span>Learn more</span>
-                                    <ArrowRight size={14} />
-                                </div>
-                            </div>
+                            </Card3D>
                         );
                     })}
                 </div>
