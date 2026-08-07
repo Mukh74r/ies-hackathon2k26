@@ -36,6 +36,7 @@ uploads/*
 scratch/
 tmp/
 .agent/
+skills_repo/
 
 # OS & Editor metadata
 .DS_Store
