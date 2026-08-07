@@ -497,50 +497,37 @@ export default function Profile() {
 
                     {/* THEME & APPEARANCE CARD */}
                     <section className="paper-sheet p-6 rounded-none relative">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 rounded bg-[#8A6D3B]/10 border border-[#8A6D3B]/30 text-[#8A6D3B]">
                                     <Palette size={20} />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold font-serif-academic text-[#2B211A] tracking-wide">
-                                        Parchment & Paper Display Mode
+                                        Site Display Theme
                                     </h3>
                                     <p className="text-xs text-[#6B5D4F] mt-0.5 font-sans-academic">
-                                        Select your preferred reading contrast for long grading and lesson planning sessions.
+                                        DeepHub AI is configured exclusively in Contrast Paper mode for academic reading clarity.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {[
-                                { id: 'educator-gold', label: 'Academic Parchment (Teacher Mode)', icon: BookOpen, bg: 'bg-[#FDFAF3]', border: 'border-[#D8CBB0]', glow: 'Warm Paper & Red Pen Ink' },
-                                { id: 'cyber-dark', label: 'Contrast Paper', icon: Feather, bg: 'bg-[#FDFAF3]', border: 'border-[#D8CBB0]', glow: 'Dark Contrast Paper' },
-                            ].map((thm) => {
-                                const isSelected = theme === thm.id;
-                                const ThemeIcon = thm.icon;
-                                return (
-                                    <button
-                                        key={thm.id}
-                                        onClick={() => setTheme(thm.id)}
-                                        className={`
-                                            flex flex-col items-start p-4 border text-left transition-colors ${thm.bg}
-                                            ${isSelected
-                                                ? 'border-[#A6522C] border-l-4 text-[#2B211A]'
-                                                : `${thm.border} hover:bg-[#EFE8D8] text-[#6B5D4F]`
-                                            }
-                                        `}
-                                    >
-                                        <div className="flex items-center justify-between w-full mb-2">
-                                            <ThemeIcon size={18} className="text-[#A6522C]" />
-                                            {isSelected && <CheckCircle size={16} className="text-[#A6522C]" />}
-                                        </div>
-                                        <span className="text-sm font-bold font-serif-academic text-[#2B211A] mb-0.5">{thm.label}</span>
-                                        <span className="text-xs text-[#6B5D4F] font-sans-academic">{thm.glow}</span>
-                                    </button>
-                                );
-                            })}
+                        <div className="p-4 border border-[#A6522C] border-l-4 bg-[#FDFAF3] flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded bg-[#A6522C]/10 text-[#A6522C]">
+                                    <Feather size={20} />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-bold font-serif-academic text-[#2B211A]">Contrast Paper (Academic Parchment)</h4>
+                                    <p className="text-xs text-[#6B5D4F] font-sans-academic mt-0.5">
+                                        Warm paper tones (#F7F1E3), aged card sheets (#FDFAF3), terracotta red pen marks (#A6522C) & faint ruled lines (#D8CBB0).
+                                    </p>
+                                </div>
+                            </div>
+                            <span className="text-[10px] font-mono-stamp uppercase tracking-wider px-2 py-1 border border-[#A6522C] bg-[#A6522C]/10 text-[#A6522C]">
+                                ACTIVE THEME
+                            </span>
                         </div>
                     </section>
 
