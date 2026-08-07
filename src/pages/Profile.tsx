@@ -13,7 +13,11 @@ import {
     Palette,
     Sparkles,
     GraduationCap,
-    BookOpen
+    BookOpen,
+    Moon,
+    Compass,
+    Sun,
+    Award
 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import Footer1 from '../components/Footer1';
@@ -523,20 +527,22 @@ export default function Profile() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                             {[
-                                { id: 'cyber-dark', label: 'Cyber Dark', icon: '🌌', bg: 'bg-[#020408]', border: 'border-cyan-500/30', glow: 'Cyan Mesh' },
-                                { id: 'midnight-blue', label: 'Midnight Blue', icon: '🌃', bg: 'bg-[#0a1128]', border: 'border-blue-500/30', glow: 'Sapphire Glow' },
-                                { id: 'emerald-neon', label: 'Emerald Neon', icon: '🟢', bg: 'bg-[#061412]', border: 'border-emerald-500/30', glow: 'Emerald Glow' },
-                                { id: 'solar-light', label: 'Solar Light', icon: '☀️', bg: 'bg-[#0f172a]', border: 'border-amber-500/30', glow: 'Solar Accent' },
+                                { id: 'cyber-dark', label: 'Cyber Dark', icon: Moon, bg: 'bg-[#020408]', border: 'border-cyan-500/30', glow: 'Cyan Mesh' },
+                                { id: 'educator-gold', label: 'Educator Gold', icon: Award, bg: 'bg-[#0f0d0a]', border: 'border-amber-500/40', glow: 'Academic Parchment' },
+                                { id: 'midnight-blue', label: 'Midnight Blue', icon: Compass, bg: 'bg-[#0a1128]', border: 'border-blue-500/30', glow: 'Sapphire Glow' },
+                                { id: 'emerald-neon', label: 'Emerald Neon', icon: Sparkles, bg: 'bg-[#061412]', border: 'border-emerald-500/30', glow: 'Emerald Glow' },
+                                { id: 'solar-light', label: 'Solar Light', icon: Sun, bg: 'bg-[#0f172a]', border: 'border-amber-500/30', glow: 'Solar Accent' },
                             ].map((thm) => {
                                 const isSelected = theme === thm.id;
+                                const ThemeIcon = thm.icon;
                                 return (
                                     <button
                                         key={thm.id}
                                         onClick={() => setTheme(thm.id)}
                                         className={`
-                                            flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 ${thm.bg}
+                                            flex flex-col items-start p-3.5 rounded-xl border text-left transition-all duration-300 ${thm.bg}
                                             ${isSelected
                                                 ? 'border-violet-400 shadow-[0_0_20px_rgba(139,92,246,0.3)] ring-1 ring-violet-400'
                                                 : `${thm.border} hover:border-violet-400/40 opacity-80 hover:opacity-100`
@@ -544,7 +550,7 @@ export default function Profile() {
                                         `}
                                     >
                                         <div className="flex items-center justify-between w-full mb-2">
-                                            <span className="text-xl">{thm.icon}</span>
+                                            <ThemeIcon size={16} className="text-amber-400" />
                                             {isSelected && <CheckCircle size={14} className="text-violet-400" />}
                                         </div>
                                         <span className="text-xs font-bold text-white mb-0.5">{thm.label}</span>

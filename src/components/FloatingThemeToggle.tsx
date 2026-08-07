@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Palette, Sparkles, Moon, Sun, Compass } from "lucide-react";
+import { Palette, Sparkles, Moon, Sun, Compass, Award } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 
 const THEMES = [
     { id: "cyber-dark", name: "Cyber Dark", icon: Moon },
+    { id: "educator-gold", name: "Educator Gold", icon: Award },
     { id: "midnight-blue", name: "Midnight Blue", icon: Compass },
     { id: "emerald-neon", name: "Emerald Neon", icon: Sparkles },
     { id: "solar-light", name: "Solar Light", icon: Sun },

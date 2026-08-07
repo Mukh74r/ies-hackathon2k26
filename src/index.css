@@ -772,3 +772,23 @@ html[data-theme="light-mode"] body {
   color: #475569 !important;
 }
 
+/* 5. Educator Gold (Academic Theme) */
+[data-theme="educator-gold"],
+html[data-theme="educator-gold"] body {
+  --background: 35 40% 5%;
+  --foreground: 40 40% 98%;
+  --card: 35 35% 8%;
+  --card-foreground: 40 40% 98%;
+  --primary: 38 92% 50%;
+  --primary-foreground: 35 40% 5%;
+  --border: 35 30% 18%;
+  --ring: 38 92% 50%;
+  background-color: #0f0d0a !important;
+}
+
+[data-theme="educator-gold"] [class*="bg-["],
+[data-theme="educator-gold"] [class*="bg-"] {
+  background-color: #181410 !important;
+}
+
+
