@@ -101,79 +101,145 @@
   font-family: inherit;
 }
 
-/* White mode overrides for custom hex containers so all text is 100% visible */
-[data-theme='light'] .bg-\[\#0F1B2A\],
-[data-theme='light'] .bg-\[\#080C14\],
-[data-theme='light'] .bg-\[\#0B121E\],
-[data-theme='light'] .bg-\[\#0B101D\],
+/* =========================================================================
+   UNIVERSAL WHITE MODE (LIGHT MODE) CONTRAST & VISIBILITY ENGINE
+   Guarantees 100% visible, high-contrast text on all pages & tools
+   ========================================================================= */
+
+/* Base container & sheet backgrounds in Light Mode */
 [data-theme='light'] .bg-\[\#020408\],
+[data-theme='light'] .bg-\[\#080C14\],
+[data-theme='light'] .bg-\[\#0B101D\],
+[data-theme='light'] .bg-\[\#0B121E\],
+[data-theme='light'] .bg-\[\#0F1B2A\],
 [data-theme='light'] .bg-\[\#070A11\],
 [data-theme='light'] .bg-\[\#0A0F1D\],
 [data-theme='light'] .bg-\[\#050810\],
-[data-theme='light'] .bg-\[\#0F172A\] {
+[data-theme='light'] .bg-black,
+[data-theme='light'] .bg-slate-950,
+[data-theme='light'] .bg-zinc-950,
+[data-theme='light'] .bg-gray-950 {
   background-color: #F8FAFC !important;
   color: #0F172A !important;
 }
 
+[data-theme='light'] .bg-\[\#0F172A\],
 [data-theme='light'] .bg-\[\#1A2433\],
 [data-theme='light'] .bg-\[\#1E293B\],
 [data-theme='light'] .bg-\[\#232F3E\],
-[data-theme='light'] .bg-\[\#141D2B\] {
+[data-theme='light'] .bg-\[\#141D2B\],
+[data-theme='light'] .bg-slate-900,
+[data-theme='light'] .bg-zinc-900,
+[data-theme='light'] .bg-gray-900 {
   background-color: #FFFFFF !important;
   color: #0F172A !important;
   border-color: #CBD5E1 !important;
 }
 
-[data-theme='light'] .border-\[\#2E3B4E\],
-[data-theme='light'] .border-\[\#1E293B\],
-[data-theme='light'] .border-\[\#334155\],
-[data-theme='light'] .border-\[\#2A384C\] {
-  border-color: #CBD5E1 !important;
-}
-
-[data-theme='light'] .text-\[\#FFFFFF\],
-[data-theme='light'] .text-\[\#F8FAFC\],
-[data-theme='light'] .text-\[\#F2F3F3\],
+/* Force dark visible text on any element that has white/light text classes in Light Mode */
 [data-theme='light'] .text-white,
+[data-theme='light'] .text-slate-50,
 [data-theme='light'] .text-slate-100,
 [data-theme='light'] .text-slate-200,
 [data-theme='light'] .text-slate-300,
+[data-theme='light'] .text-zinc-50,
 [data-theme='light'] .text-zinc-100,
 [data-theme='light'] .text-zinc-200,
-[data-theme='light'] .text-zinc-300 {
+[data-theme='light'] .text-zinc-300,
+[data-theme='light'] .text-gray-50,
+[data-theme='light'] .text-gray-100,
+[data-theme='light'] .text-gray-200,
+[data-theme='light'] .text-gray-300,
+[data-theme='light'] .text-neutral-50,
+[data-theme='light'] .text-neutral-100,
+[data-theme='light'] .text-neutral-200,
+[data-theme='light'] .text-neutral-300,
+[data-theme='light'] .text-\[\#FFFFFF\],
+[data-theme='light'] .text-\[\#F8FAFC\],
+[data-theme='light'] .text-\[\#F2F3F3\],
+[data-theme='light'] .text-\[\#E2E8F0\],
+[data-theme='light'] .text-\[\#CBD5E1\],
+[data-theme='light'] h1,
+[data-theme='light'] h2,
+[data-theme='light'] h3,
+[data-theme='light'] h4,
+[data-theme='light'] h5,
+[data-theme='light'] h6 {
   color: #0F172A !important;
 }
 
-[data-theme='light'] .text-\[\#AAB7B8\],
-[data-theme='light'] .text-\[\#94A3B8\],
-[data-theme='light'] .text-\[\#64748B\],
-[data-theme='light'] .text-slate-400,
-[data-theme='light'] .text-slate-500,
+/* Muted / Secondary descriptions in Light Mode */
+[data-theme='light'] .text-white\/90,
+[data-theme='light'] .text-white\/80 {
+  color: #1E293B !important;
+}
+
 [data-theme='light'] .text-white\/70,
 [data-theme='light'] .text-white\/60,
 [data-theme='light'] .text-white\/50,
 [data-theme='light'] .text-white\/40,
 [data-theme='light'] .text-white\/30,
-[data-theme='light'] .text-white\/20 {
+[data-theme='light'] .text-white\/25,
+[data-theme='light'] .text-white\/20,
+[data-theme='light'] .text-white\/10,
+[data-theme='light'] .text-slate-400,
+[data-theme='light'] .text-slate-500,
+[data-theme='light'] .text-zinc-400,
+[data-theme='light'] .text-zinc-500,
+[data-theme='light'] .text-gray-400,
+[data-theme='light'] .text-gray-500,
+[data-theme='light'] .text-muted-foreground,
+[data-theme='light'] .text-\[\#AAB7B8\],
+[data-theme='light'] .text-\[\#94A3B8\],
+[data-theme='light'] .text-\[\#64748B\] {
   color: #475569 !important;
+}
+
+/* Borders in Light Mode */
+[data-theme='light'] .border-\[\#2E3B4E\],
+[data-theme='light'] .border-\[\#1E293B\],
+[data-theme='light'] .border-\[\#334155\],
+[data-theme='light'] .border-\[\#2A384C\],
+[data-theme='light'] .border-white\/5,
+[data-theme='light'] .border-white\/10,
+[data-theme='light'] .border-white\/20,
+[data-theme='light'] .border-slate-800,
+[data-theme='light'] .border-slate-700 {
+  border-color: #CBD5E1 !important;
+}
+
+/* Forms, Inputs, Selects & Textareas in Light Mode */
+[data-theme='light'] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-theme='light'] textarea,
+[data-theme='light'] select {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border: 1px solid #CBD5E1 !important;
+}
+
+[data-theme='light'] input::placeholder,
+[data-theme='light'] textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* Active primary badges / buttons in Light Mode */
+[data-theme='light'] .bg-\[\#FF9900\] {
+  background-color: #D97706 !important;
+  color: #FFFFFF !important;
 }
 
 [data-theme='light'] .text-\[\#FF9900\],
 [data-theme='light'] .text-amber-400,
-[data-theme='light'] .text-amber-300 {
+[data-theme='light'] .text-amber-500 {
   color: #D97706 !important;
 }
 
 [data-theme='light'] .text-\[\#00A4E4\],
 [data-theme='light'] .text-\[\#38BDF8\],
 [data-theme='light'] .text-cyan-400,
-[data-theme='light'] .text-cyan-300 {
+[data-theme='light'] .text-cyan-300,
+[data-theme='light'] .text-cyan-500 {
   color: #0284C7 !important;
-}
-
-[data-theme='light'] .bg-\[\#FF9900\] {
-  background-color: #D97706 !important;
-  color: #FFFFFF !important;
 }
 
 [data-theme='light'] .bg-\[\#00A4E4\],
@@ -182,29 +248,15 @@
   color: #FFFFFF !important;
 }
 
-[data-theme='light'] input,
-[data-theme='light'] textarea,
-[data-theme='light'] select {
-  background-color: #FFFFFF !important;
-  color: #0F172A !important;
-  border-color: #CBD5E1 !important;
-}
-
-[data-theme='light'] input::placeholder,
-[data-theme='light'] textarea::placeholder {
-  color: #94A3B8 !important;
-}
-
 [data-theme='light'] .bg-white\/5,
-[data-theme='light'] .bg-white\/10 {
+[data-theme='light'] .bg-white\/10,
+[data-theme='light'] .bg-white\/\[0\.03\],
+[data-theme='light'] .bg-white\/\[0\.05\],
+[data-theme='light'] .bg-white\/\[0\.08\] {
   background-color: #F1F5F9 !important;
 }
 
-[data-theme='light'] .border-white\/10,
-[data-theme='light'] .border-white\/20 {
-  border-color: #CBD5E1 !important;
-}
-
+/* Markdown, LaTeX, and Code Blocks in Light Mode */
 [data-theme='light'] .prose,
 [data-theme='light'] .markdown-body {
   color: #0F172A !important;
