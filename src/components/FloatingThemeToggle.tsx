@@ -7,22 +7,22 @@ export default function FloatingThemeToggle() {
     const isLight = theme === 'light';
 
     return (
-        <div className="fixed bottom-6 right-6 z-[9999]">
+        <div className="fixed bottom-5 right-5 z-[9999] notranslate" translate="no">
             <button
                 onClick={toggleTheme}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-md bg-[var(--card)] border border-[var(--border)] text-xs font-mono-stamp text-[var(--foreground)] shadow-2xl hover:border-[var(--primary)] transition-all cursor-pointer notranslate active:scale-95"
-                title={`Switch to ${isLight ? 'Dark Mode' : 'White Mode'}`}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[var(--card)] border border-[var(--border)] text-xs font-semibold text-[var(--foreground)] shadow-md hover:border-[var(--primary)] transition-all cursor-pointer notranslate card-lift"
+                title={`Switch to ${isLight ? 'Dark Mode' : 'Light Mode'}`}
                 translate="no"
             >
                 {isLight ? (
                     <>
-                        <Sun size={14} className="text-[#D97706]" />
-                        <span className="hidden sm:inline text-[11px] font-mono-stamp font-bold text-[#0F172A]">White Mode</span>
+                        <Sun size={13} className="text-[#B5762A]" />
+                        <span className="text-[11px] font-sans-academic text-[var(--muted-foreground)]">Light</span>
                     </>
                 ) : (
                     <>
-                        <Moon size={14} className="text-[#FF9900]" />
-                        <span className="hidden sm:inline text-[11px] font-mono-stamp font-bold text-[#FF9900]">Dark Mode</span>
+                        <Moon size={13} className="text-[#6E85D6]" />
+                        <span className="text-[11px] font-sans-academic text-[var(--muted-foreground)]">Dark</span>
                     </>
                 )}
             </button>

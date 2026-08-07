@@ -588,7 +588,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
 
     const [theme, setThemeState] = useState<string>(() => {
-        return localStorage.getItem('deephub_theme') || 'dark';
+        return localStorage.getItem('deephub_theme') || 'light';
     });
 
     const triggerDOMTranslation = (code: string) => {
