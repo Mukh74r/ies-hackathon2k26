@@ -57,13 +57,13 @@ export default function GraphicalBackend() {
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('touchmove', handleTouchMove);
 
-        // Star colors: Crisp Diamond White, Amber Gold (#FF9900), Cyan (#00A4E4), Soft Indigo
+        // Standard Star colors: Crisp Diamond White, Cyan (#00A4E4), Celestial Blue (#6E85D6)
         const starColors = [
             'rgba(255, 255, 255, ',
             'rgba(255, 255, 255, ',
             'rgba(255, 255, 255, ',
-            'rgba(255, 153, 0, ',    // Amber glow
             'rgba(0, 164, 228, ',    // Cyan glow
+            'rgba(110, 133, 214, ',  // Indigo glow
             'rgba(170, 190, 255, ',  // Celestial blue
         ];
 
@@ -107,13 +107,13 @@ export default function GraphicalBackend() {
         const render = () => {
             ctx.clearRect(0, 0, width, height);
 
-            // Subtle Deep Space Nebula Auroras
+            // Subtle Deep Space Nebula Auroras in Cyan & Indigo
             const nebula1 = ctx.createRadialGradient(
                 width * 0.25, height * 0.3, 0,
                 width * 0.25, height * 0.3, width * 0.5
             );
-            nebula1.addColorStop(0, 'rgba(255, 153, 0, 0.045)');
-            nebula1.addColorStop(0.6, 'rgba(0, 164, 228, 0.02)');
+            nebula1.addColorStop(0, 'rgba(0, 164, 228, 0.035)');
+            nebula1.addColorStop(0.6, 'rgba(110, 133, 214, 0.02)');
             nebula1.addColorStop(1, 'transparent');
             ctx.fillStyle = nebula1;
             ctx.fillRect(0, 0, width, height);
@@ -122,8 +122,8 @@ export default function GraphicalBackend() {
                 width * 0.75, height * 0.65, 0,
                 width * 0.75, height * 0.65, width * 0.45
             );
-            nebula2.addColorStop(0, 'rgba(0, 164, 228, 0.04)');
-            nebula2.addColorStop(0.5, 'rgba(42, 63, 143, 0.025)');
+            nebula2.addColorStop(0, 'rgba(110, 133, 214, 0.035)');
+            nebula2.addColorStop(0.5, 'rgba(42, 63, 143, 0.02)');
             nebula2.addColorStop(1, 'transparent');
             ctx.fillStyle = nebula2;
             ctx.fillRect(0, 0, width, height);
@@ -235,8 +235,8 @@ export default function GraphicalBackend() {
                     mouse.x, mouse.y, 0,
                     mouse.x, mouse.y, mouse.radius
                 );
-                mouseGlow.addColorStop(0, 'rgba(255, 153, 0, 0.08)');
-                mouseGlow.addColorStop(0.5, 'rgba(0, 164, 228, 0.03)');
+                mouseGlow.addColorStop(0, 'rgba(0, 164, 228, 0.06)');
+                mouseGlow.addColorStop(0.5, 'rgba(110, 133, 214, 0.02)');
                 mouseGlow.addColorStop(1, 'transparent');
 
                 ctx.fillStyle = mouseGlow;

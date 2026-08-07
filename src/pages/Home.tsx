@@ -27,42 +27,42 @@ export default function Home() {
             desc: 'A unified platform for everything AI.',
             icon: Layers,
             badge: 'Unified',
-            color: '#FF9900'
+            color: '#00A4E4'
         },
         {
             title: 'Customized Platform',
             desc: 'Solutions that adapt to your needs, workflow, and goals.',
             icon: Sliders,
             badge: 'Adaptive',
-            color: '#00A4E4'
+            color: '#6E85D6'
         },
         {
             title: 'News & Updates',
             desc: 'Stay ahead with real-time AI breakthroughs and insights.',
             icon: Newspaper,
             badge: 'Real-Time',
-            color: '#FF9900'
+            color: '#00A4E4'
         },
         {
             title: 'Explore AI Products',
             desc: 'Discover advanced robots, smart tools, and futuristic technologies.',
             icon: Bot,
             badge: 'Robotics',
-            color: '#00A4E4'
+            color: '#6E85D6'
         },
         {
             title: 'Personalized AI Assistant',
             desc: 'Your intelligent companion for tasks, learning, and decision-making.',
             icon: Brain,
             badge: 'Companion',
-            color: '#FF9900'
+            color: '#00A4E4'
         },
         {
             title: 'Powerful AI Community',
             desc: 'Connect, collaborate, and grow with innovators shaping the future.',
             icon: Users,
             badge: 'Community',
-            color: '#00A4E4'
+            color: '#6E85D6'
         }
     ];
 
@@ -94,8 +94,8 @@ export default function Home() {
     ];
 
     return (
-        <div className="min-h-screen bg-[#000000] text-[#FFFFFF] font-sans-academic selection:bg-[#FF9900]/25 transition-colors relative overflow-hidden">
-            {/* Interactive Graphical Backend */}
+        <div className="min-h-screen bg-[#000000] text-[#FFFFFF] font-sans-academic selection:bg-[#00A4E4]/25 transition-colors relative overflow-hidden">
+            {/* Interactive Graphical Starfield Backend */}
             <GraphicalBackend />
 
             {/* ── TOP NAVBAR ── */}
@@ -107,7 +107,7 @@ export default function Home() {
                         <div>
                             <div className="font-display font-bold text-base text-[#FFFFFF] tracking-tight flex items-center gap-1.5">
                                 <span>DeepHub AI</span>
-                                <span className="text-[10px] font-mono-stamp px-1.5 py-0.5 rounded bg-[#FF9900]/15 text-[#FF9900] border border-[#FF9900]/30 font-semibold uppercase">
+                                <span className="text-[10px] font-mono-stamp px-1.5 py-0.5 rounded bg-[#00A4E4]/15 text-[#00A4E4] border border-[#00A4E4]/30 font-semibold uppercase">
                                     DEEPHUB AI
                                 </span>
                             </div>
@@ -125,7 +125,7 @@ export default function Home() {
                         <a href="#feedback" className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-[#94A3B8] hover:text-[#FFFFFF] hover:bg-[#0E1424] transition-colors">
                             Feedback
                         </a>
-                        <button onClick={() => navigate('/turbo')} className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-[#FF9900] hover:bg-[#FF9900]/10 transition-colors">
+                        <button onClick={() => navigate('/turbo')} className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-[#00A4E4] hover:bg-[#00A4E4]/10 transition-colors">
                             Turbo Studio
                         </button>
                     </nav>
@@ -134,7 +134,7 @@ export default function Home() {
                     <div className="flex items-center gap-2.5">
                         <button
                             onClick={() => navigate('/turbo')}
-                            className="px-4 py-1.5 rounded-md bg-[#FF9900] hover:bg-[#FFA726] text-black text-xs font-bold tracking-wide transition-all shadow-md active:scale-98"
+                            className="px-4 py-1.5 rounded-md bg-[#FFFFFF] hover:bg-[#F1F5F9] text-black text-xs font-bold tracking-wide transition-all shadow-md active:scale-98"
                         >
                             Open DeepHub AI
                         </button>
@@ -144,15 +144,15 @@ export default function Home() {
 
             {/* ── 1. HERO SECTION ── */}
             <section className="pt-24 pb-28 px-4 sm:px-8 max-w-6xl mx-auto text-center space-y-8 relative z-10">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0E1424]/90 backdrop-blur-sm border border-[#1E2640] text-xs font-semibold text-[#FF9900] shadow-inner">
-                    <Sparkles size={14} className="text-[#FF9900]" />
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0E1424]/90 backdrop-blur-sm border border-[#1E2640] text-xs font-semibold text-[#00A4E4] shadow-inner">
+                    <Sparkles size={14} className="text-[#00A4E4]" />
                     <span>Welcome to the World’s First All-in-One AI Hub</span>
                 </div>
 
                 <div className="space-y-4 max-w-4xl mx-auto">
                     <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold font-display tracking-tight text-[#FFFFFF] leading-[1.08]">
                         AI <br />
-                        <span className="text-[#FF9900]">for Everyone.</span>
+                        <span className="text-[#00A4E4]">for Everyone.</span>
                     </h1>
 
                     <p className="text-base sm:text-xl text-[#94A3B8] leading-relaxed max-w-2xl mx-auto font-sans-academic pt-2">
@@ -163,14 +163,14 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                     <button
                         onClick={() => navigate('/turbo')}
-                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#FF9900] hover:bg-[#FFA726] text-black font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98"
+                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#FFFFFF] hover:bg-[#F1F5F9] text-black font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98"
                     >
                         <span>Discover our story</span>
                         <ArrowRight size={16} />
                     </button>
                     <a
                         href="#why"
-                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#0E1424]/90 backdrop-blur-sm border border-[#1E2640] hover:border-[#FF9900] text-[#FFFFFF] text-sm font-semibold tracking-wider flex items-center justify-center gap-2 transition-all"
+                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#0E1424]/90 backdrop-blur-sm border border-[#1E2640] hover:border-[#00A4E4] text-[#FFFFFF] text-sm font-semibold tracking-wider flex items-center justify-center gap-2 transition-all"
                     >
                         <span>DeepHub AI</span>
                     </a>
@@ -193,7 +193,7 @@ export default function Home() {
             {/* ── 2. WHY CHOOSE DEEPHUB AI? ── */}
             <section id="why" className="py-24 px-4 sm:px-8 max-w-7xl mx-auto border-t border-[#1E2640]/80 relative z-10">
                 <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-                    <span className="text-xs font-mono-stamp text-[#FF9900] uppercase font-bold tracking-wider">
+                    <span className="text-xs font-mono-stamp text-[#00A4E4] uppercase font-bold tracking-wider">
                         Why Choose
                     </span>
                     <h2 className="text-3xl sm:text-5xl font-bold font-display text-[#FFFFFF]">
@@ -210,11 +210,11 @@ export default function Home() {
                         return (
                             <div
                                 key={idx}
-                                className="p-6 rounded-2xl bg-[#0E1424]/90 backdrop-blur-md border border-[#1E2640] hover:border-[#FF9900] transition-all card-lift shadow-xl flex flex-col justify-between"
+                                className="p-6 rounded-2xl bg-[#0E1424]/90 backdrop-blur-md border border-[#1E2640] hover:border-[#00A4E4] transition-all card-lift shadow-xl flex flex-col justify-between"
                             >
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <div className="p-3 rounded-xl bg-[#000000] border border-[#1E2640] text-[#FF9900]">
+                                        <div className="p-3 rounded-xl bg-[#000000] border border-[#1E2640] text-[#00A4E4]">
                                             <Icon size={22} />
                                         </div>
                                         <span className="text-[10px] font-mono-stamp text-[#00A4E4] border border-[#00A4E4]/30 bg-[#00A4E4]/10 px-2 py-0.5 rounded">
@@ -228,7 +228,7 @@ export default function Home() {
                                         {card.desc}
                                     </p>
                                 </div>
-                                <div className="mt-6 pt-4 border-t border-[#1E2640] flex items-center justify-between text-xs font-semibold text-[#FF9900]">
+                                <div className="mt-6 pt-4 border-t border-[#1E2640] flex items-center justify-between text-xs font-semibold text-[#00A4E4]">
                                     <span>Learn more</span>
                                     <ArrowRight size={14} />
                                 </div>
@@ -239,7 +239,7 @@ export default function Home() {
             </section>
 
             {/* ── 3. FREQUENTLY ASKED QUESTIONS (FAQ) ── */}
-            <section id="faq" className="py-24 px-4 sm:px-8 bg-[#080C14]/90 backdrop-blur-md border-y border-[#1E2640]/80 relative z-10">
+            <section id="faq" className="py-24 px-4 sm:px-8 bg-[#080C14]/90 backdrop-blur-md border-y border-[#1E2640]/80 relative z-0">
                 <div className="max-w-4xl mx-auto space-y-12">
                     <div className="text-center space-y-3">
                         <span className="text-xs font-mono-stamp text-[#00A4E4] uppercase font-bold tracking-wider">
@@ -260,7 +260,7 @@ export default function Home() {
                                 >
                                     <button
                                         onClick={() => setOpenFaq(isOpen ? null : idx)}
-                                        className="w-full p-5 text-left flex items-center justify-between gap-4 font-semibold text-sm sm:text-base text-[#FFFFFF] hover:text-[#FF9900] transition-colors"
+                                        className="w-full p-5 text-left flex items-center justify-between gap-4 font-semibold text-sm sm:text-base text-[#FFFFFF] hover:text-[#00A4E4] transition-colors"
                                     >
                                         <span>{faq.q}</span>
                                         <div className="p-1 rounded-md bg-[#000000] border border-[#1E2640] text-[#94A3B8]">
@@ -280,9 +280,9 @@ export default function Home() {
             </section>
 
             {/* ── 4. WE VALUE YOUR FEEDBACK ── */}
-            <section id="feedback" className="py-24 px-4 sm:px-8 max-w-4xl mx-auto text-center space-y-6 relative z-10">
+            <section id="feedback" className="py-24 px-4 sm:px-8 max-w-4xl mx-auto text-center space-y-6 relative z-0">
                 <div className="p-8 sm:p-12 rounded-3xl bg-[#0E1424]/90 backdrop-blur-md border border-[#1E2640] space-y-6 shadow-2xl relative overflow-hidden">
-                    <div className="inline-flex items-center gap-2 p-3 rounded-full bg-[#000000] border border-[#1E2640] text-[#FF9900]">
+                    <div className="inline-flex items-center gap-2 p-3 rounded-full bg-[#000000] border border-[#1E2640] text-[#00A4E4]">
                         <MessageSquare size={24} />
                     </div>
 
@@ -298,7 +298,7 @@ export default function Home() {
                     <div className="pt-2">
                         <button
                             onClick={() => navigate('/report-issue')}
-                            className="px-8 py-3.5 rounded-xl bg-[#FF9900] hover:bg-[#FFA726] text-black font-bold text-xs uppercase tracking-wider transition-all shadow-lg active:scale-98"
+                            className="px-8 py-3.5 rounded-xl bg-[#FFFFFF] hover:bg-[#F1F5F9] text-black font-bold text-xs uppercase tracking-wider transition-all shadow-lg active:scale-98"
                         >
                             Share Feedback
                         </button>
@@ -319,7 +319,7 @@ export default function Home() {
                         <span onClick={() => navigate('/terms')} className="hover:text-[#FFFFFF] cursor-pointer">Jobs</span>
                         <span onClick={() => navigate('/terms')} className="hover:text-[#FFFFFF] cursor-pointer">Terms Of Use</span>
                         <span onClick={() => navigate('/privacy')} className="hover:text-[#FFFFFF] cursor-pointer">Cookie Preference</span>
-                        <span onClick={() => navigate('/turbo')} className="hover:text-[#FF9900] text-[#FF9900] font-semibold cursor-pointer">Turbo</span>
+                        <span onClick={() => navigate('/turbo')} className="hover:text-[#00A4E4] text-[#00A4E4] font-semibold cursor-pointer">Turbo</span>
                     </div>
 
                     <div className="text-center md:text-right">
