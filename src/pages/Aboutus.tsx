@@ -85,9 +85,9 @@ const row2 = [...products.slice(12), ...products.slice(0, 12), ...products.slice
 
 export default function Aboutus() {
     return (
-        <div className="bg-[#050505] min-h-screen text-white relative">
+        <div className="bg-[#F7F1E3] min-h-screen text-[#2B211A] relative">
 
-            <section className="relative w-full overflow-hidden">
+            <section className="relative w-full overflow-hidden border-b border-[#D8CBB0] bg-[#FDFAF3]">
                 <Hero hideAstronaut={true} />
             </section>
 
@@ -99,27 +99,21 @@ export default function Aboutus() {
                 {/* ── AI Tool Carousel ─────────────────────────────────── */}
                 <section
                     id="product"
-                    className="relative py-16 scroll-mt-24 overflow-hidden bg-gradient-to-b from-[#0a0a0a] to-black"
+                    className="relative py-16 scroll-mt-24 overflow-hidden bg-[#F7F1E3] border-b border-[#D8CBB0]"
                 >
                     <div className="max-w-7xl mx-auto px-6 mb-12">
                         <FadeInSection>
-                            <h2 className="text-clamp-title font-clash font-light uppercase text-dh-brand">
+                            <h2 className="text-clamp-title font-serif-academic font-bold uppercase text-[#2B211A]">
                                 Integrated <br />
-                                <span className="font-semibold">Intelligence</span>
+                                <span className="text-[#A6522C]">Intelligence</span>
                             </h2>
-                            <p className="text-white/40 max-w-xl font-sans text-lg tracking-wide">
-                                Explore AI Innovations from the World's Leading Companies.
+                            <p className="text-[#6B5D4F] max-w-xl font-sans-academic text-lg tracking-wide">
+                                Explore Academic AI Innovations for Indian Educators & Scholars.
                             </p>
                         </FadeInSection>
                     </div>
 
-                    {/*
-                      CSS-only infinite scroll — eliminates:
-                       • 192+ gstatic favicon requests (fixed in ProductCard)
-                       • 622ms forced reflow from scrollLeft JS animation
-                       • 1512 DOM elements (now ~150)
-                    */}
-                    <div className="relative" style={{ transform: "rotateX(6deg)", transformStyle: "preserve-3d" }}>
+                    <div className="relative">
                         {/* Row 1 — scrolls left */}
                         <div
                             className="overflow-hidden mb-8"
@@ -152,19 +146,19 @@ export default function Aboutus() {
 
                         <div
                             className="absolute inset-0 pointer-events-none z-10"
-                            style={{ background: "radial-gradient(circle at center, transparent 30%, #050505 98%)" }}
+                            style={{ background: "radial-gradient(circle at center, transparent 40%, #F7F1E3 98%)" }}
                         />
                     </div>
                 </section>
 
                 <div className="max-w-7xl mx-auto px-6 pb-20">
-                    <section id="about" className="scroll-mt-32 py-16 border-t border-white/5">
+                    <section id="about" className="scroll-mt-32 py-16 border-t border-[#D8CBB0]">
                         <About />
                     </section>
-                    <section id="values" className="scroll-mt-32 py-16 border-t border-white/5">
+                    <section id="values" className="scroll-mt-32 py-16 border-t border-[#D8CBB0]">
                         <Values />
                     </section>
-                    <section id="contact" className="scroll-mt-32 py-16 border-t border-white/5">
+                    <section id="contact" className="scroll-mt-32 py-16 border-t border-[#D8CBB0]">
                         <Contact />
                     </section>
                 </div>
