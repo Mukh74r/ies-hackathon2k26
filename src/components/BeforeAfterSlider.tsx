@@ -186,9 +186,9 @@ export default function BeforeAfterSlider() {
                 </p>
             </div>
 
-            {/* Interactive Benchmark Tabs */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5 mb-8">
-                {BENCHMARKS.map((tab) => {
+            {/* Interactive Benchmark Category Tabs (Mobile Scrollable & Desktop Centered) */}
+            <div className="flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-none max-w-full px-1 mb-8">
+                {BENCHMARKS.map(tab => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
                     return (
@@ -196,16 +196,16 @@ export default function BeforeAfterSlider() {
                             key={tab.id}
                             onClick={() => {
                                 setActiveTab(tab.id);
-                                if (tab.id === 'time') setSliderPos(50);
+                                setSliderPos(50);
                             }}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                            className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-semibold shrink-0 transition-all ${
                                 isActive
                                     ? 'bg-[#00A4E4] text-black shadow-lg shadow-[#00A4E4]/20 scale-102 font-bold'
                                     : 'bg-[#0E1424] text-[#94A3B8] border border-[#1E2640] hover:text-white hover:border-[#00A4E4]/40'
                             }`}
                         >
                             <Icon size={14} />
-                            <span>{tab.label}</span>
+                            <span className="whitespace-nowrap">{tab.label}</span>
                         </button>
                     );
                 })}
