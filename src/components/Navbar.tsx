@@ -15,7 +15,7 @@ export default function Navbar() {
     const location = useLocation();
 
     const NAV_ITEMS = [
-        { to: "/turbo", label: "Teacher Studio" },
+        { to: "/turbo", label: "Turbo" },
         { to: "/virtualbrain", label: "Virtual Brain" },
         { to: "/circuitbrain", label: "Circuit Brain" },
         { to: "/latest", label: "Latest" },
@@ -138,12 +138,12 @@ export default function Navbar() {
                         )}
                     </div>
 
-                    {/* Teacher Studio Primary Button */}
+                    {/* Turbo Primary Button */}
                     <button
                         onClick={() => navigate('/turbo')}
                         className="px-3.5 py-1.5 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-xs font-semibold tracking-wide transition-all shadow-sm active:scale-98 card-lift"
                     >
-                        Teacher Studio
+                        Turbo
                     </button>
                 </div>
             </div>

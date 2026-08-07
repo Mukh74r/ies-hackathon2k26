@@ -234,7 +234,7 @@ export default function Home() {
                             onClick={() => navigate('/turbo')}
                             className="px-3.5 py-1.5 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs tracking-wide flex items-center gap-1.5 transition-all shadow-xs active:scale-98"
                         >
-                            <span>Teacher Studio</span>
+                            <span>Turbo</span>
                             <ChevronRight size={13} />
                         </button>
 
@@ -324,7 +324,7 @@ export default function Home() {
                             onClick={() => navigate('/turbo')}
                             className="px-6 py-3 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs active:scale-98 card-lift"
                         >
-                            <span>Open Teacher Studio</span>
+                            <span>Open Turbo</span>
                             <ArrowRight size={14} />
                         </button>
                         <a
@@ -587,7 +587,7 @@ export default function Home() {
                                     onClick={() => navigate('/turbo')}
                                     className="px-4 py-2 rounded-md bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-xs tracking-wide flex items-center gap-1.5 transition-colors shadow-2xs card-lift"
                                 >
-                                    <span>Customize in Teacher Studio</span>
+                                    <span>Customize in Turbo</span>
                                     <ChevronRight size={14} />
                                 </button>
                             </div>
@@ -720,7 +720,7 @@ export default function Home() {
                         <span onClick={() => navigate('/terms')} className="hover:text-[var(--foreground)] cursor-pointer">Terms & Conditions</span>
                         <span onClick={() => navigate('/privacy')} className="hover:text-[var(--foreground)] cursor-pointer">Privacy Policy</span>
                         <span onClick={() => navigate('/pricing')} className="hover:text-[var(--foreground)] cursor-pointer">Institutional Pricing</span>
-                        <span onClick={() => navigate('/turbo')} className="hover:text-[var(--primary)] text-[var(--primary)] font-semibold cursor-pointer">Teacher Studio</span>
+                        <span onClick={() => navigate('/turbo')} className="hover:text-[var(--primary)] text-[var(--primary)] font-semibold cursor-pointer">Turbo</span>
                     </div>
                     <div>
                         © {new Date().getFullYear()} DeepHub AI. Built for Indian Educators.
