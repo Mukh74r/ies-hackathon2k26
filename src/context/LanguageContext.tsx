@@ -581,6 +581,7 @@ export interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    // Default strictly to English ('en') unless user explicitly stored another language
     const [langCode, setLangCode] = useState<string>(() => {
         return localStorage.getItem('deephub_language') || 'en';
     });
@@ -592,7 +593,23 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const triggerDOMTranslation = (code: string) => {
         document.documentElement.setAttribute('lang', code);
 
-        // Set Google Translate cookies
+        if (code === 'en') {
+            // Delete Google Translate cookies to restore clean English without unwanted mutation
+            const host = window.location.hostname;
+            const cookieDomain = (host === 'localhost' || !host.includes('.')) ? '' : `; domain=${host}`;
+            document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/${cookieDomain}`;
+            document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+            
+            // If Google Translate combo exists, set back to English
+            const selectEl = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+            if (selectEl && selectEl.value !== 'en') {
+                selectEl.value = 'en';
+                selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            return;
+        }
+
+        // Only set cookies when user explicitly picked a non-English language
         const host = window.location.hostname;
         const cookieDomain = (host === 'localhost' || !host.includes('.')) ? '' : `; domain=${host}`;
         document.cookie = `googtrans=/en/${code}; path=/${cookieDomain}`;
@@ -601,11 +618,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         // Programmatically select in Google Translate combo if loaded
         const applyComboValue = () => {
             const selectEl = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
-            if (selectEl) {
-                if (selectEl.value !== code) {
-                    selectEl.value = code;
-                    selectEl.dispatchEvent(new Event('change', { bubbles: true }));
-                }
+            if (selectEl && selectEl.value !== code) {
+                selectEl.value = code;
+                selectEl.dispatchEvent(new Event('change', { bubbles: true }));
             }
         };
 
@@ -615,19 +630,28 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     useEffect(() => {
-        // Inject styling to hide Google Translate banner, toolbar and tooltips
+        // Inject styling to hide Google Translate banner, toolbar, side popups and tooltips
         if (!document.getElementById('google-translate-style')) {
             const style = document.createElement('style');
             style.id = 'google-translate-style';
             style.innerHTML = `
                 .goog-te-banner-frame, 
-                .goog-te-banner-frame.skiptranslate, 
+                iframe.goog-te-banner-frame, 
+                iframe.skiptranslate,
                 .goog-te-gadget, 
                 .goog-te-spinner-pos, 
                 #goog-gt-tt, 
                 .goog-te-balloon-frame,
+                .goog-te-menu-frame,
+                .goog-tooltip,
+                .VIpgJd-yD9tfb-bN9b-RAodTw,
+                .VIpgJd-ZT2dfd-Lifecycle-OiiZ7,
+                div[id*="goog-gt-"],
                 .skiptranslate {
                     display: none !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
                 }
                 body {
                     top: 0px !important;
@@ -636,6 +660,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 .goog-text-highlight {
                     background-color: transparent !important;
                     box-shadow: none !important;
+                    font-style: inherit !important;
                 }
                 #google_translate_element {
                     display: none !important;
@@ -684,6 +709,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
     }, []);
 
+    // Explicit User Action: only change language when user clicks
     const setLanguageByCode = (code: string) => {
         setLangCode(code);
         localStorage.setItem('deephub_language', code);
@@ -699,34 +725,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
     }, [theme]);
-
-    useEffect(() => {
-        if (langCode) {
-            triggerDOMTranslation(langCode);
-        }
-    }, [langCode]);
-
-    // High-speed translation trigger for dynamically rendered AI contents & results
-    useEffect(() => {
-        if (langCode && langCode !== 'en') {
-            let timer: any = null;
-            const observer = new MutationObserver(() => {
-                if (timer) clearTimeout(timer);
-                timer = setTimeout(() => {
-                    const selectEl = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
-                    if (selectEl) {
-                        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                }, 350);
-            });
-
-            observer.observe(document.body, { childList: true, subtree: true });
-            return () => {
-                observer.disconnect();
-                if (timer) clearTimeout(timer);
-            };
-        }
-    }, [langCode]);
 
     const currentLanguage = INDIAN_LANGUAGES.find(l => l.code === langCode) || INDIAN_LANGUAGES[0];
 
