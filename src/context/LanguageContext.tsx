@@ -618,15 +618,19 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         // Programmatically select in Google Translate combo if loaded
         const applyComboValue = () => {
             const selectEl = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
-            if (selectEl && selectEl.value !== code) {
-                selectEl.value = code;
-                selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+            if (selectEl) {
+                if (selectEl.value !== code) {
+                    selectEl.value = code;
+                    selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                }
             }
         };
 
         applyComboValue();
-        setTimeout(applyComboValue, 500);
-        setTimeout(applyComboValue, 1200);
+        setTimeout(applyComboValue, 100);
+        setTimeout(applyComboValue, 350);
+        setTimeout(applyComboValue, 750);
+        setTimeout(applyComboValue, 1500);
     };
 
     useEffect(() => {

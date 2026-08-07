@@ -499,31 +499,31 @@ export default function Profile() {
                     <section className="bg-[#0F172A] border border-[#1E293B] p-6 rounded-lg relative shadow-md">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 rounded bg-[#38BDF8]/10 border border-[#38BDF8]/30 text-[#38BDF8]">
+                                <div className="p-2 rounded bg-[#FF9900]/10 border border-[#FF9900]/30 text-[#FF9900]">
                                     <Palette size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold font-display text-[#F8FAFC] tracking-wide">
+                                    <h3 className="text-lg font-bold font-display text-[#FFFFFF] tracking-wide">
                                         Site Display Theme
                                     </h3>
-                                    <p className="text-xs text-[#94A3B8] mt-0.5 font-sans-academic">
-                                        DeepHub AI is configured in Modern Dark Studio mode for maximum reading comfort and clarity.
+                                    <p className="text-xs text-[#AAB7B8] mt-0.5 font-sans-academic">
+                                        DeepHub AI is configured in Dark Mode for maximum reading comfort and clarity.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="p-4 border border-[#38BDF8] border-l-4 bg-[#080C14] rounded-md flex items-center justify-between">
+                        <div className="p-4 border border-[#FF9900] border-l-4 bg-[#0F1B2A] rounded-md flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 rounded bg-[#38BDF8]/10 text-[#38BDF8]">
+                                <div className="p-2 rounded bg-[#FF9900]/10 text-[#FF9900]">
                                     <Sparkles size={20} />
                                 </div>
                                 <div>
-                                    <h4 className="text-sm font-bold font-display text-[#F8FAFC]">Sleek Modern Dark</h4>
-                                    <p className="text-xs text-[#94A3B8]">High contrast, crisp typography with Plus Jakarta Sans & Inter font hierarchy.</p>
+                                    <h4 className="text-sm font-bold font-display text-[#FFFFFF]">Dark Mode</h4>
+                                    <p className="text-xs text-[#AAB7B8]">High contrast, crisp typography with Plus Jakarta Sans & Inter font hierarchy.</p>
                                 </div>
                             </div>
-                            <span className="text-xs font-mono-stamp px-2.5 py-1 bg-[#38BDF8]/20 border border-[#38BDF8]/40 text-[#38BDF8] rounded uppercase">Active Mode</span>
+                            <span className="text-xs font-mono-stamp px-2.5 py-1 bg-[#FF9900]/20 border border-[#FF9900]/40 text-[#FF9900] rounded uppercase font-bold">Active Mode</span>
                         </div>
                     </section>
 
