@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import BrandLogo from '../assets/brand-logo-main.svg';
 import GraphicalBackend from '../components/GraphicalBackend';
+import BeforeAfterSlider from '../components/BeforeAfterSlider';
 
 export default function Home() {
     const navigate = useNavigate();
@@ -118,6 +119,9 @@ export default function Home() {
                     <nav className="hidden md:flex items-center gap-3">
                         <a href="#why" className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-[#94A3B8] hover:text-[#FFFFFF] hover:bg-[#0E1424] transition-colors">
                             Why
+                        </a>
+                        <a href="#comparison" className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-[#94A3B8] hover:text-[#FFFFFF] hover:bg-[#0E1424] transition-colors">
+                            Before vs After
                         </a>
                         <a href="#faq" className="px-3.5 py-1.5 rounded-md text-xs font-semibold text-[#94A3B8] hover:text-[#FFFFFF] hover:bg-[#0E1424] transition-colors">
                             FAQ
@@ -238,7 +242,12 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ── 3. FREQUENTLY ASKED QUESTIONS (FAQ) ── */}
+            {/* ── 3. BEFORE VS. AFTER COMPARISON ── */}
+            <div id="comparison">
+                <BeforeAfterSlider />
+            </div>
+
+            {/* ── 4. FREQUENTLY ASKED QUESTIONS (FAQ) ── */}
             <section id="faq" className="py-24 px-4 sm:px-8 bg-[#080C14]/90 backdrop-blur-md border-y border-[#1E2640]/80 relative z-0">
                 <div className="max-w-4xl mx-auto space-y-12">
                     <div className="text-center space-y-3">
@@ -279,7 +288,7 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ── 4. WE VALUE YOUR FEEDBACK ── */}
+            {/* ── 5. WE VALUE YOUR FEEDBACK ── */}
             <section id="feedback" className="py-24 px-4 sm:px-8 max-w-4xl mx-auto text-center space-y-6 relative z-0">
                 <div className="p-8 sm:p-12 rounded-3xl bg-[#0E1424]/90 backdrop-blur-md border border-[#1E2640] space-y-6 shadow-2xl relative overflow-hidden">
                     <div className="inline-flex items-center gap-2 p-3 rounded-full bg-[#000000] border border-[#1E2640] text-[#00A4E4]">
@@ -306,7 +315,7 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ── 5. FOOTER ── */}
+            {/* ── 6. FOOTER ── */}
             <footer className="border-t border-[#1E2640]/80 bg-[#000000]/95 backdrop-blur-md py-12 px-4 sm:px-8 text-xs text-[#94A3B8] notranslate relative z-10" translate="no">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-3">
