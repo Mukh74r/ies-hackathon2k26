@@ -313,13 +313,13 @@ export default function Profile() {
 
                         {/* Name + meta */}
                         <div className="flex-1 min-w-0 text-center sm:text-left">
-                            <h1 className="text-xl font-bold font-serif-academic text-[#2B211A] tracking-tight leading-none truncate">
+                            <h1 className="text-xl font-bold font-display text-[#F8FAFC] tracking-tight leading-none truncate">
                                 {user?.name || user?.username}
                             </h1>
-                            <p className="mt-1 text-xs text-[#6B5D4F] flex items-center justify-center sm:justify-start gap-1.5 font-sans-academic">
-                                <Shield size={12} className="text-[#A6522C] flex-shrink-0" />
+                            <p className="mt-1 text-xs text-[#94A3B8] flex items-center justify-center sm:justify-start gap-1.5 font-sans-academic">
+                                <Shield size={12} className="text-[#38BDF8] flex-shrink-0" />
                                 {user?.provider === 'google' ? 'Verified via Google' : user?.specialization || 'Academic Educator'}
-                                <span className="text-[#D8CBB0]">·</span>
+                                <span className="text-[#1E293B]">·</span>
                                 <span>{user?.email}</span>
                             </p>
                             <div className="flex flex-wrap justify-center sm:justify-start gap-1.5 mt-3 items-center">
@@ -328,18 +328,18 @@ export default function Profile() {
                                     user?.role === 'teacher' ? 'Educator' : 'Student',
                                     'Academic Edition'
                                 ].map(tag => (
-                                    <span key={tag} className="px-2 py-0.5 rounded-sm bg-[#8A6D3B]/10 border border-[#8A6D3B]/30 text-[10px] uppercase font-mono-stamp text-[#8A6D3B]">
+                                    <span key={tag} className="px-2 py-0.5 rounded bg-[#38BDF8]/10 border border-[#38BDF8]/30 text-[10px] uppercase font-mono-stamp text-[#38BDF8]">
                                         {tag}
                                     </span>
                                 ))}
 
                                 {/* Subscription status */}
                                 {proStatus?.isPro ? (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[10px] font-mono-stamp uppercase border border-[#A6522C] bg-[#A6522C]/10 text-[#A6522C]">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono-stamp uppercase border border-[#34D399] bg-[#34D399]/10 text-[#34D399]">
                                         Pro Educator
                                     </span>
                                 ) : (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[10px] font-mono-stamp uppercase border border-[#D8CBB0] bg-[#EFE8D8] text-[#6B5D4F]">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono-stamp uppercase border border-[#1E293B] bg-[#1E293B] text-[#94A3B8]">
                                         Free Edition
                                     </span>
                                 )}
@@ -350,14 +350,14 @@ export default function Profile() {
                         <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
                             <button
                                 onClick={handleEditStart}
-                                className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-[#A6522C] text-[#FDFAF3] text-xs font-semibold uppercase font-sans-academic hover:bg-[#8e4423] transition-colors"
+                                className="flex items-center gap-1.5 px-4 py-2 rounded bg-[#38BDF8] text-[#080C14] text-xs font-bold uppercase font-sans-academic hover:bg-[#0284c7] transition-colors"
                             >
                                 <Edit2 size={12} />
                                 Edit Details
                             </button>
                             <button
                                 onClick={() => { logout(); navigate('/aboutus'); }}
-                                className="flex items-center gap-1.5 px-4 py-2 rounded-sm bg-[#FDFAF3] border border-[#D8CBB0] text-[#6B5D4F] text-xs font-semibold uppercase font-sans-academic hover:bg-[#EFE8D8] transition-colors"
+                                className="flex items-center gap-1.5 px-4 py-2 rounded bg-[#0F172A] border border-[#1E293B] text-[#94A3B8] text-xs font-semibold uppercase font-sans-academic hover:bg-[#1E293B] hover:text-[#F8FAFC] transition-colors"
                             >
                                 <LogOut size={12} />
                                 Exit Session
@@ -366,20 +366,20 @@ export default function Profile() {
                     </section>
 
                     {/* USER ROLE & FUNCTIONAL WORKSPACE SELECTOR CARD */}
-                    <section className="paper-sheet p-6 rounded-none relative">
+                    <section className="bg-[#0F172A] border border-[#1E293B] p-6 rounded-lg relative shadow-md">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 rounded bg-[#8A6D3B]/10 border border-[#8A6D3B]/30 text-[#8A6D3B]">
+                                <div className="p-2 rounded bg-[#38BDF8]/10 border border-[#38BDF8]/30 text-[#38BDF8]">
                                     <UserIcon size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold font-serif-academic text-[#2B211A] tracking-wide flex items-center gap-2">
+                                    <h3 className="text-lg font-bold font-display text-[#F8FAFC] tracking-wide flex items-center gap-2">
                                         Account Role & Workspace Mode
-                                        <span className="text-[10px] px-2 py-0.5 rounded-sm border border-[#8A6D3B]/40 bg-[#8A6D3B]/10 text-[#8A6D3B] font-mono-stamp uppercase">
+                                        <span className="text-[10px] px-2 py-0.5 rounded border border-[#38BDF8]/40 bg-[#38BDF8]/10 text-[#38BDF8] font-mono-stamp uppercase">
                                             {user?.role === 'teacher' ? 'Educator Mode' : 'Student Mode'}
                                         </span>
                                     </h3>
-                                    <p className="text-xs text-[#6B5D4F] mt-0.5 font-sans-academic">
+                                    <p className="text-xs text-[#94A3B8] mt-0.5 font-sans-academic">
                                         Select your primary role to structure tools, paper generators, and workspace presets.
                                     </p>
                                 </div>
@@ -411,10 +411,10 @@ export default function Profile() {
                                         key={roleOption.id}
                                         onClick={() => updateDeepHubUser({ role: roleOption.id })}
                                         className={`
-                                            relative flex flex-col items-start p-4 border text-left transition-colors group
+                                            relative flex flex-col items-start p-4 border text-left transition-colors group rounded-md
                                             ${isCurrentRole
-                                                ? 'bg-[#FDFAF3] border-[#A6522C] border-l-4 text-[#2B211A]'
-                                                : 'bg-[#FDFAF3] border-[#D8CBB0] text-[#6B5D4F] hover:bg-[#EFE8D8]'
+                                                ? 'bg-[#080C14] border-[#38BDF8] border-l-4 text-[#F8FAFC]'
+                                                : 'bg-[#080C14] border-[#1E293B] text-[#94A3B8] hover:bg-[#1E293B] hover:text-[#F8FAFC]'
                                             }
                                         `}
                                     >
