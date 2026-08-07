@@ -29,6 +29,7 @@ export default function Navbar() {
     const location = useLocation();
 
     const LINKS = [
+        { to: "/", label: "Home" },
         { to: "/latest", label: "Latest" },
         { to: "/virtualbrain", label: "Virtual Brain" },
         { to: "/circuitbrain", label: "Circuit Brain" },

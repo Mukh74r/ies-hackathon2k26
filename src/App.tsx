@@ -17,6 +17,7 @@ const MAINTENANCE_MODE = false;
 const Maintenance = React.lazy(() => import("./pages/Maintenance"));
 // Aboutus is the ROOT route — eager import eliminates extra round-trip in LCP critical path
 import Aboutus from "./pages/Aboutus";
+const Home = React.lazy(() => import("./pages/Home"));
 const Latest = React.lazy(() => import("./pages/Latest"));
 const Virtualbrain = React.lazy(() => import("./pages/Virtualbrain"));
 const Circuitbrain = React.lazy(() => import("./pages/Circuitbrain"));
@@ -58,7 +59,6 @@ function LayoutWrapper() {
 
     // DEFINITION: Routes where we want the clean Legacy Look (No global Navbar, No Pill)
     const isAboutUsPage =
-        location.pathname === "/aboutus" ||
         location.pathname === "/admin-hq" ||
         location.pathname === "/terms" ||
         location.pathname === "/privacy" ||
@@ -79,9 +79,9 @@ function LayoutWrapper() {
                     </div>
                 }>
                     <Routes>
-                        {/* Auto-bypass root / home / auth pages directly to /latest home */}
-                        <Route path="/" element={<Navigate to="/latest" replace />} />
-                        <Route path="/home" element={<Navigate to="/latest" replace />} />
+                        {/* Dedicated Root & Home Page */}
+                        <Route path="/" element={<Home />} />
+                        <Route path="/home" element={<Home />} />
                         <Route path="/aboutus" element={<Aboutus />} />
 
                         {/* Gated Core Pages */}
