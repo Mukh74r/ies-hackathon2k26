@@ -15,6 +15,7 @@ import {
     Users
 } from 'lucide-react';
 import BrandLogo from '../assets/brand-logo-main.svg';
+import GraphicalBackend from '../components/GraphicalBackend';
 
 export default function Home() {
     const navigate = useNavigate();
@@ -93,10 +94,12 @@ export default function Home() {
     ];
 
     return (
-        <div className="min-h-screen bg-[#000000] text-[#FFFFFF] font-sans-academic selection:bg-[#FF9900]/25 transition-colors">
-            
+        <div className="min-h-screen bg-[#000000] text-[#FFFFFF] font-sans-academic selection:bg-[#FF9900]/25 transition-colors relative overflow-hidden">
+            {/* Interactive Graphical Backend */}
+            <GraphicalBackend />
+
             {/* ── TOP NAVBAR ── */}
-            <header className="border-b border-[#1E2640] bg-[#000000]/90 backdrop-blur-md px-4 sm:px-8 py-3.5 sticky top-0 z-50 shadow-lg notranslate" translate="no">
+            <header className="border-b border-[#1E2640]/80 bg-[#000000]/85 backdrop-blur-md px-4 sm:px-8 py-3.5 sticky top-0 z-50 shadow-lg notranslate relative" translate="no">
                 <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                     {/* Brand Identifier */}
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
@@ -140,8 +143,8 @@ export default function Home() {
             </header>
 
             {/* ── 1. HERO SECTION ── */}
-            <section className="pt-24 pb-28 px-4 sm:px-8 max-w-6xl mx-auto text-center space-y-8">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0E1424] border border-[#1E2640] text-xs font-semibold text-[#FF9900] shadow-inner">
+            <section className="pt-24 pb-28 px-4 sm:px-8 max-w-6xl mx-auto text-center space-y-8 relative z-10">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0E1424]/90 backdrop-blur-sm border border-[#1E2640] text-xs font-semibold text-[#FF9900] shadow-inner">
                     <Sparkles size={14} className="text-[#FF9900]" />
                     <span>Welcome to the World’s First All-in-One AI Hub</span>
                 </div>
@@ -167,7 +170,7 @@ export default function Home() {
                     </button>
                     <a
                         href="#why"
-                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#0E1424] border border-[#1E2640] hover:border-[#FF9900] text-[#FFFFFF] text-sm font-semibold tracking-wider flex items-center justify-center gap-2 transition-all"
+                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#0E1424]/90 backdrop-blur-sm border border-[#1E2640] hover:border-[#FF9900] text-[#FFFFFF] text-sm font-semibold tracking-wider flex items-center justify-center gap-2 transition-all"
                     >
                         <span>DeepHub AI</span>
                     </a>
@@ -188,7 +191,7 @@ export default function Home() {
             </section>
 
             {/* ── 2. WHY CHOOSE DEEPHUB AI? ── */}
-            <section id="why" className="py-24 px-4 sm:px-8 max-w-7xl mx-auto border-t border-[#1E2640]">
+            <section id="why" className="py-24 px-4 sm:px-8 max-w-7xl mx-auto border-t border-[#1E2640]/80 relative z-10">
                 <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
                     <span className="text-xs font-mono-stamp text-[#FF9900] uppercase font-bold tracking-wider">
                         Why Choose
@@ -207,7 +210,7 @@ export default function Home() {
                         return (
                             <div
                                 key={idx}
-                                className="p-6 rounded-2xl bg-[#0E1424] border border-[#1E2640] hover:border-[#FF9900] transition-all card-lift shadow-xl flex flex-col justify-between"
+                                className="p-6 rounded-2xl bg-[#0E1424]/90 backdrop-blur-md border border-[#1E2640] hover:border-[#FF9900] transition-all card-lift shadow-xl flex flex-col justify-between"
                             >
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
@@ -236,7 +239,7 @@ export default function Home() {
             </section>
 
             {/* ── 3. FREQUENTLY ASKED QUESTIONS (FAQ) ── */}
-            <section id="faq" className="py-24 px-4 sm:px-8 bg-[#080C14] border-y border-[#1E2640]">
+            <section id="faq" className="py-24 px-4 sm:px-8 bg-[#080C14]/90 backdrop-blur-md border-y border-[#1E2640]/80 relative z-10">
                 <div className="max-w-4xl mx-auto space-y-12">
                     <div className="text-center space-y-3">
                         <span className="text-xs font-mono-stamp text-[#00A4E4] uppercase font-bold tracking-wider">
@@ -253,7 +256,7 @@ export default function Home() {
                             return (
                                 <div
                                     key={idx}
-                                    className="rounded-xl bg-[#0E1424] border border-[#1E2640] overflow-hidden transition-colors"
+                                    className="rounded-xl bg-[#0E1424]/90 backdrop-blur-sm border border-[#1E2640] overflow-hidden transition-colors"
                                 >
                                     <button
                                         onClick={() => setOpenFaq(isOpen ? null : idx)}
@@ -277,8 +280,8 @@ export default function Home() {
             </section>
 
             {/* ── 4. WE VALUE YOUR FEEDBACK ── */}
-            <section id="feedback" className="py-24 px-4 sm:px-8 max-w-4xl mx-auto text-center space-y-6">
-                <div className="p-8 sm:p-12 rounded-3xl bg-[#0E1424] border border-[#1E2640] space-y-6 shadow-2xl relative overflow-hidden">
+            <section id="feedback" className="py-24 px-4 sm:px-8 max-w-4xl mx-auto text-center space-y-6 relative z-10">
+                <div className="p-8 sm:p-12 rounded-3xl bg-[#0E1424]/90 backdrop-blur-md border border-[#1E2640] space-y-6 shadow-2xl relative overflow-hidden">
                     <div className="inline-flex items-center gap-2 p-3 rounded-full bg-[#000000] border border-[#1E2640] text-[#FF9900]">
                         <MessageSquare size={24} />
                     </div>
@@ -304,7 +307,7 @@ export default function Home() {
             </section>
 
             {/* ── 5. FOOTER ── */}
-            <footer className="border-t border-[#1E2640] bg-[#000000] py-12 px-4 sm:px-8 text-xs text-[#94A3B8] notranslate" translate="no">
+            <footer className="border-t border-[#1E2640]/80 bg-[#000000]/95 backdrop-blur-md py-12 px-4 sm:px-8 text-xs text-[#94A3B8] notranslate relative z-10" translate="no">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-3">
                         <img src={BrandLogo} alt="DeepHub AI" className="w-6 h-6 object-contain" />
