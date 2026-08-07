@@ -21,7 +21,6 @@ import {
 import BrandLogo from '../assets/brand-logo-main.svg';
 import GraphicalBackend from '../components/GraphicalBackend';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
-import HeroPlayground from '../components/HeroPlayground';
 import CommandPalette from '../components/CommandPalette';
 
 export default function Home() {
@@ -236,11 +235,6 @@ export default function Home() {
                     <span className="flex items-center gap-1.5">
                         <CheckCircle2 size={14} className="text-[#00A4E4]" /> Real-time Breakthroughs
                     </span>
-                </div>
-
-                {/* Interactive Live Blueprint Sandbox in Hero */}
-                <div className="pt-8">
-                    <HeroPlayground />
                 </div>
             </section>
 
