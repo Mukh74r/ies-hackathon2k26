@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Footer1 from "../components/Footer1";
+import Card3D from "../components/Card3D";
 import "../index.css";
 import { Brain, Cpu, ExternalLink, BookOpen, Layers, Star, Compass } from "lucide-react";
 
@@ -280,76 +281,75 @@ export default function Virtualbrain() {
                         ))}
                     </div>
 
-                    {/* Grid of Educator Tools */}
+                    {/* Grid of Educator Tools with 3D Web Spatial Depth */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredTools.map(tool => (
-                            <div
-                                key={tool.id}
-                                className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] hover:border-cyan-500/40 hover:bg-white/[0.04] transition-all flex flex-col justify-between group"
-                            >
-                                <div>
-                                    <div className="flex items-start justify-between gap-3 mb-3">
-                                        <div className="flex items-center gap-3">
-                                            <img
-                                                src={`https://www.google.com/s2/favicons?domain=${tool.domain}&sz=32`}
-                                                alt={tool.name}
-                                                className="w-7 h-7 rounded-lg object-contain p-1 bg-white/10"
-                                            />
-                                            <div>
-                                                <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors">
-                                                    {tool.name}
-                                                </h3>
-                                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                                                    {tool.category}
-                                                </span>
+                            <Card3D key={tool.id} depth={10} glare={true}>
+                                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] hover:border-cyan-500/40 hover:bg-white/[0.04] transition-all flex flex-col justify-between h-full min-h-[280px] shadow-xl">
+                                    <div>
+                                        <div className="flex items-start justify-between gap-3 mb-3">
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    src={`https://www.google.com/s2/favicons?domain=${tool.domain}&sz=32`}
+                                                    alt={tool.name}
+                                                    className="w-7 h-7 rounded-lg object-contain p-1 bg-white/10"
+                                                />
+                                                <div>
+                                                    <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors">
+                                                        {tool.name}
+                                                    </h3>
+                                                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                                                        {tool.category}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <a
+                                                href={tool.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="p-1.5 text-white/40 hover:text-cyan-400 rounded-lg hover:bg-white/10 transition-colors"
+                                                title="Visit website"
+                                            >
+                                                <ExternalLink className="w-4 h-4" />
+                                            </a>
+                                        </div>
+
+                                        <p className="text-xs text-white/70 leading-relaxed mb-3">
+                                            {tool.description}
+                                        </p>
+
+                                        <div className="mb-4">
+                                            <p className="text-[10px] uppercase tracking-widest text-cyan-400 font-semibold mb-1.5">
+                                                Key Features
+                                            </p>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {tool.features.map((feat, idx) => (
+                                                    <span key={idx} className="text-[10px] px-2 py-0.5 rounded bg-white/[0.04] border border-white/10 text-white/60">
+                                                        {feat}
+                                                    </span>
+                                                ))}
                                             </div>
                                         </div>
+                                    </div>
+
+                                    <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between gap-2">
+                                        <span className="text-[11px] font-mono text-emerald-400">
+                                            {tool.pricing}
+                                        </span>
 
                                         <a
                                             href={tool.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="p-1.5 text-white/40 hover:text-cyan-400 rounded-lg hover:bg-white/10 transition-colors"
-                                            title="Visit website"
+                                            className="flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 font-medium transition-colors cursor-pointer"
                                         >
-                                            <ExternalLink className="w-4 h-4" />
+                                            <span>Open Tool</span>
+                                            <ExternalLink className="w-3.5 h-3.5" />
                                         </a>
                                     </div>
-
-                                    <p className="text-xs text-white/70 leading-relaxed mb-3">
-                                        {tool.description}
-                                    </p>
-
-                                    <div className="mb-4">
-                                        <p className="text-[10px] uppercase tracking-widest text-cyan-400 font-semibold mb-1.5">
-                                            Key Features
-                                        </p>
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {tool.features.map((feat, idx) => (
-                                                <span key={idx} className="text-[10px] px-2 py-0.5 rounded bg-white/[0.04] border border-white/10 text-white/60">
-                                                    {feat}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
                                 </div>
-
-                                <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between gap-2">
-                                    <span className="text-[11px] font-mono text-emerald-400">
-                                        {tool.pricing}
-                                    </span>
-
-                                    <a
-                                        href={tool.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 font-medium transition-colors cursor-pointer"
-                                    >
-                                        <span>Open Tool</span>
-                                        <ExternalLink className="w-3.5 h-3.5" />
-                                    </a>
-                                </div>
-                            </div>
+                            </Card3D>
                         ))}
                     </div>
                 </section>
