@@ -152,7 +152,7 @@ uploadDirs.forEach(dir => {
 
 
 /* ==================== HEALTH CHECK ==================== */
-app.get("/health", (req, res) => {
+app.get(["/health", "/api/health"], (req, res) => {
     res.status(200).json({
         status: "ONLINE",
         mode: process.env.USE_DYNAMODB === "true" ? "DYNAMODB" : "MONGO",

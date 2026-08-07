@@ -811,9 +811,36 @@ html[data-theme="educator-gold"] body {
   background-color: #0f0d0a !important;
 }
 
-[data-theme="educator-gold"] [class*="bg-["],
-[data-theme="educator-gold"] [class*="bg-"] {
-  background-color: #181410 !important;
+/* 6. Suppress All Google Translate Banners, Popups, Frames & Side Tooltips */
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+iframe.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.goog-te-gadget-icon,
+.goog-te-menu-frame,
+.goog-tooltip,
+.goog-tooltip:hover,
+.VIpgJd-yD9tfb-bN9b-RAodTw,
+.VIpgJd-ZT2dfd-Lifecycle-OiiZ7,
+.VIpgJd-yD9tfb-LgbsSe,
+div[id*="goog-gt-"],
+.skiptranslate {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  font-style: inherit !important;
 }
 
 

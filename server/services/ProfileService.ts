@@ -74,11 +74,26 @@ export class ProfileService {
         }
 
         // Mongoose fallback
-        const user = await User.findById(userId);
+        const { default: mongoose } = await import('mongoose');
+        const isValidId = mongoose.Types.ObjectId.isValid(userId);
+        let user = isValidId ? await User.findById(userId) : await User.findOne({ username: userId });
+
+        if (!user && userId.startsWith('usr_guest')) {
+            return {
+                _id: userId,
+                name: 'Guest Educator',
+                username: 'guest_teacher',
+                email: 'guest@deephub.ai',
+                role: 'teacher',
+                specialization: 'Academic Educator',
+                stats: { toolsUsed: 5, lessonsGenerated: 12, timeSaved: 6 }
+            };
+        }
+
         if (!user) throw new Error('User not found');
 
-        const lessonsCount = await LibraryItem.countDocuments({ user: userId });
-        const toolsUsedData = await LibraryItem.distinct('type', { user: userId });
+        const lessonsCount = isValidId ? await LibraryItem.countDocuments({ user: userId }) : 0;
+        const toolsUsedData = isValidId ? await LibraryItem.distinct('type', { user: userId }) : [];
 
         return {
             ...this.sanitizeUser(user),
