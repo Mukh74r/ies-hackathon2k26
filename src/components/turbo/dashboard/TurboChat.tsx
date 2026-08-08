@@ -22,7 +22,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { preprocessLatex } from '../../../utils/math';
 
 import { useAI } from "../../../context/AIContext";
-import { apiEndpoint } from '../../../utils/api';
+import { apiEndpoint, callDirectGroqInference, safeFetchJson } from '../../../utils/api';
 
 export default function TurboChat() {
     const { provider } = useAI();
@@ -119,19 +119,15 @@ export default function TurboChat() {
                     provider: provider,
                     webSearch: isSearchEnabled
                 })
-            });
+            }).catch(() => null);
 
             // Safe JSON Parse
-            let data: any = {};
-            try {
-                data = await response.json();
-            } catch (e) {
-                console.warn("Non-JSON response from server", e);
-            }
+            const parsed = response ? await safeFetchJson<any>(response) : { ok: false, data: null, isHtml: true };
+            const data: any = parsed.data || {};
 
             // Giga-Robust Rate Limit Detection
             const errorDump = (JSON.stringify(data) + (data.details || "") + (data.error || "")).toLowerCase();
-            const isRateLimit = response.status === 429 || 
+            const isRateLimit = response?.status === 429 || 
                                errorDump.includes("429") || 
                                errorDump.includes("rate limit") || 
                                errorDump.includes("quota") ||
@@ -159,15 +155,27 @@ export default function TurboChat() {
                 return;
             }
 
-            if (!response.ok) {
-                throw new Error(data.details || data.error || `NEURAL_LINK_CORRUPTED_${response.status}`);
+            if (parsed.ok && data.response) {
+                addMessage({ role: 'assistant', content: data.response });
+                return;
             }
 
-            if (data.response) {
-                addMessage({ role: 'assistant', content: data.response });
-            } else {
-                throw new Error("EMPTY_NEURAL_REPLY");
+            // Fallback: Direct Client-Side Groq Inference (Instant response on AWS Amplify)
+            const directGroqReply = await callDirectGroqInference(updatedMessages);
+            if (directGroqReply) {
+                addMessage({ role: 'assistant', content: directGroqReply });
+                return;
             }
+
+            if (!parsed.isHtml && data.details) {
+                throw new Error(data.details || data.error);
+            }
+
+            // Intelligent Academic Fallback when offline
+            addMessage({ 
+                role: 'assistant', 
+                content: `⚡ **DeepHub Neural Core**: To enable live real-time LLM responses on AWS Amplify:\n\n1. In your **AWS Amplify Console** ➔ **Environment variables**, ensure \`GROQ_API_KEY\` is configured.\n2. Or connect your backend container URL in \`VITE_API_URL\`.\n\n*Received Query:* "${userMsg}"` 
+            });
         } catch (err: any) {
             console.error("Chat Error:", err);
             
@@ -176,6 +184,13 @@ export default function TurboChat() {
                 setTotalWait(900); // 15m fallback
                 setRateLimitTime(900);
                 addMessage({ role: 'assistant', content: "⚠️ **Quota Exhausted**: Neural resources depleted. Initiating 15-minute emergency cooling cycle." });
+                return;
+            }
+
+            // Try one more direct client inference attempt
+            const directGroqReply = await callDirectGroqInference(updatedMessages).catch(() => null);
+            if (directGroqReply) {
+                addMessage({ role: 'assistant', content: directGroqReply });
                 return;
             }
 

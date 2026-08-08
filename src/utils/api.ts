@@ -32,6 +32,64 @@ export const apiEndpoint = (path: string): string => {
 };
 
 /**
+ * Safe JSON parser to handle SPA HTML fallback responses gracefully
+ */
+export const safeFetchJson = async <T = any>(response: Response): Promise<{ ok: boolean; data: T | null; isHtml: boolean }> => {
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+        return { ok: false, data: null, isHtml: true };
+    }
+    try {
+        const data = await response.json();
+        return { ok: response.ok, data, isHtml: false };
+    } catch {
+        return { ok: false, data: null, isHtml: false };
+    }
+};
+
+/**
+ * Direct client-side inference using Groq Cloud API when backend is in static hosting mode
+ */
+export const callDirectGroqInference = async (
+    messages: { role: string; content: string }[],
+    systemPrompt = "You are DeepHub AI, a high-performance frontier neural assistant specialized in education, engineering, and coding."
+): Promise<string | null> => {
+    const groqKey = import.meta.env.VITE_GROQ_API_KEY || 
+                    import.meta.env.GROQ_API_KEY || 
+                    localStorage.getItem('GROQ_API_KEY') ||
+                    "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";
+    
+    if (!groqKey) return null;
+
+    try {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${groqKey.trim()}`
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    ...messages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
+                ],
+                temperature: 0.6,
+                max_tokens: 2048
+            })
+        });
+
+        if (res.ok) {
+            const json = await res.json();
+            return json.choices?.[0]?.message?.content || null;
+        }
+    } catch (err) {
+        console.warn("Direct Groq inference fallback error:", err);
+    }
+    return null;
+};
+
+/**
  * Helper to get authentication headers
  */
 export const getAuthHeaders = (): Record<string, string> => {

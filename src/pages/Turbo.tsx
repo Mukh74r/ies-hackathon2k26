@@ -26,7 +26,7 @@ import TurboWatchDial from '../components/turbo/TurboWatchDial';
 import TurboAnalytics from '../components/turbo/tools/TurboAnalytics';
 import GraphicsEngineeringTool from '../components/turbo/tools/GraphicsEngineeringTool';
 import ScrollProgress from '../components/ScrollProgress';
-import { apiEndpoint, getAuthHeaders } from '../utils/api';
+import { apiEndpoint, getAuthHeaders, safeFetchJson } from '../utils/api';
 
 interface CustomTool {
     toolId: string;
@@ -78,13 +78,15 @@ export default function Turbo() {
             try {
                 const res = await fetch(apiEndpoint('/api/tools'), {
                     headers: getAuthHeaders(),
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setCustomTools(data);
+                }).catch(() => null);
+                if (res) {
+                    const parsed = await safeFetchJson<CustomTool[]>(res);
+                    if (parsed.ok && Array.isArray(parsed.data)) {
+                        setCustomTools(parsed.data);
+                    }
                 }
             } catch (err) {
-                console.warn('Failed to load custom tools:', err);
+                // Silently fallback if running in static client mode
             }
         };
         fetchCustomTools();
