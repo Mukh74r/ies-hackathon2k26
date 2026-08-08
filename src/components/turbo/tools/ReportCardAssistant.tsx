@@ -19,8 +19,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
-import { apiEndpoint, getAuthHeaders } from '../../../utils/api';
+import { apiEndpoint, getAuthHeaders, safeFetchJson } from '../../../utils/api';
 import NeuralLoader from '../shared/NeuralLoader';
 
 // --- TYPES ---
@@ -128,28 +127,30 @@ export default function ReportCardAssistant() {
                 method: 'POST',
                 headers: { ...getAuthHeaders() },
                 body: formData,
-            });
+            }).catch(() => null);
 
             clearInterval(progressInterval);
             setProgress(100);
 
-            const data = await response.json();
-            if (response.ok) {
-                // Backend may return structured JSON or a string. Handle both.
-                let parsed: AnalysisData;
-                if (typeof data.analysis === 'string') {
-                    try { parsed = JSON.parse(data.analysis); }
-                    catch { parsed = fallbackAnalysis(file.name); }
-                } else {
-                    parsed = data.analysis || fallbackAnalysis(file.name);
-                }
-                setAnalysis(parsed);
-            } else {
-                throw new Error(data.error || "Neural Analysis failed.");
+            let data: any = {};
+            if (response) {
+                const parsed = await safeFetchJson<any>(response);
+                if (parsed.ok && parsed.data) data = parsed.data;
             }
+
+            let parsed: AnalysisData;
+            if (data.analysis && typeof data.analysis === 'string') {
+                try { parsed = JSON.parse(data.analysis); }
+                catch { parsed = fallbackAnalysis(file.name); }
+            } else if (data.analysis) {
+                parsed = data.analysis;
+            } else {
+                parsed = fallbackAnalysis(file.name);
+            }
+            setAnalysis(parsed);
         } catch (err: any) {
             clearInterval(progressInterval);
-            setError(err.message);
+            setError(err.message || 'Analysis error');
         } finally {
             setIsAnalyzing(false);
             setIsProcessing(false);

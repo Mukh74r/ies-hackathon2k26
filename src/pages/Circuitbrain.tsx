@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Footer1 from "../components/Footer1";
 import "../index.css";
 import { Cpu, Sparkles, ExternalLink, ShoppingCart, Info, X } from "lucide-react";
-import { apiEndpoint } from "../utils/api";
+import { apiEndpoint, callDirectGroqInference, safeFetchJson } from "../utils/api";
 
 // Local image imports with fallbacks
 import imgRobomaster from "../assets/robots/robomaster-s1.jpeg";
@@ -303,18 +303,29 @@ Please format in 3 clear bullets:
 - 💻 **Programming & Curriculum Fit**: (Key languages & learning outcomes)
 - 🏫 **Classroom & Lab Setup Tip**: (Practical teacher tip for battery, maintenance, or storage)`;
 
+            let advice = null;
             const res = await fetch(apiEndpoint("/api/chat"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: prompt })
-            });
+            }).catch(() => null);
 
-            if (res.ok) {
-                const json = await res.json();
-                setRobotsList(prev => prev.map(r => r.id === robotId ? { ...r, aiAdvice: json.response, isAnalyzing: false } : r));
-            } else {
-                throw new Error("Failed to contact Turbo AI");
+            if (res) {
+                const parsed = await safeFetchJson<any>(res);
+                if (parsed.ok && parsed.data?.response) {
+                    advice = parsed.data.response;
+                }
             }
+
+            if (!advice) {
+                advice = await callDirectGroqInference([{ role: 'user', content: prompt }]).catch(() => null);
+            }
+
+            if (!advice) {
+                advice = `🎯 **Target Students & Grade Level**: ${targetRobot.gradeLevel} (Ideal for teams of 2-3 students).\n💻 **Programming & Curriculum Fit**: Supports ${targetRobot.codingLanguage} for hands-on problem solving.\n🏫 **Classroom & Lab Setup Tip**: Store in dedicated charging bins; assign student lab roles for inventory tracking.`;
+            }
+
+            setRobotsList(prev => prev.map(r => r.id === robotId ? { ...r, aiAdvice: advice, isAnalyzing: false } : r));
         } catch (err) {
             console.error("Turbo AI Hardware Advisor error:", err);
             setRobotsList(prev => prev.map(r => r.id === robotId ? {

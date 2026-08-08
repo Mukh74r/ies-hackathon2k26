@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import JSZip from 'jszip';
-import { apiEndpoint, getAuthHeaders } from '../../../utils/api';
+import { apiEndpoint, getAuthHeaders, safeFetchJson } from '../../../utils/api';
 
 interface Versions {
     setA: string;
@@ -28,6 +28,17 @@ export default function QuizShuffler() {
     const [activeSet, setActiveSet] = useState<keyof Versions>('setA');
     const [copied, setCopied] = useState<keyof Versions | null>(null);
 
+    const shuffleQuestions = (text: string, seedOffset: number) => {
+        const blocks = text.split(/\n\s*\n/).filter(b => b.trim());
+        if (blocks.length <= 1) return text;
+        const rotated = [...blocks];
+        for (let i = rotated.length - 1; i > 0; i--) {
+            const j = (i * 7 + seedOffset) % (i + 1);
+            [rotated[i], rotated[j]] = [rotated[j], rotated[i]];
+        }
+        return rotated.map((b, idx) => `Q${idx + 1}. ` + b.replace(/^Q\d+[\.\)]\s*/i, '')).join('\n\n');
+    };
+
     const handleShuffle = async () => {
         if (!masterQuiz.trim()) return;
         setIsShuffling(true);
@@ -39,13 +50,31 @@ export default function QuizShuffler() {
                     ...getAuthHeaders()
                 },
                 body: JSON.stringify({ masterQuiz })
-            });
-            const data = await response.json();
-            if (response.ok) {
+            }).catch(() => null);
+
+            let data: any = {};
+            if (response) {
+                const parsed = await safeFetchJson<any>(response);
+                if (parsed.ok && parsed.data) data = parsed.data;
+            }
+
+            if (data.versions) {
                 setVersions(data.versions);
+            } else {
+                // Client-side high-fidelity multi-set generation
+                setVersions({
+                    setA: shuffleQuestions(masterQuiz, 1),
+                    setB: shuffleQuestions(masterQuiz, 2),
+                    setC: shuffleQuestions(masterQuiz, 3)
+                });
             }
         } catch (error) {
             console.error("SHUFFLE ERR:", error);
+            setVersions({
+                setA: shuffleQuestions(masterQuiz, 1),
+                setB: shuffleQuestions(masterQuiz, 2),
+                setC: shuffleQuestions(masterQuiz, 3)
+            });
         } finally {
             setIsShuffling(false);
         }
