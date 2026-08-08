@@ -22,6 +22,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { motion, AnimatePresence } from 'framer-motion';
+import BrandLogo from '../../../assets/brand-logo-main.svg';
 import { apiEndpoint, getAuthHeaders, callDirectGroqInference, safeFetchJson } from '../../../utils/api';
 import { preprocessLatex } from '../../../utils/math';
 
