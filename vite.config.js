@@ -3,6 +3,11 @@ import react from "@vitejs/plugin-react-swc";
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    'process.env.GROQ_API_KEY': JSON.stringify(process.env.GROQ_API_KEY || ''),
+    'process.env.DEFAULT_AI_PROVIDER': JSON.stringify(process.env.DEFAULT_AI_PROVIDER || 'groq'),
+    'import.meta.env.VITE_GROQ_API_KEY': JSON.stringify(process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY || ''),
+  },
   resolve: {
     alias: {
       "@": "/src",
