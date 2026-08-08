@@ -179,10 +179,10 @@ function getRelativeTime(timestamp: number): string {
 }
 
 export default function Latest() {
-    const heading = useTypewriter("#Latest EdTech AI Intelligence.", 35);
+    const heading = "Latest EdTech AI Intelligence";
 
-    const [news, setNews] = useState<NewsArticle[]>([]);
-    const [loadingNews, setLoadingNews] = useState(true);
+    const [news, setNews] = useState<NewsArticle[]>(MULTI_SOURCE_EDTECH_FEEDS);
+    const [loadingNews, setLoadingNews] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<EdTechCategory | "All EdTech AI">("All EdTech AI");
