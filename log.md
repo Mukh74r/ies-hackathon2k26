@@ -65,6 +65,25 @@
   3. Documented functional capabilities and localized Indian language ecosystem benefits.
 - **Status**: ✅ Analysis complete and documented.
 
-
-
-
+### [2026-08-08 10:15 - 11:15 IST] - AWS Amplify Production Resilience & Static Client Fixes
+- **Task**: Fix SPA JSON parsing `<doctype` errors, resolve runtime reference errors across tools, and enable 100% resilient client-side AI inference on AWS Amplify hosting.
+- **Actions Taken**:
+  1. **Safe JSON Parsing & Direct Groq Client Inference**:
+     - Built `safeFetchJson` and `callDirectGroqInference` in [`src/utils/api.ts`](file:///home/ospoks/DeepHubAI-main/src/utils/api.ts) to gracefully handle SPA rewrite text/html fallbacks without throwing `SyntaxError: Unexpected token '<'`.
+     - Injected `process.env.GROQ_API_KEY` into `vite.config.js` `define` block for client-side LPU acceleration.
+  2. **Presentation Arch (PPT Generator)**:
+     - Fixed `BrandLogo` import in [`src/components/turbo/tools/PPTGenerator.tsx`](file:///home/ospoks/DeepHubAI-main/src/components/turbo/tools/PPTGenerator.tsx).
+     - Connected direct Groq deck synthesis + biological/physical slide deck generator.
+  3. **Question Paper Generator**:
+     - Restored missing `useAI` import from `AIContext` in [`src/components/turbo/tools/QuestionPaperGenerator.tsx`](file:///home/ospoks/DeepHubAI-main/src/components/turbo/tools/QuestionPaperGenerator.tsx).
+     - Fixed blueprint fallback variables (`subject`, `grade`, `timeAllowed`, `maxMarks`, `sec.questions`).
+     - Allowed instant generation from direct topics / chapter inputs.
+  4. **Latest Page**:
+     - Restored missing Lucide icons (`GraduationCap`, `RefreshCw`, `BookOpen`, `ExternalLink`, `Sparkles`, `Check`, `Share2`, `School`, `Compass`, `Award`, `Lightbulb`, `Users`) in [`src/pages/Latest.tsx`](file:///home/ospoks/DeepHubAI-main/src/pages/Latest.tsx).
+     - Initialized `news` with `MULTI_SOURCE_EDTECH_FEEDS` for instant first-paint rendering without network delay.
+  5. **Other Turbo Tools Upgraded**:
+     - [`SpeechGenerator.tsx`](file:///home/ospoks/DeepHubAI-main/src/components/turbo/tools/SpeechGenerator.tsx), [`DocumentSecretary.tsx`](file:///home/ospoks/DeepHubAI-main/src/components/turbo/tools/DocumentSecretary.tsx), [`QuizShuffler.tsx`](file:///home/ospoks/DeepHubAI-main/src/components/turbo/tools/QuizShuffler.tsx), [`PaperSolver.tsx`](file:///home/ospoks/DeepHubAI-main/src/components/turbo/tools/PaperSolver.tsx), [`ReportCardAssistant.tsx`](file:///home/ospoks/DeepHubAI-main/src/components/turbo/tools/ReportCardAssistant.tsx), [`Circuitbrain.tsx`](file:///home/ospoks/DeepHubAI-main/src/pages/Circuitbrain.tsx).
+  6. **Language Context & Cache-Control**:
+     - Removed duplicate language key blocks (`kn`, `ml`, `pa`, `or`) in [`src/context/LanguageContext.tsx`](file:///home/ospoks/DeepHubAI-main/src/context/LanguageContext.tsx).
+     - Added `<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />` in [`index.html`](file:///home/ospoks/DeepHubAI-main/index.html).
+- **Status**: ✅ All tools compiled cleanly with 0 errors and deployed to AWS Amplify (`main.d25gtgjmkeh5tz.amplifyapp.com`).
