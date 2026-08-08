@@ -2,6 +2,20 @@ import React, { useEffect, useState, useCallback } from "react";
 import Footer1 from "../components/Footer1";
 import ScrollProgress from "../components/ScrollProgress";
 import "../index.css";
+import {
+    GraduationCap,
+    RefreshCw,
+    BookOpen,
+    ExternalLink,
+    Sparkles,
+    Check,
+    Share2,
+    School,
+    Compass,
+    Award,
+    Lightbulb,
+    Users
+} from "lucide-react";
 import { apiEndpoint, callDirectGroqInference, safeFetchJson } from "../utils/api";
 
 /* ==============================
