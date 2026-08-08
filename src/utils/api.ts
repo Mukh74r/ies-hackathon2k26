@@ -174,3 +174,6 @@ export const getMockResponse = (path: string) => {
 };
 
 export const useDemoMode = () => IS_DEMO_MODE;
+
+// Re-export Turbo Brain local cache architecture
+export * from './turboBrain';

@@ -13,7 +13,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
-import { apiEndpoint, getAuthHeaders, safeFetchJson } from '../../../utils/api';
+import { apiEndpoint, getAuthHeaders, safeFetchJson, turboBrain, useTurboBrain } from '../../../utils/api';
 import { preprocessLatex } from '../../../utils/math';
 import { useAI } from "../../../context/AIContext";
 
@@ -99,6 +99,7 @@ declare global {
 // ─── COMPONENT ──────────────────────────────────────────────────────────
 export default function HomeworkCreator() {
     const { provider } = useAI();
+    const { recentMemories: brainMemories, rememberPrompt: cacheInTurboBrain } = useTurboBrain('homework-creator');
 
     // Voice
     const [isRecording, setIsRecording] = useState(false);
@@ -177,6 +178,13 @@ export default function HomeworkCreator() {
         setProgressStage('⚡ Preparing homework data...');
 
         try {
+            cacheInTurboBrain(transcript || assignmentTitle, {
+                subject,
+                gradeLevel: grade,
+                school: schoolName,
+                difficulty
+            });
+
             setProgress(40);
             setProgressStage('🧠 Generating homework... This may take a minute.');
 
@@ -380,19 +388,32 @@ export default function HomeworkCreator() {
     const handleSaveToLibrary = async () => {
         if (!paperPages.length) return;
         setIsSaving(true);
+        const item = {
+            id: `hw_${Date.now()}`,
+            type: 'homework',
+            title: assignmentTitle || `${schoolName} - ${subject || 'Homework'}`,
+            content: JSON.stringify({ header: paperHeader, pages: paperPages }),
+            timestamp: new Date().toISOString(),
+            metadata: { schoolName, assignmentTitle, subject, difficulty, dueDate, templateType, timestamp: new Date().toISOString() }
+        };
         try {
+            const local = localStorage.getItem('deephub_library_items');
+            let list = [];
+            if (local) {
+                try { list = JSON.parse(local); if (!Array.isArray(list)) list = []; } catch {}
+            }
+            list.unshift(item);
+            localStorage.setItem('deephub_library_items', JSON.stringify(list));
+
             const response = await fetch(apiEndpoint("/api/library/save"), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-                body: JSON.stringify({
-                    type: 'homework',
-                    title: assignmentTitle || `${schoolName} - ${subject || 'Homework'}`,
-                    content: JSON.stringify({ header: paperHeader, pages: paperPages }),
-                    metadata: { schoolName, assignmentTitle, subject, difficulty, dueDate, templateType, timestamp: new Date().toISOString() }
-                })
-            });
-            const data = await response.json();
-            if (data.success) alert("Saved to library!");
+                body: JSON.stringify(item)
+            }).catch(() => null);
+            if (response) {
+                await safeFetchJson(response);
+            }
+            alert("Saved to library!");
         } catch (err) { console.error("Save Error:", err); }
         finally { setIsSaving(false); }
     };
@@ -445,8 +466,35 @@ export default function HomeworkCreator() {
                             value={transcript}
                             onChange={(e) => setTranscript(e.target.value)}
                             placeholder="Type or record your lesson summary. Example: 'Today we covered thermodynamics — entropy, heat transfer, and the three laws...'"
-                            className="w-full h-36 bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-white focus:border-primary/50 outline-none resize-none transition-all placeholder:text-white/20 leading-relaxed"
+                            className="w-full h-36 bg-black/20 border border-white/10 rounded-xl p-4 text-sm text-white focus:border-cyan-500/50 outline-none resize-none transition-all placeholder:text-white/20 leading-relaxed"
                         />
+
+                        {/* Turbo Brain Recent Prompts Recall */}
+                        {brainMemories && brainMemories.length > 0 && (
+                            <div className="pt-1 space-y-1">
+                                <div className="flex items-center gap-1 text-[10px] text-white/40 font-mono-stamp">
+                                    <span>⚡ Turbo Brain Recall:</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                    {brainMemories.slice(0, 4).map((m, idx) => (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => {
+                                                setTranscript(m.userPrompt);
+                                                if (m.metadata?.subject) setSubject(m.metadata.subject);
+                                                if (m.metadata?.gradeLevel) setGrade(m.metadata.gradeLevel);
+                                                if (m.metadata?.school) setSchoolName(m.metadata.school);
+                                            }}
+                                            className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/25 text-amber-300 hover:bg-amber-500/20 hover:border-amber-400 transition-all truncate max-w-[200px] cursor-pointer"
+                                            title={m.userPrompt}
+                                        >
+                                            {m.userPrompt}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Template Selector */}
@@ -552,48 +600,51 @@ export default function HomeworkCreator() {
                 </div>
 
                 {/* ── RIGHT: PREVIEW ─────────────────────────────── */}
-                <div className="lg:col-span-8 flex flex-col h-[700px] bg-[#1a1a1a] rounded-xl border border-white/10 overflow-hidden shadow-2xl relative">
-                    {/* Preview Header Bar */}
-                    <div className="h-14 bg-black/40 border-b border-white/5 flex items-center justify-between px-4">
-                        <div className="flex items-center gap-4">
-                            <span className="text-xs font-medium text-white/40">Preview Mode</span>
+                <div className="lg:col-span-8 flex flex-col min-h-[800px] lg:h-[calc(100vh-140px)] bg-[#111625] rounded-2xl border border-white/10 overflow-hidden shadow-2xl relative backdrop-blur-md">
+
+                    {/* Preview Header */}
+                    <div className="h-14 bg-[#0a0e1a]/80 border-b border-white/10 flex items-center justify-between px-4 sticky top-0 z-20 backdrop-blur-md">
+                        <div className="flex items-center gap-3">
+                            <span className="text-xs font-semibold text-purple-400 flex items-center gap-1.5">
+                                <FileText size={14} /> Homework Preview
+                            </span>
                             {totalPages > 0 && paperPages[0]?.questions.length > 0 && (
-                                <div className="flex items-center gap-2 bg-black/40 rounded-lg p-1 border border-white/5">
+                                <div className="flex items-center gap-2 bg-white/10 px-2.5 py-1 rounded-lg border border-white/5">
                                     <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-                                        className="p-1 hover:text-white text-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><ChevronLeft size={16} /></button>
-                                    <span className="text-xs font-mono text-white/90 min-w-[60px] text-center font-medium">Page {currentPage} / {totalPages}</span>
+                                        className="p-1 hover:text-white text-white/50 disabled:opacity-30 transition-colors"><ChevronLeft size={14} /></button>
+                                    <span className="text-xs font-mono text-white/90 min-w-[50px] text-center font-medium">Page {currentPage} / {totalPages}</span>
                                     <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-                                        className="p-1 hover:text-white text-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><ChevronRight size={16} /></button>
+                                        className="p-1 hover:text-white text-white/50 disabled:opacity-30 transition-colors"><ChevronRight size={14} /></button>
                                 </div>
                             )}
                         </div>
                         {paperHeader && (
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2.5">
                                 <button onClick={handleSaveToLibrary} disabled={isSaving}
-                                    className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
-                                    {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Database size={14} />} Save
+                                    className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
+                                    {isSaving ? <Loader2 size={13} className="animate-spin" /> : <Database size={13} />} Save
                                 </button>
                                 <button onClick={handleExportDOCX}
-                                    className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all">
-                                    <Download size={14} /> Export DOCX
+                                    className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-lg shadow-purple-500/20">
+                                    <Download size={13} /> Export DOCX
                                 </button>
                             </div>
                         )}
                     </div>
 
                     {/* Paper Content */}
-                    <div className="flex-1 overflow-y-auto bg-[#525659] p-8 flex justify-center">
+                    <div className="flex-1 overflow-y-auto bg-[#525659] p-6 flex justify-center custom-scrollbar">
                         {!paperHeader ? (
-                            <div className="text-center self-center space-y-4 opacity-30 select-none">
-                                <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <FileText size={40} className="text-white" />
+                            <div className="text-center self-center space-y-4 opacity-50 select-none max-w-sm">
+                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <FileText size={32} className="text-purple-400" />
                                 </div>
-                                <h3 className="text-xl font-bold text-white">Ready to Create</h3>
-                                <p className="max-w-xs text-sm">Describe your lesson above to generate a custom homework assignment.</p>
+                                <h3 className="text-lg font-bold text-white">Ready to Create Homework</h3>
+                                <p className="text-xs text-white/60">Configure your lesson details on the left to generate a formatted homework assignment.</p>
                             </div>
                         ) : (
-                            <div className="bg-white text-black shadow-2xl min-h-[297mm] w-[210mm] mx-auto origin-top transform scale-[0.55] sm:scale-[0.65] md:scale-[0.75] lg:scale-[0.8] transition-transform"
-                                 style={{ marginBottom: '-15%', fontFamily: "'Times New Roman', serif" }}>
+                            <div className="bg-white text-black shadow-2xl min-h-[297mm] w-full max-w-[210mm] mx-auto origin-top p-8 rounded-sm"
+                                 style={{ fontFamily: "'Times New Roman', serif" }}>
 
                                 {/* Page Header (School template) */}
                                 {currentPage === 1 && templateType === 'school' && (

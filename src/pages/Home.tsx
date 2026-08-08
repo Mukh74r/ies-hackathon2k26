@@ -270,57 +270,61 @@ export default function Home() {
             </header>
 
             {/* ── 1. HERO SECTION ── */}
-            <section className="pt-16 sm:pt-24 pb-16 sm:pb-20 px-4 sm:px-8 max-w-6xl mx-auto text-center space-y-6 sm:space-y-8 relative z-10">
-                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-[#0E1424]/90 backdrop-blur-sm border border-[#1E2640] text-xs font-semibold text-[#00A4E4] shadow-inner max-w-[90vw] truncate">
-                    <Sparkles size={14} className="text-[#00A4E4] shrink-0" />
-                    <span className="truncate">Welcome to the World’s First All-in-One AI Hub</span>
+            <section className="pt-20 sm:pt-28 pb-16 sm:pb-24 px-4 sm:px-8 max-w-6xl mx-auto text-center space-y-8 relative z-10">
+                {/* Ambient Background Radial Glows */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-r from-cyan-500/20 via-blue-600/15 to-indigo-600/20 blur-[130px] rounded-full pointer-events-none -z-10" />
+
+                <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.04] backdrop-blur-xl border border-white/10 text-xs font-semibold text-cyan-300 shadow-[0_0_20px_rgba(0,164,228,0.15)] max-w-[90vw] truncate">
+                    <Sparkles size={14} className="text-cyan-400 shrink-0 animate-pulse" />
+                    <span className="truncate tracking-wide">Welcome to the World’s First All-in-One AI Hub</span>
                 </div>
 
-                <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto">
-                    <h1 className="text-3xl sm:text-6xl lg:text-7xl font-bold font-display tracking-tight text-[#FFFFFF] leading-[1.1]">
-                        AI <br />
-                        <span className="text-[#00A4E4]">for Everyone.</span>
+                <div className="space-y-4 max-w-4xl mx-auto">
+                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold font-display tracking-tight leading-[1.1]">
+                        <span className="text-white">AI</span> <br />
+                        <span className="gradient-text-electric">for Everyone.</span>
                     </h1>
 
-                    <p className="text-sm sm:text-xl text-[#94A3B8] leading-relaxed max-w-2xl mx-auto font-sans-academic pt-1 sm:pt-2 px-2">
-                        Making AI products simple, accessible, and powerful for individuals and enterprises.
+                    <p className="text-sm sm:text-lg text-white/70 leading-relaxed max-w-2xl mx-auto font-sans-academic pt-2 px-2">
+                        Making AI products simple, accessible, and powerful for educators, developers, and enterprises.
                     </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4 w-full max-w-md mx-auto sm:max-w-none">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-4 w-full max-w-md mx-auto sm:max-w-none">
                     <button
                         onClick={() => navigate('/turbo')}
-                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#FFFFFF] hover:bg-[#F1F5F9] text-black font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98 min-h-[48px]"
+                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-black font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-[0_0_25px_rgba(0,164,228,0.4)] active:scale-98 min-h-[48px] cursor-pointer"
                     >
                         <span>Discover Turbo</span>
                         <ArrowRight size={16} />
                     </button>
                     <button
                         onClick={() => navigate('/latest')}
-                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#0E1424]/90 backdrop-blur-sm border border-[#1E2640] hover:border-[#00A4E4] text-[#FFFFFF] text-sm font-semibold tracking-wider flex items-center justify-center gap-2 transition-all min-h-[48px]"
+                        className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white/[0.04] backdrop-blur-xl border border-white/10 hover:border-cyan-400 text-white text-sm font-semibold tracking-wider flex items-center justify-center gap-2 transition-all min-h-[48px] cursor-pointer card-lift"
                     >
-                        <Radio size={14} className="text-[#00A4E4]" />
+                        <Radio size={14} className="text-cyan-400 animate-pulse" />
                         <span>Latest AI Updates</span>
                     </button>
                 </div>
 
                 {/* Sub Hero Badges */}
-                <div className="pt-6 sm:pt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-[#94A3B8] font-mono-stamp px-2">
-                    <span className="flex items-center gap-1.5">
-                        <CheckCircle2 size={14} className="text-[#00A4E4] shrink-0" /> All-in-One AI Hub
+                <div className="pt-6 sm:pt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs text-white/60 font-mono-stamp px-2">
+                    <span className="flex items-center gap-2">
+                        <CheckCircle2 size={15} className="text-cyan-400 shrink-0" /> All-in-One AI Hub
                     </span>
-                    <span className="flex items-center gap-1.5">
-                        <CheckCircle2 size={14} className="text-[#00A4E4] shrink-0" /> Customized Platform
+                    <span className="flex items-center gap-2">
+                        <CheckCircle2 size={15} className="text-cyan-400 shrink-0" /> Customized Platform
                     </span>
-                    <span className="flex items-center gap-1.5">
-                        <CheckCircle2 size={14} className="text-[#00A4E4] shrink-0" /> Real-time Breakthroughs
+                    <span className="flex items-center gap-2">
+                        <CheckCircle2 size={15} className="text-cyan-400 shrink-0" /> Real-time Breakthroughs
                     </span>
                 </div>
             </section>
 
             {/* ── 2. LATEST UPDATES IN AI WORLD SPOTLIGHT ── */}
-            <section className="py-12 sm:py-16 px-4 sm:px-8 max-w-7xl mx-auto relative z-10 border-t border-[#1E2640]/80">
-                <div className="p-5 sm:p-10 rounded-3xl bg-[#0E1424]/90 backdrop-blur-md border border-[#1E2640] shadow-2xl space-y-6 sm:space-y-8">
+            <section className="py-14 sm:py-20 px-4 sm:px-8 max-w-7xl mx-auto relative z-10 border-t border-white/10">
+                <div className="p-6 sm:p-10 rounded-3xl bg-[#080C14]/90 backdrop-blur-xl border border-white/10 shadow-2xl space-y-6 sm:space-y-8 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none -z-0" />
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         <div className="space-y-2 max-w-2xl">
                             <div className="inline-flex items-center gap-2 text-xs font-mono-stamp text-[#00A4E4] uppercase font-bold tracking-wider">

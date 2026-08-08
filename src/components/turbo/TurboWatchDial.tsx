@@ -15,6 +15,8 @@ import {
     Menu,
     Search,
     Wand2,
+    Sparkles,
+    GraduationCap,
     LucideIcon
 } from 'lucide-react';
 
@@ -31,6 +33,8 @@ interface MenuItem {
 
 const MENU_ITEMS: MenuItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'cyan' },
+    { id: 'student-studio', label: 'Student Lab', icon: GraduationCap, color: 'blue' },
+    { id: 'prompt-optimizer', label: 'Optimizer', icon: Sparkles, color: 'emerald' },
     { id: 'library', label: 'Library', icon: Database, color: 'indigo' },
     { id: 'question-gen', label: 'Questions', icon: FileText, color: 'blue' },
     { id: 'homework', label: 'Homework', icon: BookOpen, color: 'purple' },

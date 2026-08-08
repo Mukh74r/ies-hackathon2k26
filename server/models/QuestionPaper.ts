@@ -11,7 +11,7 @@ export const QuestionPaperZodSchema = z.object({
   sections: z.array(z.any()),
   isJSON: z.boolean().default(true),
   rawContent: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 export type QuestionPaperType = z.infer<typeof QuestionPaperZodSchema>;

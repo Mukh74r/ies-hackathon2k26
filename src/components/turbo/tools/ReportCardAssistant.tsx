@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import { apiEndpoint, getAuthHeaders, safeFetchJson } from '../../../utils/api';
 import NeuralLoader from '../shared/NeuralLoader';
 
@@ -173,19 +174,32 @@ export default function ReportCardAssistant() {
     const handleSaveToLibrary = async () => {
         if (!analysis) return;
         setIsSaving(true);
+        const item = {
+            id: `report_${Date.now()}`,
+            type: 'report-analysis',
+            title: `Analysis - ${analysis.studentName || 'Student Report'}`,
+            content: JSON.stringify(analysis, null, 2),
+            timestamp: new Date().toISOString(),
+            metadata: { fileName: file?.name, grade: analysis.gradeClass, score: analysis.overallPercentage }
+        };
         try {
+            const local = localStorage.getItem('deephub_library_items');
+            let list = [];
+            if (local) {
+                try { list = JSON.parse(local); if (!Array.isArray(list)) list = []; } catch {}
+            }
+            list.unshift(item);
+            localStorage.setItem('deephub_library_items', JSON.stringify(list));
+
             const response = await fetch(apiEndpoint('/api/library/save'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-                body: JSON.stringify({
-                    type: 'report-analysis',
-                    title: `Analysis - ${analysis.studentName || 'Student Report'}`,
-                    content: JSON.stringify(analysis, null, 2),
-                    metadata: { fileName: file?.name, grade: analysis.gradeClass, score: analysis.overallPercentage }
-                })
-            });
-            const data = await response.json();
-            if (!data.success) throw new Error("Save failed");
+                body: JSON.stringify(item)
+            }).catch(() => null);
+            if (response) {
+                await safeFetchJson(response);
+            }
+            alert("Saved to library!");
         } catch (err) {
             console.error("Save Error:", err);
         } finally {
@@ -287,9 +301,9 @@ export default function ReportCardAssistant() {
                 </div>
 
                 {/* RIGHT COLUMN: Analytics Dashboard */}
-                <div className="lg:col-span-8 bg-[#0a0c10] border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex flex-col h-full min-h-0 relative">
+                <div className="lg:col-span-8 bg-[#111625] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col min-h-[800px] lg:h-[calc(100vh-140px)] relative backdrop-blur-md">
                     {/* Header Toolbar */}
-                    <div className="bg-white/5 border-b border-white/5 px-6 h-16 flex items-center justify-between shrink-0">
+                    <div className="bg-[#0a0e1a]/80 border-b border-white/10 px-6 h-14 flex items-center justify-between sticky top-0 z-20 backdrop-blur-md">
                         <span className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-400 flex items-center gap-2">
                             <ClipboardCheck size={14} /> Student Intelligence Dashboard
                         </span>

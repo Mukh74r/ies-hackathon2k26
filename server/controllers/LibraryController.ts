@@ -33,7 +33,7 @@ export class LibraryController {
             const { id } = req.params;
             if (!userId) throw new Error('Unauthorized');
 
-            await LibraryService.deleteItem(userId, id);
+            await LibraryService.deleteItem(userId, String(id));
             res.json({ success: true });
         } catch (err) {
             next(err);

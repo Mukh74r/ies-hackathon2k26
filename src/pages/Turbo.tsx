@@ -20,6 +20,8 @@ import QuizShuffler from '../components/turbo/tools/QuizShuffler';
 import SpeechGenerator from '../components/turbo/tools/SpeechGenerator';
 import ToolStudio from '../components/turbo/tools/ToolStudio';
 import DynamicTool from '../components/turbo/tools/DynamicTool';
+import PromptOptimizer from '../components/turbo/tools/PromptOptimizer';
+import StudentStudio from '../components/turbo/tools/StudentStudio';
 import Library from '../components/turbo/dashboard/Library';
 import TurboChat from '../components/turbo/dashboard/TurboChat';
 import TurboWatchDial from '../components/turbo/TurboWatchDial';
@@ -42,9 +44,11 @@ interface CustomTool {
 
 const PAGE_LABELS: Record<string, string> = {
     'dashboard': 'Overview Dashboard',
+    'prompt-optimizer': 'Prompt Optimizer (Universal AI Bridge)',
+    'student-studio': 'Student Learning Lab & Socratic Studio',
     'question-gen': 'Question Paper Generator',
     'homework': 'Homework Creator',
-    'lesson-plan': 'Lesson Plan Builder',
+    'lesson-plan': '45-Min Lesson Plan Builder',
     'ppt-gen': 'PPT Presentation Creator',
     'paper-solver': 'Paper & Step Solver',
     'report-assistant': 'Report Card Assistant',
@@ -70,19 +74,52 @@ export default function Turbo() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Load custom tools from server on mount
+    // Load custom tools from localStorage and server on mount
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) return;
+        // Load instantly from localStorage
+        const local = localStorage.getItem('deephub_custom_tools');
+        if (local) {
+            try {
+                const parsed = JSON.parse(local);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setCustomTools(parsed);
+                }
+            } catch {}
+        }
+
         const fetchCustomTools = async () => {
             try {
-                const res = await fetch(apiEndpoint('/api/tools'), {
+                // Try tool-studio list endpoint first, then fallback to /api/tools
+                let res = await fetch(apiEndpoint('/api/tool-studio/list'), {
                     headers: getAuthHeaders(),
                 }).catch(() => null);
+
                 if (res) {
-                    const parsed = await safeFetchJson<CustomTool[]>(res);
-                    if (parsed.ok && Array.isArray(parsed.data)) {
+                    const parsed = await safeFetchJson<{ success?: boolean; tools?: CustomTool[] } | CustomTool[]>(res);
+                    if (parsed.ok && parsed.data) {
+                        let tools: CustomTool[] = [];
+                        if (Array.isArray(parsed.data)) {
+                            tools = parsed.data;
+                        } else if (Array.isArray((parsed.data as any).tools)) {
+                            tools = (parsed.data as any).tools;
+                        }
+                        if (tools.length > 0) {
+                            setCustomTools(tools);
+                            localStorage.setItem('deephub_custom_tools', JSON.stringify(tools));
+                            return;
+                        }
+                    }
+                }
+
+                // Fallback to /api/tools
+                const fallbackRes = await fetch(apiEndpoint('/api/tools'), {
+                    headers: getAuthHeaders(),
+                }).catch(() => null);
+                if (fallbackRes) {
+                    const parsed = await safeFetchJson<CustomTool[]>(fallbackRes);
+                    if (parsed.ok && Array.isArray(parsed.data) && parsed.data.length > 0) {
                         setCustomTools(parsed.data);
+                        localStorage.setItem('deephub_custom_tools', JSON.stringify(parsed.data));
                     }
                 }
             } catch (err) {
@@ -95,13 +132,22 @@ export default function Turbo() {
     const handleToolSaved = (newTool: CustomTool) => {
         setCustomTools(prev => {
             const exists = prev.find(t => t.toolId === newTool.toolId);
-            if (exists) return prev.map(t => t.toolId === newTool.toolId ? newTool : t);
-            return [...prev, newTool];
+            const updated = exists ? prev.map(t => t.toolId === newTool.toolId ? newTool : t) : [...prev, newTool];
+            try {
+                localStorage.setItem('deephub_custom_tools', JSON.stringify(updated));
+            } catch {}
+            return updated;
         });
     };
 
     const handleToolDeleted = (toolId: string) => {
-        setCustomTools(prev => prev.filter(t => t.toolId !== toolId));
+        setCustomTools(prev => {
+            const updated = prev.filter(t => t.toolId !== toolId);
+            try {
+                localStorage.setItem('deephub_custom_tools', JSON.stringify(updated));
+            } catch {}
+            return updated;
+        });
     };
 
     const isMobile = windowWidth < 1024;
@@ -195,8 +241,8 @@ export default function Turbo() {
             <div
                 className={`
                     transition-all duration-300 ease-in-out
-                    ${isMobile ? 'ml-0' : (collapsed ? 'ml-16' : 'ml-60')}
-                    min-h-screen lg:h-screen relative flex flex-col overflow-x-hidden bg-[#080C14]
+                    ${isMobile ? 'ml-0' : (collapsed ? 'ml-16' : 'ml-64')}
+                    min-h-screen relative flex flex-col overflow-x-hidden bg-[#080C14]
                 `}
             >
                 {/* Desktop Floating AI Model Switcher */}
@@ -208,15 +254,38 @@ export default function Turbo() {
 
                 <main className={`
                     flex-1 relative z-10 flex flex-col items-center transition-all duration-300
-                    ${isMobile ? 'p-2.5 pt-16 pb-28 min-h-screen' : 'p-4 pt-6 h-screen overflow-hidden'}
+                    ${isMobile ? 'p-2.5 pt-16 pb-28 min-h-screen' : 'p-4 lg:p-6 pt-6 min-h-screen overflow-y-auto'}
                 `}>
-                    <div className="w-full h-full max-w-[1400px]">
+                    <div className="w-full h-full max-w-[1680px]">
                         {activePage === 'dashboard' && <TurboChat />}
 
                         {activePage !== 'dashboard' && (
-                            <div className="w-full h-full bg-[#0F172A] border border-[#1E293B] shadow-2xl rounded-2xl overflow-hidden">
-                                <div className={`w-full h-full overflow-y-auto ${isMobile ? 'p-3' : 'p-6'}`}>
+                            <div className="space-y-4">
+                                {/* Studio Top Breadcrumb & Status Bar */}
+                                <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-[#0B0F1C]/90 border border-white/10 shadow-lg backdrop-blur-md">
+                                    <div className="flex items-center gap-2.5 text-sm font-mono-stamp">
+                                        <span className="px-2.5 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-bold uppercase tracking-wider text-xs shadow-sm">
+                                            {activePage === 'student-studio' ? '🎓 Student Learning Lab' : '👨‍🏫 Educator Teaching Suite'}
+                                        </span>
+                                        <span className="text-white/30">/</span>
+                                        <span className="text-white font-bold tracking-tight text-sm">{currentTitle}</span>
+                                    </div>
+
+                                    <div className="flex items-center gap-3.5 text-xs font-mono-stamp text-white/60">
+                                        <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                            <span>⚡ Turbo Brain Active</span>
+                                        </span>
+                                        <span className="hidden sm:inline text-white/20">•</span>
+                                        <span className="hidden sm:inline text-white/50">🔒 FERPA & COPPA Certified</span>
+                                    </div>
+                                </div>
+
+                                <div className="w-full bg-[#0F172A]/95 border border-[#1E293B] shadow-2xl rounded-2xl overflow-hidden backdrop-blur-md">
+                                    <div className={`w-full ${isMobile ? 'p-3' : 'p-6 lg:p-8'}`}>
                                     {activePage === 'library' && <Library />}
+                                    {activePage === 'prompt-optimizer' && <PromptOptimizer />}
+                                    {activePage === 'student-studio' && <StudentStudio />}
                                     {activePage === 'question-gen' && <QuestionPaperGenerator />}
                                     {activePage === 'homework' && <HomeworkCreator />}
                                     {activePage === 'lesson-plan' && <LessonPlanBuilder />}
@@ -248,6 +317,7 @@ export default function Turbo() {
                                         />
                                     )}
                                 </div>
+                            </div>
                             </div>
                         )}
                     </div>

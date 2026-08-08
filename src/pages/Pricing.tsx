@@ -43,6 +43,58 @@ export default function Pricing() {
     const [proStatus, setProStatus] = useState<{ isPro: boolean; proExpiresAt: string | null } | null>(null);
     const token = localStorage.getItem("token");
 
+    // Institutional Licensing Form State
+    const [isSubmittingForm, setIsSubmittingForm] = useState(false);
+    const [formSubmitted, setFormSubmitted] = useState(false);
+    const [formData, setFormData] = useState({
+        institutionName: "",
+        institutionType: "K-12 School Network",
+        campusCount: "1 - 5",
+        studentEnrollment: "500 - 2,500",
+        selectedBoards: ["CBSE (National)", "ICSE / ISC", "NEP-2020 Competency"],
+        selectedLMS: ["Google Classroom", "Canvas LMS (Instructure)"],
+        selectedCompliance: ["FERPA & COPPA Certified", "NEP-2020 Competency"],
+        contactName: "",
+        contactEmail: "",
+        contactRole: "",
+        contactPhone: "",
+        specialRequirements: "",
+    });
+
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmittingForm(true);
+
+        try {
+            // Save application locally
+            const existing = JSON.parse(localStorage.getItem("deephub_institutional_inquiries") || "[]");
+            existing.push({
+                ...formData,
+                submittedAt: new Date().toISOString(),
+                ticketId: `DHP-INST-${Math.floor(100000 + Math.random() * 900000)}`
+            });
+            localStorage.setItem("deephub_institutional_inquiries", JSON.stringify(existing));
+
+            // Optional API dispatch
+            try {
+                const { apiEndpoint } = await import("../utils/api");
+                await fetch(apiEndpoint("/api/institutional-licensing"), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData)
+                });
+            } catch {
+                // Graceful fallback to local queue
+            }
+
+            setFormSubmitted(true);
+        } catch {
+            alert("Error submitting institutional form. Please try again.");
+        } finally {
+            setIsSubmittingForm(false);
+        }
+    };
+
     // Load Razorpay script
     useEffect(() => {
         if (!document.getElementById("razorpay-script")) {
@@ -71,6 +123,7 @@ export default function Pricing() {
         };
         checkStatus();
     }, [token]);
+
 
     const handleUpgrade = async () => {
         if (!token) {
@@ -289,8 +342,8 @@ export default function Pricing() {
                                     </span>
                                 </div>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-4xl sm:text-5xl font-bold font-display text-white">₹66</span>
-                                    <span className="text-xs text-[#94A3B8] font-mono">/ 3 Months Full Access</span>
+                                    <span className="text-4xl sm:text-5xl font-bold font-display text-white">₹88</span>
+                                    <span className="text-xs text-[#94A3B8] font-mono">/ mo</span>
                                 </div>
                                 <p className="text-xs text-[#94A3B8]">Unlimited question generation, LaTeX typesetting & Secretary AI.</p>
                             </div>
@@ -328,27 +381,334 @@ export default function Pricing() {
                     </div>
                 </div>
 
-                {/* Institutional & Enterprise Section */}
-                <div className="p-8 sm:p-10 rounded-3xl bg-[#0E1424]/80 border border-[#1E2640] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                    <div className="space-y-2 max-w-xl">
-                        <div className="inline-flex items-center gap-2 text-xs font-mono-stamp text-[#00A4E4] uppercase font-bold">
-                            <Building2 size={14} />
+                {/* ── 3. INSTITUTIONAL LICENSING & MULTI-CAMPUS DEPLOYMENTS FORM ── */}
+                <div id="institutional-licensing" className="p-6 sm:p-10 rounded-3xl bg-[#0E1424]/90 border border-cyan-500/30 shadow-[0_0_40px_rgba(0,164,228,0.12)] space-y-8 relative overflow-hidden backdrop-blur-xl">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none -z-0" />
+
+                    {/* Header */}
+                    <div className="space-y-3 relative z-10 max-w-3xl">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-xs font-mono-stamp text-cyan-300 font-bold uppercase shadow-sm">
+                            <Building2 size={14} className="text-cyan-400" />
                             <span>Institutional Licensing</span>
                         </div>
-                        <h2 className="text-xl sm:text-2xl font-bold font-display text-white">
+                        <h2 className="text-2xl sm:text-4xl font-bold font-display text-white tracking-tight">
                             Multi-Campus School & University Deployments
                         </h2>
-                        <p className="text-xs sm:text-sm text-[#94A3B8]">
-                            Custom board blueprints, FERPA/COPPA compliance, LMS integrations (Canvas, Google Classroom), and institutional bulk pricing.
+                        <p className="text-xs sm:text-sm text-white/70 font-sans-academic leading-relaxed">
+                            Custom board blueprints, FERPA/COPPA compliance, LMS integrations (Canvas, Google Classroom), and institutional bulk pricing. Complete the deployment form below for instant evaluation and academic sales coordination.
                         </p>
                     </div>
 
-                    <a
-                        href="/report-issue"
-                        className="px-6 py-3 rounded-xl bg-[#0E1424] hover:bg-[#1E2640] border border-[#1E2640] text-xs font-bold text-white uppercase tracking-wider transition-colors shrink-0"
-                    >
-                        Contact Academic Sales
-                    </a>
+                    {/* Interactive Form or Submission Success */}
+                    {formSubmitted ? (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="p-8 rounded-2xl bg-emerald-950/20 border border-emerald-500/40 text-center space-y-4 relative z-10"
+                        >
+                            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(16,185,129,0.3)]">
+                                <ShieldCheck size={36} />
+                            </div>
+                            <div className="space-y-1">
+                                <h3 className="text-2xl font-bold text-white font-display">Institutional Licensing Inquiry Received!</h3>
+                                <p className="text-xs sm:text-sm text-white/70 max-w-lg mx-auto">
+                                    Our Academic Enterprise Architecture team has logged your deployment requirements for <strong className="text-cyan-300">{formData.institutionName || 'your institution'}</strong>.
+                                </p>
+                            </div>
+                            <div className="p-4 rounded-xl bg-black/40 border border-white/10 max-w-md mx-auto text-left font-mono text-xs text-white/80 space-y-1">
+                                <div className="flex justify-between text-white/50"><span>Ticket Reference:</span> <span className="text-cyan-400 font-bold">DHP-INST-{Math.floor(100000 + Math.random() * 900000)}</span></div>
+                                <div className="flex justify-between text-white/50"><span>Target Campuses:</span> <span className="text-white">{formData.campusCount} Campuses</span></div>
+                                <div className="flex justify-between text-white/50"><span>Enrollment Tier:</span> <span className="text-white">{formData.studentEnrollment} Students</span></div>
+                                <div className="flex justify-between text-white/50"><span>SLA Coordination:</span> <span className="text-emerald-400 font-bold">Within 4 Business Hours</span></div>
+                            </div>
+                            <button
+                                onClick={() => setFormSubmitted(false)}
+                                className="px-6 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-wider transition-all border border-white/10 cursor-pointer"
+                            >
+                                Edit or Submit Another Application
+                            </button>
+                        </motion.div>
+                    ) : (
+                        <form onSubmit={handleFormSubmit} className="space-y-8 relative z-10">
+                            {/* Grid Section 1: Institution Profile */}
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-mono-stamp uppercase tracking-widest text-cyan-400 font-bold flex items-center gap-2">
+                                    <span>01.</span> Institution & Campus Scope
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-semibold text-white/90">
+                                            Institution / University Name <span className="text-cyan-400">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={formData.institutionName}
+                                            onChange={(e) => setFormData({ ...formData, institutionName: e.target.value })}
+                                            placeholder="e.g. Oxford Public School Group / Apex University System"
+                                            className="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-semibold text-white/90">
+                                            Institution Classification <span className="text-cyan-400">*</span>
+                                        </label>
+                                        <select
+                                            value={formData.institutionType}
+                                            onChange={(e) => setFormData({ ...formData, institutionType: e.target.value })}
+                                            className="w-full bg-[#080C14] border border-white/10 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-xs text-white outline-none transition-all cursor-pointer"
+                                        >
+                                            <option value="K-12 School Network">K-12 Multi-Campus School Network</option>
+                                            <option value="Collegiate & University System">Higher Education & University System</option>
+                                            <option value="Polytechnic & Technical Institute">Polytechnic & Technical Institute</option>
+                                            <option value="EdTech & Test Prep Chain">National Test Prep & Coaching Chain</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-semibold text-white/90">
+                                            Total Campuses / Centers
+                                        </label>
+                                        <select
+                                            value={formData.campusCount}
+                                            onChange={(e) => setFormData({ ...formData, campusCount: e.target.value })}
+                                            className="w-full bg-[#080C14] border border-white/10 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-xs text-white outline-none transition-all cursor-pointer"
+                                        >
+                                            <option value="1 - 5">1 - 5 Campuses</option>
+                                            <option value="6 - 20">6 - 20 Campuses</option>
+                                            <option value="21 - 50">21 - 50 Campuses</option>
+                                            <option value="50+">50+ Global / National Campuses</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-semibold text-white/90">
+                                            Estimated Total Student Enrollment
+                                        </label>
+                                        <select
+                                            value={formData.studentEnrollment}
+                                            onChange={(e) => setFormData({ ...formData, studentEnrollment: e.target.value })}
+                                            className="w-full bg-[#080C14] border border-white/10 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-xs text-white outline-none transition-all cursor-pointer"
+                                        >
+                                            <option value="500 - 2,500">500 - 2,500 Students</option>
+                                            <option value="2,500 - 10,000">2,500 - 10,000 Students</option>
+                                            <option value="10,000 - 50,000">10,000 - 50,000 Students</option>
+                                            <option value="50,000+">50,000+ Students (Statewide / Enterprise)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Grid Section 2: Custom Blueprints & Curricula */}
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-mono-stamp uppercase tracking-widest text-cyan-400 font-bold flex items-center gap-2">
+                                    <span>02.</span> Custom Board Blueprints & Curricula
+                                </h3>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                                    {[
+                                        "CBSE (National)",
+                                        "ICSE / ISC",
+                                        "IB (International Baccalaureate)",
+                                        "Cambridge (IGCSE / A-Levels)",
+                                        "State Examination Boards",
+                                        "AICTE / Engineering",
+                                        "Medical Entrance / NEET",
+                                        "Custom University Syllabus"
+                                    ].map((board) => {
+                                        const isSelected = formData.selectedBoards.includes(board);
+                                        return (
+                                            <button
+                                                type="button"
+                                                key={board}
+                                                onClick={() => {
+                                                    setFormData({
+                                                        ...formData,
+                                                        selectedBoards: isSelected
+                                                            ? formData.selectedBoards.filter(b => b !== board)
+                                                            : [...formData.selectedBoards, board]
+                                                    });
+                                                }}
+                                                className={`p-2.5 rounded-xl border text-xs text-left font-medium transition-all flex items-center justify-between cursor-pointer ${
+                                                    isSelected
+                                                        ? "bg-cyan-500/15 border-cyan-400 text-cyan-300 font-bold shadow-[0_0_12px_rgba(0,164,228,0.2)]"
+                                                        : "bg-white/5 border-white/10 text-white/70 hover:border-white/20 hover:text-white"
+                                                }`}
+                                            >
+                                                <span className="truncate">{board}</span>
+                                                {isSelected && <Check size={12} className="text-cyan-400 shrink-0 ml-1" />}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Grid Section 3: LMS & Single Sign-On (SSO) */}
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-mono-stamp uppercase tracking-widest text-cyan-400 font-bold flex items-center gap-2">
+                                    <span>03.</span> LMS & Single Sign-On (SSO) Integrations
+                                </h3>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-2.5">
+                                    {[
+                                        "Google Classroom",
+                                        "Canvas LMS (Instructure)",
+                                        "Blackboard Learn",
+                                        "Moodle LMS",
+                                        "Microsoft Teams for Education",
+                                        "SAML 2.0 / Okta / Azure AD SSO"
+                                    ].map((lms) => {
+                                        const isSelected = formData.selectedLMS.includes(lms);
+                                        return (
+                                            <button
+                                                type="button"
+                                                key={lms}
+                                                onClick={() => {
+                                                    setFormData({
+                                                        ...formData,
+                                                        selectedLMS: isSelected
+                                                            ? formData.selectedLMS.filter(l => l !== lms)
+                                                            : [...formData.selectedLMS, lms]
+                                                    });
+                                                }}
+                                                className={`p-2.5 rounded-xl border text-xs text-left font-medium transition-all flex items-center justify-between cursor-pointer ${
+                                                    isSelected
+                                                        ? "bg-blue-500/15 border-blue-400 text-blue-300 font-bold shadow-[0_0_12px_rgba(59,130,246,0.2)]"
+                                                        : "bg-white/5 border-white/10 text-white/70 hover:border-white/20 hover:text-white"
+                                                }`}
+                                            >
+                                                <span className="truncate">{lms}</span>
+                                                {isSelected && <Check size={12} className="text-blue-400 shrink-0 ml-1" />}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Grid Section 4: Data Governance & Compliance */}
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-mono-stamp uppercase tracking-widest text-cyan-400 font-bold flex items-center gap-2">
+                                    <span>04.</span> Data Governance & Compliance Tier
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                                    {[
+                                        { title: "FERPA & COPPA Certified", desc: "Student data privacy & parental protection." },
+                                        { title: "NEP-2020 Competency", desc: "Standardized Bloom's Taxonomy mandate." },
+                                        { title: "GDPR & ISO 27001", desc: "Zero data training on student coursework." },
+                                        { title: "Dedicated On-Prem / VPC", desc: "Isolated institutional cloud tenancy." }
+                                    ].map((comp) => {
+                                        const isSelected = formData.selectedCompliance.includes(comp.title);
+                                        return (
+                                            <button
+                                                type="button"
+                                                key={comp.title}
+                                                onClick={() => {
+                                                    setFormData({
+                                                        ...formData,
+                                                        selectedCompliance: isSelected
+                                                            ? formData.selectedCompliance.filter(c => c !== comp.title)
+                                                            : [...formData.selectedCompliance, comp.title]
+                                                    });
+                                                }}
+                                                className={`p-3 rounded-xl border text-xs text-left transition-all flex flex-col justify-between cursor-pointer space-y-1 ${
+                                                    isSelected
+                                                        ? "bg-emerald-500/15 border-emerald-400 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.2)]"
+                                                        : "bg-white/5 border-white/10 text-white/70 hover:border-white/20"
+                                                }`}
+                                            >
+                                                <div className="flex items-center justify-between font-bold text-white">
+                                                    <span>{comp.title}</span>
+                                                    {isSelected && <Check size={13} className="text-emerald-400 shrink-0" />}
+                                                </div>
+                                                <p className="text-[10px] text-white/50 leading-tight">{comp.desc}</p>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Grid Section 5: Primary Academic Contact */}
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-mono-stamp uppercase tracking-widest text-cyan-400 font-bold flex items-center gap-2">
+                                    <span>05.</span> Primary Academic & IT Contact
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-semibold text-white/90">Contact Full Name <span className="text-cyan-400">*</span></label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={formData.contactName}
+                                            onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
+                                            placeholder="Dr. Eleanor Vance"
+                                            className="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-semibold text-white/90">Official Institutional Email <span className="text-cyan-400">*</span></label>
+                                        <input
+                                            type="email"
+                                            required
+                                            value={formData.contactEmail}
+                                            onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                                            placeholder="e.vance@university.edu"
+                                            className="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-semibold text-white/90">Designation / Academic Role <span className="text-cyan-400">*</span></label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={formData.contactRole}
+                                            onChange={(e) => setFormData({ ...formData, contactRole: e.target.value })}
+                                            placeholder="Dean / Principal / IT Director"
+                                            className="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-semibold text-white/90">Phone / WhatsApp Contact</label>
+                                        <input
+                                            type="tel"
+                                            value={formData.contactPhone}
+                                            onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                                            placeholder="+91 98765 43210"
+                                            className="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-white/30 outline-none transition-all"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5 pt-2">
+                                    <label className="text-xs font-semibold text-white/90">Additional Deployment Requirements / Custom SLA Notes</label>
+                                    <textarea
+                                        rows={3}
+                                        value={formData.specialRequirements}
+                                        onChange={(e) => setFormData({ ...formData, specialRequirements: e.target.value })}
+                                        placeholder="Specify any custom LMS webhooks, on-premise GPU cluster requirements, or regional examination board formatting needs..."
+                                        className="w-full bg-white/5 border border-white/10 focus:border-cyan-400 rounded-xl p-4 text-xs text-white placeholder:text-white/30 outline-none transition-all resize-none"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Submit Button */}
+                            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10">
+                                <div className="text-[11px] text-white/50 flex items-center gap-2">
+                                    <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
+                                    <span>Protected under Academic NDA & Zero Data Training Policy.</span>
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={isSubmittingForm}
+                                    className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-black font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(0,164,228,0.35)] active:scale-98 cursor-pointer disabled:opacity-50"
+                                >
+                                    {isSubmittingForm ? (
+                                        <span>Submitting Institutional Application...</span>
+                                    ) : (
+                                        <>
+                                            <Sparkles size={14} />
+                                            <span>Submit Institutional Licensing Application</span>
+                                            <ArrowRight size={14} />
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    )}
                 </div>
             </main>
 
@@ -356,3 +716,4 @@ export default function Pricing() {
         </div>
     );
 }
+

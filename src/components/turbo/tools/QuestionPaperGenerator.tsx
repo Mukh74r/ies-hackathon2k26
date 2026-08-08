@@ -35,12 +35,13 @@ interface Snippet {
 
 import { useAuth } from "../../../context/AuthContext";
 import { useAI } from "../../../context/AIContext";
-import { apiEndpoint, getAuthHeaders, safeFetchJson } from "../../../utils/api";
+import { apiEndpoint, getAuthHeaders, safeFetchJson, callDirectGroqInference, turboBrain, useTurboBrain } from "../../../utils/api";
 import { preprocessLatex } from "../../../utils/math";
 
 export default function QuestionPaperGenerator() {
     const { user } = useAuth();
     const { provider } = useAI();
+    const { recentMemories: brainMemories, rememberPrompt: cacheInTurboBrain } = useTurboBrain('question-paper-gen');
     const [step, setStep] = useState(1);
     const [syllabusFile, setSyllabusFile] = useState<File | null>(null);
     const [showSnipper, setShowSnipper] = useState(false);
@@ -51,7 +52,10 @@ export default function QuestionPaperGenerator() {
     const [studyMaterials, setStudyMaterials] = useState<File[]>([]);
     const [examTime, setExamTime] = useState(180); // minutes
     const [difficulty, setDifficulty] = useState('medium');
-    const [topics, setTopics] = useState(''); // Chapters/topics to focus on
+    const [topics, setTopics] = useState('Physics, Chemistry & Biology Core Chapters'); // Chapters/topics to focus on
+    const [subjectInput, setSubjectInput] = useState('Science & Mathematics');
+    const [gradeInput, setGradeInput] = useState('Class 10');
+    const [viewMode, setViewMode] = useState<'continuous' | 'paginated'>('continuous');
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedPaper, setGeneratedPaper] = useState<string | null>(null);
     const [paperPages, setPaperPages] = useState<any[]>([]);
@@ -68,8 +72,8 @@ export default function QuestionPaperGenerator() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisScore, setAnalysisScore] = useState<number | null>(null); // 0-100
     const [analysisFeedback, setAnalysisFeedback] = useState<string | null>(null);
-    const [schoolName, setSchoolName] = useState('');
-    const [examTitle, setExamTitle] = useState('');
+    const [schoolName, setSchoolName] = useState('DEEPHUB CENTRAL ACADEMY');
+    const [examTitle, setExamTitle] = useState('ANNUAL EXAMINATION 2025-26');
     const [instructionPoints, setInstructionPoints] = useState<string[]>(new Array(10).fill('').map((_, i) =>
         i === 0 ? "All questions are compulsory." :
             i === 1 ? "Draw diagrams wherever necessary." :
@@ -98,17 +102,17 @@ export default function QuestionPaperGenerator() {
     const [activeJobId, setActiveJobId] = useState<string | null>(null);
     
     const [paperHeader, setPaperHeader] = useState<any>({
-        schoolName: '',
-        paperTitle: '',
-        subject: '',
-        grade: '',
-        timeAllowed: '',
-        maximumMarks: '',
+        schoolName: 'DEEPHUB CENTRAL ACADEMY',
+        paperTitle: 'ANNUAL EXAMINATION 2025-26',
+        subject: 'Science & Mathematics',
+        grade: 'Class 10',
+        timeAllowed: '180 Minutes',
+        maximumMarks: '40',
         instructions: []
     });
     
-    // Derived state for total pages: header page + content pages
-    const effectiveTotalPages = paperPages.length > 0 ? paperPages.length + 1 : 1;
+    // Derived state for total pages
+    const effectiveTotalPages = Math.max(paperPages.length, 1);
     
     const splitIntoPages = (allQuestions: any[]) => {
         const QUESTIONS_PER_PAGE = 8;
@@ -282,11 +286,16 @@ export default function QuestionPaperGenerator() {
 
             setGeneratedPaper(rawContent); 
             
+            const finalSubject = subjectInput.trim() || paperData.subject || "Science & Mathematics";
+            const finalGrade = gradeInput.trim() || paperData.grade || "Class 10";
+            const finalSchool = schoolName.trim() || paperData.schoolName || "DEEPHUB CENTRAL ACADEMY";
+            const finalTitle = examTitle.trim() || paperData.paperTitle || "ANNUAL EXAMINATION 2025-26";
+
             setPaperHeader({
-                schoolName: schoolName.trim() || paperData.schoolName || "DEEPHUB AI ACADEMY",
-                paperTitle: examTitle.trim() || paperData.paperTitle || "ANNUAL EXAMINATION 2024-25",
-                subject: paperData.subject || "Mathematics",
-                grade: paperData.grade || "10",
+                schoolName: finalSchool,
+                paperTitle: finalTitle,
+                subject: finalSubject,
+                grade: finalGrade,
                 timeAllowed: `${examTime} Minutes` || paperData.timeAllowed,
                 maximumMarks: sections.reduce((acc, curr) => acc + (curr.questions * curr.marks), 0).toString() || paperData.maximumMarks,
                 instructions: paperData.instructions || instructionPoints.filter(p => p.trim())
@@ -300,7 +309,7 @@ export default function QuestionPaperGenerator() {
                 const sectionQuestions = section.questions.map((q: any) => ({
                     ...q,
                     sectionName: section.name,
-                    sectionDescription: section.description,
+                    sectionDescription: section.description || `Section with ${section.marksPerQuestion || q.marks || 1} mark questions`,
                     qNo: globalQNo++
                 }));
                 allQuestions.push(...sectionQuestions);
@@ -311,6 +320,8 @@ export default function QuestionPaperGenerator() {
             setCurrentPage(1);
             setIsGenerating(false);
             setActiveJobId(null);
+            setProgress(100);
+            setProgressStage('✅ Question Paper Ready!');
         } catch (err) {
             console.error("Failed to map synthesis result:", err);
             setError("Synchronization failed during layout mapping.");
@@ -392,8 +403,8 @@ export default function QuestionPaperGenerator() {
         setIsGenerating(true);
         setError(null);
         setGeneratedPaper(null);
-        setProgress(10);
-        setProgressStage('⚡ Initializing payload...');
+        setProgress(15);
+        setProgressStage('⚡ Initializing curriculum blueprint...');
 
         try {
             const computedTotalMarks = sections.reduce((acc, curr) => acc + (curr.questions * curr.marks), 0);
@@ -405,12 +416,15 @@ export default function QuestionPaperGenerator() {
                 .filter(t => t.trim())
                 .join('\n\n') || topics || 'Comprehensive Curriculum Blueprint';
 
-            setProgress(30);
-            setProgressStage(`📋 Extracted: ${stats.words || 50} words | ${stats.chars || 300} characters`);
+            const curSubject = subjectInput.trim() || paperHeader.subject || (topics ? topics.split(',')[0] : 'Science & Mathematics');
+            const curGrade = gradeInput.trim() || paperHeader.grade || 'Class 10';
+            const curSchool = schoolName.trim() || paperHeader.schoolName || 'DEEPHUB CENTRAL ACADEMY';
+            const curExamTitle = examTitle.trim() || paperHeader.paperTitle || 'ANNUAL EXAMINATION 2025-26';
+
+            setProgress(40);
+            setProgressStage(`🧠 Generating question blueprint for ${curSubject}...`);
             
             const formData = new FormData();
-            
-            // Send reference materials as files
             studyMaterials.forEach(material => {
                 formData.append('materials', material);
             });
@@ -420,45 +434,175 @@ export default function QuestionPaperGenerator() {
             formData.append('examTime', examTime.toString());
             formData.append('totalMarks', computedTotalMarks.toString());
             formData.append('difficulty', difficulty);
-            formData.append('topics', topics || 'CBSE Core Curriculum');
-            formData.append('schoolName', schoolName || paperHeader.schoolName || 'CENTRAL ACADEMY');
-            formData.append('examTitle', examTitle || paperHeader.paperTitle || 'ANNUAL EXAMINATION');
-            formData.append('subject', paperHeader.subject || 'Science & Mathematics');
-            formData.append('grade', paperHeader.grade || 'Class 10');
+            formData.append('topics', topics || snippetText || curSubject);
+            formData.append('schoolName', curSchool);
+            formData.append('examTitle', curExamTitle);
+            formData.append('subject', curSubject);
+            formData.append('grade', curGrade);
             formData.append('generalInstructions', instructionPoints.filter(p => p.trim()).join('\n'));
             formData.append('provider', provider || 'auto');
 
-            setProgress(60);
-            setProgressStage('🧠 Generating Paper... This may take up to 2-3 minutes.');
-
-            const response = await fetch(apiEndpoint("/api/generate-questions"), {
-                method: 'POST',
-                headers: {
-                    ...getAuthHeaders()
-                } as HeadersInit,
-                body: formData 
-            }).catch(() => null);
-            
+            // Tier 1: Try server endpoint
             let responseData: any = {};
-            if (response) {
-                const parsed = await safeFetchJson<any>(response);
-                if (parsed.ok && parsed.data) responseData = parsed.data;
-            }
+            try {
+                const response = await fetch(apiEndpoint("/api/generate-questions"), {
+                    method: 'POST',
+                    headers: {
+                        ...getAuthHeaders()
+                    } as HeadersInit,
+                    body: formData 
+                }).catch(() => null);
+                
+                if (response) {
+                    const parsed = await safeFetchJson<any>(response);
+                    if (parsed.ok && parsed.data) responseData = parsed.data;
+                }
+            } catch {}
             
             if (responseData.success && responseData.result) {
-                setProgress(90);
+                setProgress(100);
                 setProgressStage('✅ Formatting Paper...');
                 handleSynthesisComplete(responseData.result);
                 return;
             }
 
-            // Fallback: Deterministic Exam Synthesis if running in static client mode
-            setProgress(90);
-            setProgressStage('✅ Formatting Paper...');
-            const curSubject = paperHeader.subject || (topics ? topics.split(',')[0] : 'General Science');
-            const curGrade = paperHeader.grade || 'Class 10';
-            const curSchool = schoolName || paperHeader.schoolName || 'NATIONAL ACADEMIC BOARD / INSTITUTION';
-            const curExamTitle = examTitle || paperHeader.paperTitle || 'SUMMATIVE ASSESSMENT EXAMINATION';
+            // Tier 2: Direct Groq Cloud AI inference with Llama-3.3-70b
+            setProgress(70);
+            setProgressStage('⚡ DeepHub Neural LPU generating examination questions...');
+
+            const systemPrompt = `You are DeepHub AI, an expert exam setter, CBSE/ICSE curriculum architect, and university professor.
+Generate a complete, high-quality, realistic examination question paper in JSON format.
+Return ONLY valid JSON without markdown code blocks, backticks, or extra explanation.`;
+
+            const userPrompt = `Generate a realistic examination question paper for:
+- School/Institution: ${curSchool}
+- Exam Title: ${curExamTitle}
+- Subject: ${curSubject}
+- Grade/Class: ${curGrade}
+- Time Allowed: ${examTime} Minutes
+- Total Marks: ${computedTotalMarks}
+- Difficulty Level: ${difficulty}
+- Specific Topics/Chapters: ${snippetText || topics || curSubject}
+- Blueprint Sections: ${JSON.stringify(sections.map(s => ({ name: s.name, questionCount: s.questions, marksPerQuestion: s.marks })))}
+
+Follow this EXACT JSON schema with realistic questions for ${curSubject}:
+{
+  "schoolName": "${curSchool}",
+  "paperTitle": "${curExamTitle}",
+  "subject": "${curSubject}",
+  "grade": "${curGrade}",
+  "timeAllowed": "${examTime} Minutes",
+  "maximumMarks": "${computedTotalMarks}",
+  "instructions": [
+    "All questions are compulsory.",
+    "Draw neat labeled diagrams wherever necessary.",
+    "Use of non-programmable calculators is permitted where required."
+  ],
+  "sections": [
+    ${sections.map((sec) => `{
+      "name": "${sec.name}",
+      "description": "${sec.marks === 1 ? 'Multiple Choice & Objective Questions (1 Mark each)' : sec.marks <= 3 ? 'Short Answer Type Questions (' + sec.marks + ' Marks each)' : 'Long Analytical Derivation & Problem Solving (' + sec.marks + ' Marks each)'}",
+      "marksPerQuestion": ${sec.marks},
+      "type": "${sec.marks === 1 ? 'MCQ / Objective' : sec.marks <= 3 ? 'Short Answer' : 'Long Analytical'}",
+      "questions": [
+        ${Array.from({ length: Math.min(sec.questions || 5, 8) }).map((_, qIdx) => `{
+          "questionNumber": ${qIdx + 1},
+          "text": "${sec.marks === 1 ? 'What is the primary governing principle of ' + (topics.split(',')[0] || curSubject) + ' in standard reference conditions?' : 'Explain the fundamental mechanisms and mathematical principles governing ' + (topics.split(',')[0] || curSubject) + ' with appropriate diagrams and formulas.'}",
+          ${sec.marks === 1 ? `"options": ["(A) Conservation of Energy", "(B) Dynamic Equilibrium", "(C) First Harmonic Relation", "(D) Steady State Transfer"],` : ''}
+          "marks": ${sec.marks},
+          "bloomsLevel": "${sec.marks === 1 ? 'Knowledge & Recall' : sec.marks <= 3 ? 'Application & Analysis' : 'Synthesis & Evaluation'}",
+          "answerKey": "${sec.marks === 1 ? '(A) Detailed explanation of the correct choice.' : 'Complete step-by-step derivation and physical reasoning.'}"
+        }`).join(',\n')}
+      ]
+    }`).join(',\n')}
+  ]
+}`;
+
+            try {
+                const groqResult = await callDirectGroqInference([
+                    { role: 'user', content: userPrompt }
+                ], systemPrompt);
+
+                if (groqResult) {
+                    const jsonMatch = groqResult.match(/```json\n([\s\S]*?)\n```/) || groqResult.match(/```([\s\S]*?)```/);
+                    const cleanJson = jsonMatch ? jsonMatch[1] : groqResult;
+                    const parsedGroq = JSON.parse(cleanJson);
+                    if (parsedGroq && parsedGroq.sections && parsedGroq.sections.length > 0) {
+                        setProgress(100);
+                        setProgressStage('✅ Paper Generated Successfully!');
+                        handleSynthesisComplete(parsedGroq);
+                        return;
+                    }
+                }
+            } catch (groqErr) {
+                console.warn("Groq direct inference parse failed, falling back to smart deterministic schema:", groqErr);
+            }
+
+            // Tier 3: High-Quality Curriculum Deterministic Generator tailored to Subject
+            setProgress(95);
+            setProgressStage('✅ Finalizing Curriculum Questions...');
+
+            const getSubjectQuestions = (subj: string, secName: string, marks: number, qIdx: number) => {
+                const isMath = /math|algebra|geometry|calculus|trig/i.test(subj);
+                const isPhys = /physic|mechanic|optic|electr/i.test(subj);
+                const isChem = /chem|organic|reaction|acid/i.test(subj);
+                const isBio = /bio|botany|zoology|cell|genetics/i.test(subj);
+
+                if (marks === 1) {
+                    if (isMath) {
+                        const mathMCQs = [
+                            { text: "If $\\alpha$ and $\\beta$ are the roots of the quadratic equation $ax^2 + bx + c = 0$, what is the value of $\\alpha + \\beta$?", options: ["(A) $-b/a$", "(B) $c/a$", "(C) $b/a$", "(D) $-c/a$"], ans: "(A) -b/a" },
+                            { text: "What is the discriminant of the quadratic equation $2x^2 - 4x + 3 = 0$?", options: ["(A) $-8$", "(B) $8$", "(C) $-16$", "(D) $16$"], ans: "(A) -8" },
+                            { text: "The value of $\\sin^2 30^\\circ + \\cos^2 30^\\circ$ is equal to:", options: ["(A) 0", "(B) 1", "(C) 1/2", "(D) $\\sqrt{3}/2$"], ans: "(B) 1" },
+                            { text: "The distance between the points $P(2, 3)$ and $Q(4, 1)$ is:", options: ["(A) $2\\sqrt{2}$", "(B) $4$", "(C) $2\\sqrt{3}$", "(D) $8$"], ans: "(A) 2\\sqrt{2}" },
+                            { text: "Which of the following is not an arithmetic progression?", options: ["(A) $2, 4, 8, 16$", "(B) $1, 3, 5, 7$", "(C) $-5, -2, 1, 4$", "(D) $10, 6, 2, -2$"], ans: "(A) 2, 4, 8, 16 (geometric sequence)" },
+                        ];
+                        const chosen = mathMCQs[qIdx % mathMCQs.length];
+                        return { text: chosen.text, options: chosen.options, ans: chosen.ans };
+                    }
+                    if (isPhys) {
+                        const physMCQs = [
+                            { text: "The SI unit of electric potential difference is:", options: ["(A) Ampere", "(B) Volt", "(C) Ohm", "(D) Joule"], ans: "(B) Volt" },
+                            { text: "According to Snell's law of refraction, the ratio of $\\sin i$ to $\\sin r$ is equal to:", options: ["(A) Refractive Index", "(B) Critical Angle", "(C) Focal Length", "(D) Power of Lens"], ans: "(A) Refractive Index" },
+                            { text: "A concave mirror produces a real, inverted image of the same size as the object when the object is placed at:", options: ["(A) Focus", "(B) Centre of Curvature", "(C) Infinity", "(D) Between Pole and Focus"], ans: "(B) Centre of Curvature" },
+                            { text: "The phenomenon responsible for the twinkling of stars in the night sky is:", options: ["(A) Total Internal Reflection", "(B) Atmospheric Refraction", "(C) Rayleigh Scattering", "(D) Dispersion"], ans: "(B) Atmospheric Refraction" },
+                        ];
+                        const chosen = physMCQs[qIdx % physMCQs.length];
+                        return { text: chosen.text, options: chosen.options, ans: chosen.ans };
+                    }
+                    if (isChem) {
+                        const chemMCQs = [
+                            { text: "Which gas is evolved when zinc granules react with dilute sulphuric acid?", options: ["(A) Oxygen", "(B) Hydrogen", "(C) Sulphur Dioxide", "(D) Nitrogen"], ans: "(B) Hydrogen (H2)" },
+                            { text: "The pH of a neutral aqueous solution at $25^\\circ\\text{C}$ is:", options: ["(A) 0", "(B) 7", "(C) 14", "(D) 1"], ans: "(B) 7" },
+                            { text: "Which functional group is present in ethanol ($C_2H_5OH$)?", options: ["(A) Carboxylic acid", "(B) Alcohol (-OH)", "(C) Ketone", "(D) Aldehyde"], ans: "(B) Alcohol (-OH)" },
+                        ];
+                        const chosen = chemMCQs[qIdx % chemMCQs.length];
+                        return { text: chosen.text, options: chosen.options, ans: chosen.ans };
+                    }
+                    return {
+                        text: `Which of the following is the fundamental governing principle in ${topics || curSubject} (Concept ${qIdx + 1})?`,
+                        options: [
+                            "(A) Conservation of Energy and Mass",
+                            "(B) Principle of Dynamic Equilibrium",
+                            "(C) Standard Boundary Conditions",
+                            "(D) First Law of Physical Systems"
+                        ],
+                        ans: "(A) Conservation of Energy and Mass"
+                    };
+                }
+
+                if (marks <= 3) {
+                    return {
+                        text: `State and explain the fundamental principle of ${topics || curSubject} with a neat labeled schematic diagram. Derive the governing mathematical relation for Question ${qIdx + 1}.`,
+                        ans: "Statement of law (1 mark), labeled diagram (1 mark), and mathematical derivation (1 mark)."
+                    };
+                }
+
+                return {
+                    text: `(a) Deduce the comprehensive theoretical framework and mathematical expression for ${topics || curSubject}.\n(b) A practical experiment yields standard parameters. Calculate the net efficiency and discuss experimental error boundaries for Question ${qIdx + 1}.`,
+                    ans: "(a) Step-by-step derivation (3 marks). (b) Numerical calculation and error analysis (2 marks)."
+                };
+            };
 
             const fallbackResult = {
                 schoolName: curSchool,
@@ -470,20 +614,23 @@ export default function QuestionPaperGenerator() {
                 instructions: instructionPoints.filter(p => p.trim()),
                 sections: sections.map(sec => ({
                     name: sec.name,
-                    description: `Section containing questions of weightage ${sec.marks} mark(s) each.`,
+                    description: sec.marks === 1 ? 'Multiple Choice & Objective Questions (1 Mark each)' : sec.marks <= 3 ? 'Short Answer Type Questions (' + sec.marks + ' Marks each)' : 'Long Analytical Derivation & Problem Solving (' + sec.marks + ' Marks each)',
                     marksPerQuestion: sec.marks,
                     type: sec.marks === 1 ? 'MCQ / Objective' : sec.marks <= 3 ? 'Short Answer' : 'Long Analytical Derivation',
-                    questions: Array.from({ length: sec.questions || 5 }).map((_, idx) => ({
-                        questionNumber: idx + 1,
-                        text: sec.marks === 1 
-                            ? `Which of the following principles best describes the fundamental property of ${curSubject} in relation to standard boundary laws?\n(A) Conservation Principle\n(B) First Harmonic Dynamic\n(C) Steady State Equilibrium\n(D) Adiabatic Expansion`
-                            : `Explain the fundamental principles and mechanisms associated with ${topics.split(',')[0] || curSubject} (Question ${idx + 1}). Illustrate with appropriate formula or circuit/reaction diagrams.`,
-                        marks: sec.marks,
-                        bloomsLevel: sec.marks === 1 ? 'Knowledge & Recall' : sec.marks <= 3 ? 'Comprehension & Application' : 'Synthesis & Evaluation',
-                        answerKey: 'Step-by-step mathematical, physical, or biological derivation with final validated formula.'
-                    }))
+                    questions: Array.from({ length: sec.questions || 5 }).map((_, idx) => {
+                        const qData = getSubjectQuestions(curSubject, sec.name, sec.marks, idx);
+                        return {
+                            questionNumber: idx + 1,
+                            text: qData.text,
+                            options: (qData as any).options || undefined,
+                            marks: sec.marks,
+                            bloomsLevel: sec.marks === 1 ? 'Knowledge & Recall' : sec.marks <= 3 ? 'Comprehension & Application' : 'Synthesis & Evaluation',
+                            answerKey: qData.ans
+                        };
+                    })
                 }))
             };
+
             handleSynthesisComplete(fallbackResult);
 
         } catch (err: any) {
@@ -1191,15 +1338,111 @@ export default function QuestionPaperGenerator() {
                     </div>
 
                     {/* 2. Exam Configuration */}
-                    <div className="bg-card border border-border rounded-xl p-5 space-y-5">
+                    <div className="bg-card border border-border rounded-xl p-5 space-y-4">
                         <div className="flex items-center gap-2 mb-2">
                             <div className="p-1.5 bg-amber-500/10 rounded-lg text-amber-400">
                                 <LayoutTemplate size={16} />
                             </div>
-                            <h3 className="font-semibold text-white text-sm uppercase tracking-wide">Structure & Meta</h3>
+                            <h3 className="font-semibold text-white text-sm uppercase tracking-wide">Curriculum & Subject</h3>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* Subject Input & Quick Suggestions */}
+                        <div className="space-y-1.5">
+                            <label className="text-xs text-white/70 font-medium flex justify-between">
+                                <span>Subject</span>
+                                <span className="text-[10px] text-primary">Required</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={subjectInput}
+                                onChange={(e) => setSubjectInput(e.target.value)}
+                                placeholder="e.g. Science & Mathematics, Physics, Chemistry"
+                                className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-primary/50 outline-none"
+                            />
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                                {['Science & Mathematics', 'Physics', 'Chemistry', 'Mathematics', 'Biology', 'Computer Science'].map((subj) => (
+                                    <button
+                                        key={subj}
+                                        type="button"
+                                        onClick={() => setSubjectInput(subj)}
+                                        className={`text-[10px] px-2 py-0.5 rounded-md border transition-all ${subjectInput === subj ? 'bg-primary/20 border-primary text-primary font-semibold' : 'bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10'}`}
+                                    >
+                                        {subj}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Grade / Class */}
+                        <div className="space-y-1.5">
+                            <label className="text-xs text-white/70 font-medium">Grade / Class Level</label>
+                            <input
+                                type="text"
+                                value={gradeInput}
+                                onChange={(e) => setGradeInput(e.target.value)}
+                                placeholder="e.g. Class 10, Class 12, Grade 9"
+                                className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-primary/50 outline-none"
+                            />
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                                {['Class 10', 'Class 12', 'Class 9', 'Grade 8', 'B.Tech Semester 2'].map((grd) => (
+                                    <button
+                                        key={grd}
+                                        type="button"
+                                        onClick={() => setGradeInput(grd)}
+                                        className={`text-[10px] px-2 py-0.5 rounded-md border transition-all ${gradeInput === grd ? 'bg-primary/20 border-primary text-primary font-semibold' : 'bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10'}`}
+                                    >
+                                        {grd}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Focus Chapters & Topics */}
+                        <div className="space-y-1.5">
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs text-white/70 font-medium">Focus Chapters & Topics</label>
+                                {brainMemories && brainMemories.length > 0 && (
+                                    <span className="text-[10px] font-mono-stamp text-cyan-400 flex items-center gap-1">
+                                        <Sparkles size={10} /> Turbo Brain
+                                    </span>
+                                )}
+                            </div>
+                            <textarea
+                                value={topics}
+                                onChange={(e) => setTopics(e.target.value)}
+                                rows={2}
+                                placeholder="e.g. Light Reflection & Refraction, Electricity, Chemical Reactions, Trigonometry"
+                                className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500/50 outline-none resize-none"
+                            />
+
+                            {/* Turbo Brain Recent Prompts & Memories Recall */}
+                            {brainMemories && brainMemories.length > 0 && (
+                                <div className="pt-1 space-y-1">
+                                    <div className="flex items-center gap-1 text-[10px] text-white/40 font-mono-stamp">
+                                        <span>⚡ Turbo Brain Recall:</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1">
+                                        {brainMemories.slice(0, 4).map((m, idx) => (
+                                            <button
+                                                key={idx}
+                                                type="button"
+                                                onClick={() => {
+                                                    setTopics(m.userPrompt);
+                                                    if (m.metadata?.subject) setSubjectInput(m.metadata.subject);
+                                                    if (m.metadata?.gradeLevel) setGradeInput(m.metadata.gradeLevel);
+                                                }}
+                                                className="text-[10px] px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400 transition-all truncate max-w-[200px] cursor-pointer"
+                                                title={m.userPrompt}
+                                            >
+                                                {m.userPrompt}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 pt-1">
                             <div className="space-y-1.5">
                                 <label className="text-xs text-white/50 font-medium">Exam Time (min)</label>
                                 <input
@@ -1230,7 +1473,7 @@ export default function QuestionPaperGenerator() {
                                 type="text"
                                 value={schoolName}
                                 onChange={(e) => setSchoolName(e.target.value)}
-                                placeholder="e.g. Greenwood High School"
+                                placeholder="e.g. DEEPHUB CENTRAL ACADEMY"
                                 className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-primary/50 outline-none"
                             />
                         </div>
@@ -1241,7 +1484,7 @@ export default function QuestionPaperGenerator() {
                                 type="text"
                                 value={examTitle}
                                 onChange={(e) => setExamTitle(e.target.value)}
-                                placeholder="e.g. Mid-Term Physics Examination"
+                                placeholder="e.g. ANNUAL EXAMINATION 2025-26"
                                 className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-primary/50 outline-none"
                             />
                         </div>
@@ -1254,19 +1497,19 @@ export default function QuestionPaperGenerator() {
                                 <div className="p-1.5 bg-purple-500/10 rounded-lg text-purple-400">
                                     <AlignLeft size={16} />
                                 </div>
-                                <h3 className="font-semibold text-white text-sm uppercase tracking-wide">Sections</h3>
+                                <h3 className="font-semibold text-white text-sm uppercase tracking-wide">Sections & Marking</h3>
                             </div>
-                            <button onClick={addSection} className="text-xs bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-md transition-all">+ Add</button>
+                            <button onClick={addSection} className="text-xs bg-white/5 hover:bg-white/10 text-white px-2 py-1 rounded-md transition-all">+ Add Section</button>
                         </div>
 
                         <div className="space-y-3">
-                            {sections.map((section, idx) => (
+                            {sections.map((section) => (
                                 <div key={section.id} className="bg-black/20 rounded-lg p-3 border border-white/5 space-y-3">
                                     <div className="flex justify-between items-center">
                                         <input
                                             value={section.name}
                                             onChange={(e) => updateSection(section.id, 'name', e.target.value)}
-                                            className="bg-transparent text-sm font-bold text-white w-24 outline-none border-b border-transparent focus:border-white/20"
+                                            className="bg-transparent text-sm font-bold text-white w-28 outline-none border-b border-transparent focus:border-white/20"
                                         />
                                         <button onClick={() => removeSection(section.id)} className="text-white/20 hover:text-red-400"><Trash2 size={12} /></button>
                                     </div>
@@ -1294,89 +1537,110 @@ export default function QuestionPaperGenerator() {
                             ))}
                         </div>
 
-                        <div className="bg-white/5 rounded-lg p-2 flex justify-between items-center text-xs text-white/60">
-                            <span>Total Marks:</span>
-                            <span className="font-bold text-white">{sections.reduce((acc, curr) => acc + (curr.questions * curr.marks), 0)}</span>
+                        <div className="bg-white/5 rounded-lg p-2.5 flex justify-between items-center text-xs text-white/70">
+                            <span>Total Paper Marks:</span>
+                            <span className="font-bold text-primary text-sm">{sections.reduce((acc, curr) => acc + (curr.questions * curr.marks), 0)} Marks</span>
                         </div>
                     </div>
 
                     <button
                         onClick={handleGenerate}
-                        disabled={isGenerating || !syllabusFile}
-                        className="w-full py-3 bg-gradient-to-r from-primary to-blue-600 rounded-xl font-bold text-black shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        disabled={isGenerating}
+                        className="w-full py-3.5 bg-gradient-to-r from-primary to-blue-600 rounded-xl font-bold text-black shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
                     >
                         {isGenerating ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
-                        {isGenerating ? 'Generating Paper...' : 'Generate Question Paper'}
+                        {isGenerating ? 'Generating Paper...' : 'Generate Exam Blueprint & Questions'}
                     </button>
 
                 </div>
 
                 {/* RIGHT COLUMN - PREVIEW */}
-                <div className="lg:col-span-8 flex flex-col h-[800px] bg-[#1a1a1a] rounded-xl border border-white/10 overflow-hidden shadow-2xl relative">
+                <div className="lg:col-span-8 flex flex-col min-h-[850px] lg:h-[calc(100vh-140px)] bg-[#111625] rounded-2xl border border-white/10 overflow-hidden shadow-2xl relative backdrop-blur-md">
 
-                    {/* Preview Header */}
-                    <div className="h-14 bg-black/40 border-b border-white/5 flex items-center justify-between px-4">
-                        <div className="flex items-center gap-2">
+                    {/* Preview Header Bar */}
+                    <div className="h-14 bg-[#0a0e1a]/80 border-b border-white/10 flex items-center justify-between px-4 sticky top-0 z-20 backdrop-blur-md">
+                        <div className="flex items-center gap-3">
                             <div className="flex items-center gap-1 bg-white/5 rounded-lg p-1">
-                                <button className="p-1.5 hover:bg-white/10 rounded text-white/60 hover:text-white" title="Desktop View"><LayoutTemplate size={14} /></button>
-                                <button className="p-1.5 hover:bg-white/10 rounded text-white/60 hover:text-white" title="Print View"><Printer size={14} /></button>
+                                <button
+                                    onClick={() => setViewMode('continuous')}
+                                    className={`px-2.5 py-1 text-xs rounded-md transition-all flex items-center gap-1.5 ${viewMode === 'continuous' ? 'bg-primary/20 text-primary font-bold' : 'text-white/60 hover:text-white'}`}
+                                    title="All-in-One Continuous View"
+                                >
+                                    <LayoutTemplate size={13} />
+                                    <span>Continuous View</span>
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('paginated')}
+                                    className={`px-2.5 py-1 text-xs rounded-md transition-all flex items-center gap-1.5 ${viewMode === 'paginated' ? 'bg-primary/20 text-primary font-bold' : 'text-white/60 hover:text-white'}`}
+                                    title="Page-by-Page View"
+                                >
+                                    <FileText size={13} />
+                                    <span>Page-by-Page</span>
+                                </button>
                             </div>
-                            <span className="text-xs font-medium text-white/40 ml-2">Preview Mode</span>
                         </div>
 
                         {generatedPaper && (
-                            <div className="flex items-center gap-3">
-                                {/* Pagination Controls */}
-                                <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/5">
-                                    <button 
-                                        onClick={handlePrevPage} 
-                                        disabled={currentPage === 1}
-                                        className="p-1 hover:text-white text-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                                        title="Previous Page"
-                                    >
-                                        <ChevronLeft size={16} />
-                                    </button>
-                                    <span className="text-xs font-mono text-white/90 min-w-[60px] text-center font-medium">
-                                        Page {currentPage} / {effectiveTotalPages}
-                                    </span>
-                                    <button 
-                                        onClick={handleNextPage} 
-                                        disabled={currentPage === effectiveTotalPages}
-                                        className="p-1 hover:text-white text-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                                        title="Next Page"
-                                    >
-                                        <ChevronRight size={16} />
-                                    </button>
-                                </div>
+                            <div className="flex items-center gap-2.5">
+                                {viewMode === 'paginated' && (
+                                    <div className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-lg border border-white/5">
+                                        <button 
+                                            onClick={handlePrevPage} 
+                                            disabled={currentPage === 1}
+                                            className="p-1 hover:text-white text-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                            title="Previous Page"
+                                        >
+                                            <ChevronLeft size={14} />
+                                        </button>
+                                        <span className="text-xs font-mono text-white/90 min-w-[50px] text-center font-medium">
+                                            Page {currentPage} / {effectiveTotalPages}
+                                        </span>
+                                        <button 
+                                            onClick={handleNextPage} 
+                                            disabled={currentPage === effectiveTotalPages}
+                                            className="p-1 hover:text-white text-white/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                            title="Next Page"
+                                        >
+                                            <ChevronRight size={14} />
+                                        </button>
+                                    </div>
+                                )}
 
-                                <div className="h-4 w-[1px] bg-white/10 mx-1"></div>
+                                <button
+                                    onClick={() => window.print()}
+                                    className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                                >
+                                    <Printer size={13} /> Print / PDF
+                                </button>
 
-                                <button onClick={handleExportDOCX} className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-black px-4 py-1.5 rounded-lg text-xs font-bold transition-all shadow-lg shadow-primary/20">
-                                    <Download size={14} /> Export DOCX
+                                <button onClick={handleExportDOCX} className="flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-black px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-lg shadow-primary/20">
+                                    <Download size={13} /> Export Word (.docx)
                                 </button>
                             </div>
                         )}
                     </div>
 
-                    {/* Paper Content */}
-                    <div className="flex-1 overflow-y-auto bg-[#525659] p-8 flex justify-center relative">
+                    {/* Paper Content Area */}
+                    <div className="flex-1 overflow-y-auto bg-[#525659] p-6 flex justify-center relative custom-scrollbar">
                         {!generatedPaper ? (
-                            <div className="text-center self-center space-y-4 opacity-30 select-none">
-                                <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <FileText size={40} className="text-white" />
+                            <div className="text-center self-center space-y-4 opacity-50 select-none max-w-sm">
+                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <Sparkles size={32} className="text-primary" />
                                 </div>
-                                <h3 className="text-xl font-bold text-white">Ready to Generate</h3>
-                                <p className="max-w-xs text-sm">Upload your syllabus and configure sections to generate a professional question paper.</p>
+                                <h3 className="text-lg font-bold text-white">Ready to Generate Examination Paper</h3>
+                                <p className="text-xs text-white/60 leading-relaxed">
+                                    Configure your Subject, Grade, Chapters, and Section Blueprint on the left, then click <strong>Generate Exam Blueprint</strong> to synthesize complete questions with LaTeX math and marking schemes.
+                                </p>
                             </div>
                         ) : (
-                            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                             <div
                                 id="question-paper-preview"
                                 className="bg-white text-black shadow-2xl"
                                 style={{
                                     width: '210mm',
                                     minHeight: '297mm',
-                                    padding: '15mm 20mm',
+                                    padding: '16mm 20mm',
                                     boxSizing: 'border-box',
                                     fontFamily: 'Times New Roman, serif',
                                     fontSize: '11pt',
@@ -1385,319 +1649,184 @@ export default function QuestionPaperGenerator() {
                                     flexShrink: 0,
                                 }}
                             >
-                                {currentPage === 1 && (
-                                    <>
-                                        {templateType === 'college' ? (
-                                            /* ===== COLLEGE TEMPLATE HEADER ===== */
-                                            <div className="mb-5" style={{ fontFamily: 'Times New Roman, serif' }}>
-                                                {headerDocxFile ? (
-                                                    /* DOCX letterhead banner */
-                                                    <div className="w-full border-b-2 border-black pb-3 mb-2 flex flex-col items-center gap-1">
-                                                        <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded px-4 py-2 w-full justify-center">
-                                                            <span style={{ fontSize: '20px' }}>📄</span>
-                                                            <div className="text-center">
-                                                                <p className="font-bold text-sm text-blue-800">{headerDocxFile.name}</p>
-                                                                <p className="text-[10px] text-blue-500">Letterhead from uploaded DOCX — appears in exported file</p>
-                                                            </div>
+                                {/* EXAMINATION HEADER */}
+                                <div className="mb-6">
+                                    <h1 className="text-center text-xl font-bold uppercase mb-1 text-black tracking-wide">
+                                        {paperHeader.schoolName || schoolName || 'DEEPHUB CENTRAL ACADEMY'}
+                                    </h1>
+                                    <h2 className="text-center text-sm font-semibold mb-4 text-black">
+                                        {paperHeader.paperTitle || examTitle || 'ANNUAL EXAMINATION 2025-26'}
+                                    </h2>
+
+                                    {/* Time and Marks Box */}
+                                    <table className="w-full border-2 border-black text-xs mb-4">
+                                        <tbody>
+                                            <tr>
+                                                <td className="border border-black px-3 py-1.5 font-bold w-1/2">
+                                                    Time Allowed: {paperHeader.timeAllowed || `${examTime} Minutes`}
+                                                </td>
+                                                <td className="border border-black px-3 py-1.5 font-bold w-1/2 text-right">
+                                                    Maximum Marks: {paperHeader.maximumMarks || '40'}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td className="border border-black px-3 py-1.5 font-semibold">
+                                                    Subject: {paperHeader.subject || subjectInput}
+                                                </td>
+                                                <td className="border border-black px-3 py-1.5 font-semibold text-right">
+                                                    Grade / Class: {paperHeader.grade || gradeInput}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    {/* GENERAL INSTRUCTIONS */}
+                                    <div className="mb-4">
+                                        <h3 className="font-bold text-xs mb-1.5 text-black underline uppercase tracking-wide">General Instructions:</h3>
+                                        <ol className="text-xs space-y-1 ml-5 list-decimal text-black leading-relaxed">
+                                            {paperHeader.instructions && paperHeader.instructions.length > 0 ? (
+                                                paperHeader.instructions.map((pt: string, i: number) => (
+                                                    <li key={i}>{pt}</li>
+                                                ))
+                                            ) : (
+                                                <>
+                                                    <li>All questions are compulsory unless specified otherwise.</li>
+                                                    <li>Draw neat, well-labeled diagrams wherever necessary.</li>
+                                                    <li>Write answers in clear, legible handwriting.</li>
+                                                    <li>Use of non-programmable scientific calculators is permitted where required.</li>
+                                                </>
+                                            )}
+                                        </ol>
+                                    </div>
+
+                                    <div className="border-t-2 border-black pt-3"></div>
+                                </div>
+
+                                {/* QUESTIONS CONTENT: CONTINUOUS OR PAGINATED */}
+                                {viewMode === 'continuous' ? (
+                                    /* ===== CONTINUOUS ALL-IN-ONE VIEW ===== */
+                                    <div className="space-y-6">
+                                        {paperPages.map((pageData, pIdx) => (
+                                            <div key={pIdx} className="space-y-4">
+                                                {pageData.isFirstOfSection && (
+                                                    <div className="mt-4 mb-2">
+                                                        <div className="text-center font-bold text-base uppercase tracking-widest border-b border-black pb-1 mb-1">
+                                                            {pageData.sectionName}
                                                         </div>
-                                                        {semester && <p className="text-sm font-semibold mt-1 text-black">{semester}</p>}
-                                                    </div>
-                                                ) : headerImage ? (
-                                                    <img src={headerImage} alt="College Header" className="w-full object-contain mb-3" style={{ maxHeight: '130px' }} />
-                                                ) : (
-                                                    <div className="text-center border-b-2 border-black pb-3 mb-2">
-                                                        <p className="font-bold text-xl uppercase tracking-wide">{paperHeader.schoolName || schoolName || 'Institution Name'}</p>
-                                                        {semester && <p className="text-sm font-semibold mt-1">{semester}</p>}
-                                                    </div>
-                                                )}
-                                                {courseCode && <p className="text-center text-sm font-semibold mt-2">Course Code : {courseCode}</p>}
-                                                {(courseName || paperHeader.subject) && (
-                                                    <p className="text-center text-base font-bold">Course Name : {courseName || paperHeader.subject}</p>
-                                                )}
-                                                {paperHeader.paperTitle && !courseName && (
-                                                    <p className="text-center text-sm italic">{paperHeader.paperTitle}</p>
-                                                )}
-                                                <div className="flex justify-between items-start mt-3 text-sm font-semibold">
-                                                    <span>Time: {paperHeader.timeAllowed}</span>
-                                                    <span>Total Marks: {paperHeader.maximumMarks}</span>
-                                                </div>
-                                                <hr className="border-black mt-3" />
-                                            </div>
-                                        ) : (
-                                            /* ===== SCHOOL TEMPLATE HEADER ===== */
-                                            <div className="mb-8">
-                                                {headerDocxFile ? (
-                                                    <div className="w-full border-b-2 border-black pb-3 mb-4 flex flex-col items-center gap-1">
-                                                        <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded px-4 py-2 w-full justify-center">
-                                                            <span style={{ fontSize: '20px' }}>📄</span>
-                                                            <div className="text-center">
-                                                                <p className="font-bold text-sm text-blue-800">{headerDocxFile.name}</p>
-                                                                <p className="text-[10px] text-blue-500">Letterhead from uploaded DOCX — appears in exported file</p>
-                                                            </div>
+                                                        <div className="flex justify-between items-center text-[11px] font-semibold italic text-gray-700">
+                                                            <span>{pageData.sectionDescription}</span>
+                                                            <span>({pageData.questions[0]?.marks || 1} Mark each)</span>
                                                         </div>
                                                     </div>
-                                                ) : headerImage ? (
-                                                    <img src={headerImage} alt="School Header" className="w-full object-contain mb-4" style={{ maxHeight: '130px' }} />
-                                                ) : (
-                                                    <>
-                                                        <h1 className="text-center text-xl font-bold uppercase mb-1 text-black">
-                                                            {paperHeader.schoolName}
-                                                        </h1>
-                                                        <h2 className="text-center text-base font-semibold mb-4 text-black">
-                                                            {paperHeader.paperTitle}
-                                                        </h2>
-                                                    </>
                                                 )}
-                                                {/* Time and Marks Box */}
-                                                <table className="w-full border-2 border-black text-sm">
+
+                                                <table className="w-full border-2 border-black text-xs mb-4" style={{ borderCollapse: 'collapse' }}>
+                                                    <thead>
+                                                        <tr className="bg-gray-100">
+                                                            <th className="border-2 border-black px-2 py-1.5 font-bold text-center w-12">Q.No.</th>
+                                                            <th className="border-2 border-black px-3 py-1.5 font-bold text-left">Questions & Sub-parts</th>
+                                                            <th className="border-2 border-black px-2 py-1.5 font-bold text-center w-14">Marks</th>
+                                                        </tr>
+                                                    </thead>
                                                     <tbody>
-                                                        <tr>
-                                                            <td className="border border-black px-3 py-1 font-semibold w-1/2">
-                                                                Time Allowed: {paperHeader.timeAllowed}
-                                                            </td>
-                                                            <td className="border border-black px-3 py-1 font-semibold w-1/2 text-right">
-                                                                Maximum Marks: {paperHeader.maximumMarks}
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td className="border border-black px-3 py-1 font-semibold">
-                                                                Subject: {paperHeader.subject}
-                                                            </td>
-                                                            <td className="border border-black px-3 py-1 font-semibold text-right">
-                                                                Grade: {paperHeader.grade}
-                                                            </td>
-                                                        </tr>
+                                                        {pageData.questions.map((q: any, qIdx: number) => (
+                                                            <tr key={qIdx} className="align-top">
+                                                                <td className="border-2 border-black px-2 py-2.5 text-center font-bold">{q.qNo}.</td>
+                                                                <td className="border-2 border-black px-3 py-2.5">
+                                                                    <div className="font-normal text-[12px] leading-relaxed">
+                                                                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex] as any}>
+                                                                            {preprocessLatex(q.text)}
+                                                                        </ReactMarkdown>
+                                                                    </div>
+                                                                    {q.options && q.options.length > 0 && (
+                                                                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 pt-1 border-t border-gray-200">
+                                                                            {q.options.map((opt: string, optIdx: number) => (
+                                                                                <div key={optIdx} className="flex items-start text-[11px]">
+                                                                                    <span className="font-bold mr-1.5">({String.fromCharCode(65 + optIdx)})</span>
+                                                                                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex] as any}>
+                                                                                        {preprocessLatex(opt.replace(/^\s*[A-Da-d][.):] /, '').replace(/^\s*\([A-Da-d]\) /, ''))}
+                                                                                    </ReactMarkdown>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+                                                                </td>
+                                                                <td className="border-2 border-black px-2 py-2.5 text-center font-bold text-[12px]">{q.marks}</td>
+                                                            </tr>
+                                                        ))}
                                                     </tbody>
                                                 </table>
                                             </div>
-                                        )}
-
-                                        {/* GENERAL INSTRUCTIONS */}
-                                        <div className="mb-6">
-                                            <h3 className="font-bold text-sm mb-2 text-black underline">General Instructions:</h3>
-                                            <ol className="text-xs space-y-1 ml-5 list-decimal text-black leading-relaxed">
-                                                {paperHeader.instructions.length > 0 ? (
-                                                    paperHeader.instructions.map((pt: string, i: number) => (
-                                                        <li key={i}>{pt}</li>
-                                                    ))
-                                                ) : (
-                                                    <>
-                                                        <li>All questions are compulsory.</li>
-                                                        <li>Read each question carefully before answering.</li>
-                                                        <li>Write your answers neatly and legibly.</li>
-                                                    </>
-                                                )}
-                                            </ol>
-                                        </div>
-
-                                        <div className="border-t border-black/30 pt-4"></div>
-                                    </>
-                                )}
-
-                                {/* QUESTION PAPER CONTENT */}
-                                {(() => {
-                                    // If we have paginated data, render the current page's questions
-                                    if (paperPages.length > 0) {
-                                        // LOGIC SENSITIVE TO TOTAL PAGES
-                                        // If effectiveTotalPages > 1, Page 1 is purely a cover page (Header + Instructions).
-                                        // Questions start on Page 2.
-                                        
-                                        // If effectiveTotalPages === 1 (short paper), Page 1 must show questions too.
-                                        const isSinglePage = effectiveTotalPages === 1;
-
-                                        if (currentPage === 1 && !isSinglePage) {
-                                            return <div className="text-center mt-8 italic text-gray-500">Please turn over for questions...</div>;
-                                        }
-
-                                        // Calculate page index
-                                        // If multi-page: Page 2 -> index 0.
-                                        // If single-page: Page 1 -> index 0.
-                                        const pageIndex = isSinglePage ? 0 : currentPage - 2;
-                                        const pageData = paperPages[pageIndex];
-                                        
-                                        if (!pageData) {
-                                            console.warn('No page data found for index:', pageIndex, 'CurrentPage:', currentPage, 'TotalPages:', effectiveTotalPages);
-                                            return null;
-                                        }
+                                        ))}
+                                    </div>
+                                ) : (
+                                    /* ===== PAGINATED VIEW ===== */
+                                    (() => {
+                                        const pageData = paperPages[currentPage - 1] || paperPages[0];
+                                        if (!pageData) return null;
 
                                         return (
-                                            <div className="text-black" style={{ fontSize: '13px', fontFamily: 'Times New Roman, serif' }}>
-
-                                                {templateType === 'college' ? (
-                                                    /* ===== COLLEGE TEMPLATE QUESTIONS ===== */
-                                                    <>
-                                                        {pageData.isFirstOfSection && (
-                                                            <>
-                                                                <div className="text-center font-black text-xl uppercase tracking-widest mt-6 mb-1">{pageData.sectionName}</div>
-                                                                <div className="text-center italic text-sm mb-2 text-gray-700">({pageData.sectionDescription})</div>
-                                                                <div className="flex justify-end text-xs font-semibold mb-2 pr-1">
-                                                                    <span>(Max Mark : {pageData.questions.reduce((s: number, q: any) => s + (q.marks || 0), 0)})</span>
-                                                                </div>
-                                                            </>
-                                                        )}
-                                                        <table className="w-full text-xs mb-4" style={{ borderCollapse: 'collapse' }}>
-                                                            <colgroup>
-                                                                <col style={{ width: '7%' }} />
-                                                                <col style={{ width: '66%' }} />
-                                                                <col style={{ width: '9%' }} />
-                                                                <col style={{ width: '8%' }} />
-                                                                <col style={{ width: '10%' }} />
-                                                            </colgroup>
-                                                            <thead>
-                                                                <tr style={{ borderBottom: '1px solid black' }}>
-                                                                    <th className="px-1 py-1 text-left"></th>
-                                                                    <th className="px-1 py-1 text-left"></th>
-                                                                    <th className="px-1 py-1 text-center font-bold">CO</th>
-                                                                    <th className="px-1 py-1 text-center font-bold">BL</th>
-                                                                    <th className="px-1 py-1 text-center font-bold">Marks</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {pageData.questions.map((q: any, qIdx: number) => (
-                                                                    <React.Fragment key={qIdx}>
-                                                                        {q.isOr && (
-                                                                            <tr>
-                                                                                <td colSpan={5} className="text-center font-bold py-1 italic text-sm">OR</td>
-                                                                            </tr>
-                                                                        )}
-                                                                        <tr style={{ verticalAlign: 'top', borderBottom: '1px solid #ddd' }}>
-                                                                            <td className="px-1 py-2 font-bold">{q.qNo}.</td>
-                                                                            <td className="px-1 py-2">
-                                                                                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex] as any}>
-                                                                                    {preprocessLatex(q.text)}
-                                                                                </ReactMarkdown>
-                                                                                {q.options && q.options.length > 0 && (
-                                                                                    <div className="grid grid-cols-2 gap-x-4 mt-1">
-                                                                                        {q.options.map((opt: string, oi: number) => (
-                                                                                            <div key={oi} className="flex items-start gap-1">
-                                                                                                <span className="font-semibold shrink-0">{String.fromCharCode(65 + oi)}.</span>
-                                                                                                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex] as any}>{preprocessLatex(opt.replace(/^\s*[A-Da-d][.):] /, '').replace(/^\s*\([A-Da-d]\) /, ''))}</ReactMarkdown>
-                                                                                            </div>
-                                                                                        ))}
-                                                                                    </div>
-                                                                                )}
-                                                                            </td>
-                                                                            <td className="px-1 py-2 text-center">{q.co || 'CO1'}</td>
-                                                                            <td className="px-1 py-2 text-center">{q.bl || '2'}</td>
-                                                                            <td className="px-1 py-2 text-center font-semibold">({q.marks})</td>
-                                                                        </tr>
-                                                                    </React.Fragment>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
-
-                                                        {/* CO Table on last page */}
-                                                        {currentPage === effectiveTotalPages && (
-                                                            <>
-                                                                <div className="text-center font-bold text-sm my-4">******** End ********</div>
-                                                                <table className="w-full text-xs" style={{ borderCollapse: 'collapse', border: '1px solid black' }}>
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th className="border border-black px-2 py-1 text-left font-bold bg-gray-100" colSpan={2}>COURSE OUTCOME (CO)</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        {['Understand foundational concepts and apply theoretical knowledge to solve problems.',
-                                                                          'Analyze real-world scenarios and design practical solutions using course concepts.',
-                                                                          'Evaluate complex problems and synthesize solutions with critical thinking.'].map((co, i) => (
-                                                                            <tr key={i}>
-                                                                                <td className="border border-black px-2 py-1 font-bold w-10">{`CO${i + 1}`}</td>
-                                                                                <td className="border border-black px-2 py-1">{co}</td>
-                                                                            </tr>
-                                                                        ))}
-                                                                    </tbody>
-                                                                </table>
-                                                            </>
-                                                        )}
-                                                    </>
-                                                ) : (
-                                                    /* ===== SCHOOL TEMPLATE QUESTIONS ===== */
-                                                    <>
-                                                        {pageData.isFirstOfSection && (
-                                                            <>
-                                                                <div className="text-center font-black text-xl mb-2 mt-4 uppercase tracking-widest border-b-2 border-black pb-2">
-                                                                    {pageData.sectionName}
-                                                                </div>
-                                                                <div className="flex justify-between items-center text-xs font-semibold mb-3 px-1">
-                                                                    <div className="italic">{pageData.sectionDescription}</div>
-                                                                    <div>({pageData.questions.length} Questions x {pageData.questions[0]?.marks || 0} Marks = {pageData.questions.length * (pageData.questions[0]?.marks || 0)} Marks)</div>
-                                                                </div>
-                                                            </>
-                                                        )}
-                                                        <table className="w-full border-2 border-black mb-4" style={{ borderCollapse: 'collapse' }}>
-                                                            <thead>
-                                                                <tr>
-                                                                    <th className="border-2 border-black px-3 py-2 font-semibold text-sm w-16">Q.No.</th>
-                                                                    <th className="border-2 border-black px-3 py-2 font-semibold text-sm">Questions</th>
-                                                                    <th className="border-2 border-black px-3 py-2 font-semibold text-sm w-20">Marks</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {pageData.questions.map((q: any, qIdx: number) => (
-                                                                    <tr key={qIdx}>
-                                                                        <td className="border-2 border-black px-3 py-3 text-center align-top font-bold">{q.qNo}.</td>
-                                                                        <td className="border-2 border-black px-3 py-3 align-top">
-                                                                            <div className="mb-2">
-                                                                                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex] as any}>
-                                                                                    {preprocessLatex(q.text)}
-                                                                                </ReactMarkdown>
-                                                                            </div>
-                                                                            {q.options && q.options.length > 0 && (
-                                                                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
-                                                                                    {q.options.map((opt: string, optIdx: number) => (
-                                                                                        <div key={optIdx} className="flex items-start">
-                                                                                            <span className="font-semibold mr-1">({String.fromCharCode(65 + optIdx)})</span>
-                                                                                            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex] as any}>
-                                                                                                {preprocessLatex(opt.replace(/^\s*[A-Da-d][.):] /, '').replace(/^\s*\([A-Da-d]\) /, ''))}
-                                                                                            </ReactMarkdown>
-                                                                                        </div>
-                                                                                    ))}
-                                                                                </div>
-                                                                            )}
-                                                                        </td>
-                                                                        <td className="border-2 border-black px-3 py-3 text-center align-top font-semibold">{q.marks}</td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
-                                                    </>
+                                            <div className="space-y-4">
+                                                {pageData.isFirstOfSection && (
+                                                    <div className="mt-4 mb-2">
+                                                        <div className="text-center font-bold text-base uppercase tracking-widest border-b border-black pb-1 mb-1">
+                                                            {pageData.sectionName}
+                                                        </div>
+                                                        <div className="flex justify-between items-center text-[11px] font-semibold italic text-gray-700">
+                                                            <span>{pageData.sectionDescription}</span>
+                                                            <span>({pageData.questions[0]?.marks || 1} Mark each)</span>
+                                                        </div>
+                                                    </div>
                                                 )}
 
-                                                <div className="text-right text-xs text-gray-500 mt-4">
+                                                <table className="w-full border-2 border-black text-xs mb-4" style={{ borderCollapse: 'collapse' }}>
+                                                    <thead>
+                                                        <tr className="bg-gray-100">
+                                                            <th className="border-2 border-black px-2 py-1.5 font-bold text-center w-12">Q.No.</th>
+                                                            <th className="border-2 border-black px-3 py-1.5 font-bold text-left">Questions & Sub-parts</th>
+                                                            <th className="border-2 border-black px-2 py-1.5 font-bold text-center w-14">Marks</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {pageData.questions.map((q: any, qIdx: number) => (
+                                                            <tr key={qIdx} className="align-top">
+                                                                <td className="border-2 border-black px-2 py-2.5 text-center font-bold">{q.qNo}.</td>
+                                                                <td className="border-2 border-black px-3 py-2.5">
+                                                                    <div className="font-normal text-[12px] leading-relaxed">
+                                                                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex] as any}>
+                                                                            {preprocessLatex(q.text)}
+                                                                        </ReactMarkdown>
+                                                                    </div>
+                                                                    {q.options && q.options.length > 0 && (
+                                                                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 pt-1 border-t border-gray-200">
+                                                                            {q.options.map((opt: string, optIdx: number) => (
+                                                                                <div key={optIdx} className="flex items-start text-[11px]">
+                                                                                    <span className="font-bold mr-1.5">({String.fromCharCode(65 + optIdx)})</span>
+                                                                                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex] as any}>
+                                                                                        {preprocessLatex(opt.replace(/^\s*[A-Da-d][.):] /, '').replace(/^\s*\([A-Da-d]\) /, ''))}
+                                                                                    </ReactMarkdown>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+                                                                </td>
+                                                                <td className="border-2 border-black px-2 py-2.5 text-center font-bold text-[12px]">{q.marks}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+
+                                                <div className="text-right text-[11px] text-gray-600 pt-3">
                                                     Page {currentPage} of {effectiveTotalPages}
                                                 </div>
                                             </div>
                                         );
-                                    }
-
-                                    // FALLBACK: If we have NO paperPages parsed, it implies:
-                                    // 1. We failed to split pages (JSON error?)
-                                    // 2. Or it's raw content.
-                                    // In this case, we MUST render the raw 'generatedPaper' so the user sees something.
-                                    if (generatedPaper) {
-                                        return (
-                                            <div className="text-black" style={{ fontSize: '13px', lineHeight: '1.6' }}>
-                                                <ReactMarkdown 
-                                                    remarkPlugins={[remarkMath]} 
-                                                    rehypePlugins={[rehypeKatex] as any}
-                                                    components={{
-                                                        table: ({node, ...props}) => <table className="w-full border-2 border-black mb-6" style={{ borderCollapse: 'collapse' }} {...props} />,
-                                                        th: ({node, ...props}) => <th className="border-2 border-black px-3 py-2 font-semibold text-sm bg-gray-50" {...props} />,
-                                                        td: ({node, ...props}) => <td className="border-2 border-black px-3 py-3 align-top" {...props} />,
-                                                    }}
-                                                >
-                                                    {preprocessLatex(generatedPaper)}
-                                                </ReactMarkdown>
-                                            </div>
-                                        );
-                                    }
-                                    
-                                    return null;
-                                })()}
+                                    })()
+                                )}
 
                                 {/* FOOTER */}
-                                <div className="mt-8 pt-3 border-t border-black/20 text-center text-[10px] text-gray-500">
-                                    — End of Question Paper —
+                                <div className="mt-8 pt-4 border-t border-black/30 text-center text-xs font-semibold text-gray-700 tracking-wider">
+                                    — ********* END OF QUESTION PAPER ********* —
                                 </div>
                             </div>
                             </div>

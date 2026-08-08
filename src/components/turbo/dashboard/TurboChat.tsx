@@ -271,9 +271,9 @@ export default function TurboChat() {
                 )}
 
                 <AnimatePresence initial={false}>
-                    {messages.map((msg: ChatMessage) => (
+                    {messages.map((msg: ChatMessage, idx: number) => (
                         <motion.div
-                            key={msg.id}
+                            key={`${msg.role}-${idx}-${msg.content.slice(0, 15)}`}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}

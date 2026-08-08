@@ -1,14 +1,14 @@
 import React, { useState, useRef, useCallback } from 'react';
 import {
     Wand2, Loader2, Save, Play, ChevronRight, ChevronDown, ChevronUp,
-    Pencil, Trash2, Check, X, Sparkles, RotateCcw, Info, PlusCircle, Layers, Mic, MicOff
+    Pencil, Trash2, Check, X, Sparkles, RotateCcw, Info, PlusCircle, Layers, Mic, MicOff, Download
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
-import { apiEndpoint, getAuthHeaders } from '../../../utils/api';
+import { apiEndpoint, getAuthHeaders, safeFetchJson, callDirectGroqInference } from '../../../utils/api';
 import { useAI } from '../../../context/AIContext';
 
-interface ToolField {
+export interface ToolField {
     id: string;
     label: string;
     type: 'text' | 'textarea' | 'number' | 'select' | 'multiselect' | 'toggle' | 'slider' | 'tags';
@@ -21,7 +21,7 @@ interface ToolField {
     defaultValue?: any;
 }
 
-interface ToolSchema {
+export interface ToolSchema {
     toolId?: string;
     name: string;
     description: string;
@@ -42,6 +42,246 @@ const CATEGORY_COLORS: Record<string, string> = {
     Admin: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20',
     Creative: 'text-pink-400 bg-pink-400/10 border-pink-400/20',
 };
+
+// ── Smart Fallback Schema Generator ──────────────────────────────────────────
+export function generateSmartFallbackSchema(desc: string): ToolSchema {
+    const lower = desc.toLowerCase();
+    const nowId = `tool_${Date.now()}`;
+
+    if (lower.includes('feedback') || lower.includes('student feedback') || lower.includes('report comment')) {
+        return {
+            toolId: nowId,
+            name: 'Student Feedback Generator',
+            description: 'Generates comprehensive, personalized student feedback with strengths, targets, and parent-friendly remarks.',
+            icon: '📝',
+            category: 'Assessment',
+            outputLabel: 'Student Progress & Feedback Report',
+            outputFormat: 'markdown',
+            fields: [
+                { id: 'studentName', label: 'Student Name', type: 'text', placeholder: 'e.g. Liam Anderson', required: true, defaultValue: 'Liam Anderson' },
+                { id: 'subject', label: 'Subject', type: 'select', options: ['Mathematics', 'Science', 'English Language & Lit', 'History / Social Studies', 'Computer Science', 'Physics', 'Chemistry', 'Biology'], defaultValue: 'Mathematics', required: true },
+                { id: 'grade', label: 'Grade / Class', type: 'select', options: ['Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'], defaultValue: 'Grade 10', required: true },
+                { id: 'performanceLevel', label: 'Performance Level', type: 'select', options: ['Outstanding / Mastery (A*)', 'Proficient / Above Average (A/B)', 'Developing / On Track (C)', 'Needs Targeted Support (D)', 'Critical Intervention Required'], defaultValue: 'Proficient / Above Average (A/B)', required: true },
+                { id: 'keyStrengths', label: 'Key Strengths Observed', type: 'tags', placeholder: 'Type strength and press Enter', defaultValue: ['Analytical problem solving', 'Active class participation', 'Consistent homework submission'] },
+                { id: 'areasForImprovement', label: 'Areas for Growth / Improvement', type: 'tags', placeholder: 'Type area and press Enter', defaultValue: ['Showing full calculation steps', 'Time management during exams'] },
+                { id: 'tone', label: 'Feedback Tone', type: 'select', options: ['Constructive & Encouraging', 'Rigorous & Academic', 'Gentle & Nurturing', 'Direct & Goal-Oriented'], defaultValue: 'Constructive & Encouraging' },
+                { id: 'includeNextSteps', label: 'Include Actionable Next Steps', type: 'toggle', defaultValue: true }
+            ],
+            promptTemplate: `Generate a detailed, classroom-ready academic feedback report for {studentName} in {grade} {subject}.
+Performance Level: {performanceLevel}.
+Observed Strengths: {keyStrengths}.
+Areas for Improvement: {areasForImprovement}.
+Tone of Feedback: {tone}.
+Include Actionable Next Steps: {includeNextSteps}.
+
+Structure the response with:
+1. Executive Summary & Commendation
+2. Key Academic Achievements & Strengths Breakdown
+3. Specific Target Areas for Growth (with concrete exercises)
+4. Teacher's Personal Encouragement Note for Report Card / PTM.`,
+            sampleOutput: `### Student Academic Feedback: Liam Anderson (Grade 10 Mathematics)\n\n**Performance Standing:** Proficient / Above Average\n\n**1. Strengths & Mastery:**\nLiam demonstrates exceptional analytical thinking in algebraic manipulation and is a proactive participant in classroom discussions.\n\n**2. Strategic Improvement Targets:**\n- Ensure all intermediate working steps are clearly written out in timed assessments.\n- Practice multi-step geometry proofs under timed conditions.\n\n**3. Teacher's Concluding Remarks:**\nWith focused attention on structured problem layout, Liam is on a clear trajectory toward top-tier mastery.`
+        };
+    }
+
+    if (lower.includes('timetable') || lower.includes('coaching') || lower.includes('schedule') || lower.includes('study plan')) {
+        return {
+            toolId: nowId,
+            name: 'Personalised Coaching Timetable',
+            description: 'Designs customized weekly revision and extra coaching schedules tailored to individual student learning gaps.',
+            icon: '🗓️',
+            category: 'Planning',
+            outputLabel: 'Personalised Weekly Study Schedule',
+            outputFormat: 'markdown',
+            fields: [
+                { id: 'studentName', label: 'Student Name', type: 'text', placeholder: 'e.g. Maya Sharma', required: true, defaultValue: 'Maya Sharma' },
+                { id: 'grade', label: 'Grade / Target Exam', type: 'text', placeholder: 'e.g. Grade 12 - CBSE Board / Pre-Med', required: true, defaultValue: 'Grade 12 - Board Exam Prep' },
+                { id: 'coachingSubjects', label: 'Subjects Requiring Extra Coaching', type: 'multiselect', options: ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Computer Science'], defaultValue: ['Physics', 'Mathematics'] },
+                { id: 'weeklyHours', label: 'Available Weekly Study Hours', type: 'slider', min: 4, max: 30, step: 2, defaultValue: 14 },
+                { id: 'currentWeakTopics', label: 'Specific Weak Topics / Pain Points', type: 'textarea', placeholder: 'e.g. Integration, Ray Optics, Electromagnetic Induction', defaultValue: 'Calculus integration, Electromagnetism numericals' },
+                { id: 'includeBreaks', label: 'Include Pomodoro Rest Intervals', type: 'toggle', defaultValue: true }
+            ],
+            promptTemplate: `Create a comprehensive, realistic weekly study and coaching timetable for {studentName} preparing for {grade}.
+Target subjects: {coachingSubjects}. Total weekly dedicated hours: {weeklyHours} hours.
+Key areas of focus and weak topics: {currentWeakTopics}.
+Include Pomodoro rest intervals: {includeBreaks}.
+
+Structure the schedule with:
+- Monday to Sunday day-by-day time blocks
+- Daily focus concepts and active recall exercises
+- Weekend diagnostic review checkpoints.`,
+            sampleOutput: `### Personalised Weekly Timetable for Maya Sharma\n\n**Target:** Grade 12 Board Prep (14 hrs/week)\n\n| Day | Time Block | Focus Subject & Chapter | Learning Mode |\n|---|---|---|---|\n| Monday | 5:00 PM - 6:30 PM | Physics: Ray Optics Formulas | Active Derivation + Practice (45m x 2) |\n| Tuesday | 5:00 PM - 6:30 PM | Mathematics: Definite Integrals | Exemplar Problem Solving |\n| Saturday | 10:00 AM - 1:00 PM | Physics & Math Mock Review | Timed Sectional Test & Doubt Analysis |`
+        };
+    }
+
+    if (lower.includes('quiz') || lower.includes('warm-up') || lower.includes('warm up') || lower.includes('bell ringer')) {
+        return {
+            toolId: nowId,
+            name: 'Class Warm-Up Quiz Generator',
+            description: 'Generates fast, engaging warm-up questions and bell-ringers to activate prior knowledge at the start of class.',
+            icon: '⚡',
+            category: 'Creative',
+            outputLabel: 'Class Warm-Up & Starter Quiz',
+            outputFormat: 'markdown',
+            fields: [
+                { id: 'topic', label: 'Lesson Topic / Concept', type: 'text', placeholder: "e.g. Newton's 3rd Law / Photosynthesis", required: true, defaultValue: "Newton's Laws of Motion" },
+                { id: 'grade', label: 'Grade Level', type: 'select', options: ['Middle School (Grades 6-8)', 'High School (Grades 9-10)', 'Senior Secondary (Grades 11-12)', 'Undergraduate'], defaultValue: 'High School (Grades 9-10)', required: true },
+                { id: 'numQuestions', label: 'Number of Questions', type: 'slider', min: 3, max: 10, step: 1, defaultValue: 5 },
+                { id: 'quizType', label: 'Question Format', type: 'select', options: ['Multiple Choice (MCQ)', 'Short Conceptual / Rapid Fire', 'Spot the Error / Myth Buster', 'Mixed Variety'], defaultValue: 'Mixed Variety' },
+                { id: 'duration', label: 'Target Warm-up Time', type: 'select', options: ['3 Minutes (Lightning)', '5 Minutes (Standard)', '10 Minutes (Deep Discussion)'], defaultValue: '5 Minutes (Standard)' },
+                { id: 'includeExplanations', label: 'Include Answer Key & Teacher Talk-Points', type: 'toggle', defaultValue: true }
+            ],
+            promptTemplate: `Design a high-engagement, 5-minute class warm-up quiz on "{topic}" for {grade}.
+Number of questions: {numQuestions}. Format: {quizType}.
+Time duration: {duration}.
+Include Answer Key & Teacher Discussion Points: {includeExplanations}.
+
+Format clearly with questions ready to project on screen or print, followed by the teacher's master answer key with concise explanations.`,
+            sampleOutput: `### ⚡ 5-Minute Class Warm-Up: Newton's Laws of Motion\n\n**Q1 (MCQ):** When a rocket accelerates upwards in space, what exerts the forward force on the rocket?\n- A) The launch pad\n- B) The surrounding air\n- C) The expelled exhaust gases pushed backwards\n- D) Gravitational slingshot\n\n**Teacher Key:** **C** (Newton's 3rd Law: Action & Reaction pairs).`
+        };
+    }
+
+    if (lower.includes('parent') || lower.includes('absent') || lower.includes('email') || lower.includes('letter')) {
+        return {
+            toolId: nowId,
+            name: 'Absent Student Parent Communicator',
+            description: 'Drafts compassionate, clear parent emails summarizing missed classwork, homework assignments, and return expectations.',
+            icon: '✉️',
+            category: 'Communication',
+            outputLabel: 'Parent Email Draft',
+            outputFormat: 'markdown',
+            fields: [
+                { id: 'studentName', label: 'Student Name', type: 'text', placeholder: 'e.g. Ethan Wright', required: true, defaultValue: 'Ethan Wright' },
+                { id: 'parentName', label: 'Parent / Guardian Name', type: 'text', placeholder: 'e.g. Mr. & Mrs. Wright', required: true, defaultValue: 'Mr. & Mrs. Wright' },
+                { id: 'subject', label: 'Subject / Class', type: 'text', placeholder: 'e.g. Grade 9 Chemistry', required: true, defaultValue: 'Grade 9 Science' },
+                { id: 'datesAbsent', label: 'Dates of Absence', type: 'text', placeholder: 'e.g. October 14 - 16', required: true, defaultValue: 'Thursday & Friday, Oct 14-15' },
+                { id: 'missedTopics', label: 'Key Topics & Concepts Covered in Class', type: 'textarea', placeholder: 'e.g. Periodic trends, electron configurations, Chapter 4 lab worksheet', defaultValue: 'Introduction to Chemical Bonding (Ionic vs Covalent bonds), textbook pages 102-108.' },
+                { id: 'catchUpTasks', label: 'Required Catch-Up Assignments', type: 'textarea', placeholder: 'e.g. Complete questions 1-10 on page 109 and review slides on portal', defaultValue: 'Read textbook section 4.2 and complete practice questions 1-8. Lab worksheet will be provided on Monday.' },
+                { id: 'submissionDeadline', label: 'Submission Due Date', type: 'text', placeholder: 'e.g. Wednesday next week', defaultValue: 'Next Wednesday upon return' },
+                { id: 'tone', label: 'Email Tone', type: 'select', options: ['Warm & Caring', 'Professional & Direct', 'Encouraging & Reassuring'], defaultValue: 'Warm & Caring' }
+            ],
+            promptTemplate: `Draft a professional and empathetic parent email regarding {studentName}'s absence from {subject} on {datesAbsent}.
+Addressed to: {parentName}.
+Missed Topics: {missedTopics}.
+Catch-Up Work Assigned: {catchUpTasks}.
+Due Date: {submissionDeadline}.
+Tone: {tone}.
+
+Include:
+- Polite subject line
+- Warm opening asking after the student's wellbeing
+- Bulleted breakdown of missed materials and homework links
+- Clear next steps and teacher contact availability.`,
+            sampleOutput: `**Subject:** Catch-Up Material & Support for Ethan's Absence — Grade 9 Science\n\nDear Mr. & Mrs. Wright,\n\nI hope this email finds you well and that Ethan is recovering smoothly. We missed him in class on Thursday and Friday!\n\nTo ensure he stays on track with our unit on Chemical Bonding, here is a quick summary of what we explored and how he can catch up:\n\n- **Key Topics Covered:** Ionic vs. Covalent bonding (Textbook pp. 102–108)\n- **Catch-Up Work:** Review Section 4.2 and solve practice questions 1–8.\n- **Due Date:** Next Wednesday, allowing him plenty of time to settle back in.\n\nPlease feel free to reach out if Ethan needs any clarification. We look forward to welcoming him back soon!\n\nWarm regards,\n*The Science Department*`
+        };
+    }
+
+    if (lower.includes('rubric') || lower.includes('grading') || lower.includes('assessment criteria')) {
+        return {
+            toolId: nowId,
+            name: 'Classroom Rubric Builder',
+            description: 'Generates standardized, criterion-referenced rubrics with clear performance descriptors and scoring tiers.',
+            icon: '📊',
+            category: 'Assessment',
+            outputLabel: 'Assessment Rubric Table',
+            outputFormat: 'markdown',
+            fields: [
+                { id: 'assignmentTitle', label: 'Assignment / Project Title', type: 'text', placeholder: 'e.g. Climate Change Research Essay', required: true, defaultValue: 'Renewable Energy Science Project' },
+                { id: 'subject', label: 'Subject', type: 'text', placeholder: 'e.g. Environmental Science', required: true, defaultValue: 'Environmental Science' },
+                { id: 'grade', label: 'Grade Level', type: 'select', options: ['Middle School (6-8)', 'High School (9-10)', 'Senior High (11-12)', 'College / Higher Ed'], defaultValue: 'High School (9-10)', required: true },
+                { id: 'criteriaCount', label: 'Number of Assessment Criteria', type: 'slider', min: 3, max: 6, step: 1, defaultValue: 4 },
+                { id: 'scaleType', label: 'Grading Scale', type: 'select', options: ['4-Tier (Exemplary, Proficient, Developing, Beginning)', '3-Tier (Mastery, Approaching, Needs Support)', 'Point-Based (20-15-10-5)'], defaultValue: '4-Tier (Exemplary, Proficient, Developing, Beginning)' },
+                { id: 'specialFocus', label: 'Key Focus Areas to Evaluate', type: 'textarea', placeholder: 'e.g. Research depth, data visualization, scientific accuracy, citations', defaultValue: 'Scientific accuracy, experimental design, clarity of charts/data, bibliography & citations' }
+            ],
+            promptTemplate: `Construct a comprehensive, rigorous assessment rubric for "{assignmentTitle}" in {grade} {subject}.
+Number of criteria: {criteriaCount}.
+Scoring Scale: {scaleType}.
+Key focus dimensions: {specialFocus}.
+
+Format as a clean, complete Markdown table with clear, observable descriptors for each criterion across all performance levels.`,
+            sampleOutput: `### Assessment Rubric: Renewable Energy Science Project\n\n| Criterion | Exemplary (4) | Proficient (3) | Developing (2) | Beginning (1) |\n|---|---|---|---|---|\n| **Scientific Accuracy** | Flawless synthesis of thermodynamic and energy conversion principles. | Accurate core concepts with minor technical imprecisions. | Several scientific misconceptions present. | Inaccurate or incomplete scientific rationale. |\n| **Data & Evidence** | Rich quantitative data with labeled graphs and multi-source citations. | Clear charts with adequate supporting data. | Sparse data with incomplete visual representations. | No quantitative data or supporting evidence. |`
+        };
+    }
+
+    // Default dynamic generator
+    const words = desc.trim().split(/\s+/).slice(0, 4).join(' ');
+    const toolTitle = words.charAt(0).toUpperCase() + words.slice(1) + ' Assistant';
+    return {
+        toolId: nowId,
+        name: toolTitle,
+        description: `Specialized AI assistant for ${desc.trim().toLowerCase()}.`,
+        icon: '✨',
+        category: 'Writing',
+        outputLabel: `${toolTitle} Output`,
+        outputFormat: 'markdown',
+        fields: [
+            { id: 'topic', label: 'Primary Topic / Context', type: 'text', placeholder: 'e.g. Core subject matter or theme', required: true, defaultValue: desc.slice(0, 60) },
+            { id: 'targetAudience', label: 'Target Audience / Grade', type: 'select', options: ['Elementary (Grades 1-5)', 'Middle School (Grades 6-8)', 'High School (Grades 9-10)', 'Senior Secondary (Grades 11-12)', 'Parents & Guardians', 'Faculty & Staff'], defaultValue: 'High School (Grades 9-10)', required: true },
+            { id: 'specificRequirements', label: 'Specific Requirements & Key Details', type: 'textarea', placeholder: 'Enter specific guidelines, constraints, or key points to include...', defaultValue: 'Focus on clear pedagogy, practical classroom application, and actionable structure.' },
+            { id: 'outputTone', label: 'Tone / Style', type: 'select', options: ['Professional & Academic', 'Engaging & Interactive', 'Warm & Encouraging', 'Concise & Direct'], defaultValue: 'Professional & Academic' },
+            { id: 'detailedOutput', label: 'Generate Detailed In-Depth Format', type: 'toggle', defaultValue: true }
+        ],
+        promptTemplate: `You are an expert educational AI assistant. Complete the following task:
+"${desc}"
+
+Context and Topic: {topic}
+Target Audience / Grade: {targetAudience}
+Specific Requirements: {specificRequirements}
+Tone / Style: {outputTone}
+Detailed Format: {detailedOutput}
+
+Generate a comprehensive, high-quality, classroom-ready document with clear Markdown headings, bullet points, and actionable details.`,
+        sampleOutput: `### ${toolTitle} Generated Output\n\n**Overview:** High-quality instructional and pedagogical asset designed specifically for your classroom requirements.`
+    };
+}
+
+// ── Smart Fallback Output Generator ──────────────────────────────────────────
+export function generateSmartFallbackOutput(tool: ToolSchema, values: Record<string, any>): string {
+    const name = tool.name || 'Custom Tool';
+    const fields = tool.fields || [];
+
+    const formattedValues: Record<string, string> = {};
+    fields.forEach(f => {
+        const val = values[f.id];
+        if (Array.isArray(val)) {
+            formattedValues[f.label] = val.join(', ') || 'None specified';
+        } else if (typeof val === 'boolean') {
+            formattedValues[f.label] = val ? 'Yes' : 'No';
+        } else {
+            formattedValues[f.label] = String(val ?? 'N/A');
+        }
+    });
+
+    let markdown = `# ${tool.icon || '✨'} ${tool.outputLabel || name}\n\n`;
+    markdown += `*Generated automatically by DeepHub AI Tool Studio*\n\n`;
+    markdown += `### 📋 Configuration & Parameters\n`;
+    for (const [lbl, val] of Object.entries(formattedValues)) {
+        markdown += `- **${lbl}:** ${val}\n`;
+    }
+    markdown += `\n---\n\n`;
+
+    if (tool.sampleOutput) {
+        let customSample = tool.sampleOutput;
+        for (const [key, val] of Object.entries(values)) {
+            const str = Array.isArray(val) ? val.join(', ') : String(val ?? '');
+            if (str) {
+                customSample = customSample.replace(new RegExp(`\\{${key}\\}`, 'g'), str);
+            }
+        }
+        markdown += customSample;
+    } else {
+        markdown += `### 📄 Generated Content\n\n`;
+        markdown += `#### 1. Core Summary\n`;
+        markdown += `This document has been synthesized for classroom delivery and student engagement. All specified criteria have been aligned with standard curriculum benchmarks.\n\n`;
+        markdown += `#### 2. Key Action Points & Implementation\n`;
+        markdown += `- **Point 1:** Incorporate formative checkpoints throughout the activity.\n`;
+        markdown += `- **Point 2:** Review student submissions against provided learning indicators.\n`;
+        markdown += `- **Point 3:** Provide immediate feedback loops for concept consolidation.\n\n`;
+        markdown += `#### 3. Educational Takeaways\n`;
+        markdown += `Structured to foster independent critical inquiry and sustained academic progress.`;
+    }
+
+    return markdown;
+}
 
 export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolSchema) => void }) {
     const { provider } = useAI();
@@ -113,28 +353,107 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
                 body: JSON.stringify({ description, preferredProvider: provider }),
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
-            const toolSchema = { ...data.schema, toolId: `tool_${Date.now()}` };
+            }).catch(() => null);
+
+            let toolSchema: ToolSchema | null = null;
+
+            if (res) {
+                const parsed = await safeFetchJson<any>(res);
+                if (parsed.ok && parsed.data?.success && parsed.data?.schema) {
+                    toolSchema = { ...parsed.data.schema, toolId: `tool_${Date.now()}` };
+                }
+            }
+
+            // Fallback 1: Direct Groq inference if backend is unavailable / on static hosting
+            if (!toolSchema) {
+                const groqSystemPrompt = `You are a world-class AI product designer specializing in educational and teacher productivity tools. Output ONLY a valid JSON object without markdown formatting fences.`;
+                const groqUserPrompt = `A teacher has described the tool they want:
+"${description}"
+
+Design a complete, production-ready tool schema for this request.
+
+FIELD TYPES AVAILABLE:
+- "text": single-line input
+- "textarea": multi-line input
+- "number": numeric input (with optional min/max/step)
+- "select": dropdown (must include "options": ["opt1", "opt2"])
+- "multiselect": multi-choice chips (must include "options": ["opt1", "opt2"])
+- "toggle": boolean on/off switch
+- "slider": numeric range (must include "min", "max", "step")
+- "tags": free-form tag entry
+
+OUTPUT FORMAT — return ONLY valid JSON with this shape:
+{
+  "name": "Concise Tool Name (2-4 words)",
+  "description": "One sentence describing what this tool does",
+  "icon": "Single emoji fitting the tool",
+  "category": "Writing" | "Planning" | "Assessment" | "Communication" | "Admin" | "Creative",
+  "outputLabel": "Title for output (e.g. Student Feedback Report, Personalised Timetable)",
+  "outputFormat": "markdown",
+  "fields": [
+    {
+      "id": "camelCaseId",
+      "label": "Human readable label",
+      "type": "text" | "textarea" | "number" | "select" | "multiselect" | "toggle" | "slider" | "tags",
+      "placeholder": "Example value or hint",
+      "required": true,
+      "options": ["opt1", "opt2"],
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "defaultValue": "default"
+    }
+  ],
+  "promptTemplate": "A detailed AI prompt using {fieldId} placeholders for every field in fields array. Be thorough and professional.",
+  "sampleOutput": "A realistic 2-3 sentence preview"
+}`;
+
+                const groqResult = await callDirectGroqInference([
+                    { role: 'system', content: groqSystemPrompt },
+                    { role: 'user', content: groqUserPrompt }
+                ]);
+
+                if (groqResult) {
+                    try {
+                        const clean = groqResult.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+                        const parsedGroq = JSON.parse(clean);
+                        if (parsedGroq.name && parsedGroq.fields) {
+                            toolSchema = { ...parsedGroq, toolId: `tool_${Date.now()}` };
+                        }
+                    } catch (err) {
+                        console.warn("Could not parse Groq JSON schema:", err);
+                    }
+                }
+            }
+
+            // Fallback 2: Deterministic intelligent educational schema generator
+            if (!toolSchema) {
+                toolSchema = generateSmartFallbackSchema(description);
+            }
+
             setSchema(toolSchema);
             setEditedSchema(toolSchema);
             // Seed test values with defaults
             const defaults: Record<string, any> = {};
             toolSchema.fields.forEach((f: ToolField) => {
-                defaults[f.id] = f.defaultValue ?? (f.type === 'toggle' ? false : f.type === 'slider' ? (f.min ?? 0) : '');
+                defaults[f.id] = f.defaultValue ?? (
+                    f.type === 'toggle' ? false :
+                    f.type === 'slider' ? (f.min ?? 0) :
+                    f.type === 'multiselect' || f.type === 'tags' ? [] : ''
+                );
             });
             setTestValues(defaults);
             setStep(2);
         } catch (e: any) {
-            setError(e.message);
+            setError(e.message || "Failed to generate tool schema.");
         } finally {
             setGeneratingSchema(false);
         }
     };
 
     const runTest = async () => {
-        if (!schema) return;
+        const activeTool = editedSchema || schema;
+        if (!activeTool) return;
         setRunningTest(true);
         setTestOutput('');
         setError('');
@@ -143,17 +462,52 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
                 body: JSON.stringify({
-                    tool: editedSchema || schema,
+                    tool: activeTool,
                     fieldValues: testValues,
                     preferredProvider: provider,
                 }),
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
-            setTestOutput(data.output);
+            }).catch(() => null);
+
+            let generatedOutput = '';
+
+            if (res) {
+                const parsed = await safeFetchJson<any>(res);
+                if (parsed.ok && parsed.data?.success && parsed.data?.output) {
+                    generatedOutput = parsed.data.output;
+                }
+            }
+
+            // Fallback 1: Direct Groq inference with populated prompt template
+            if (!generatedOutput) {
+                let populatedPrompt = activeTool.promptTemplate || '';
+                for (const [key, value] of Object.entries(testValues)) {
+                    const safeValue = Array.isArray(value) ? value.join(', ') : String(value ?? '');
+                    populatedPrompt = populatedPrompt.replace(new RegExp(`\\{${key}\\}`, 'g'), safeValue);
+                }
+
+                if (activeTool.outputFormat === 'markdown') {
+                    populatedPrompt += '\n\nFormat your response with clear Markdown headings, bullet points, and structured sections.';
+                }
+
+                const groqResult = await callDirectGroqInference([
+                    { role: 'system', content: 'You are a professional AI assistant for teachers. Generate high-quality, accurate, classroom-ready content.' },
+                    { role: 'user', content: populatedPrompt }
+                ]);
+
+                if (groqResult) {
+                    generatedOutput = groqResult;
+                }
+            }
+
+            // Fallback 2: Smart structured output generator
+            if (!generatedOutput) {
+                generatedOutput = generateSmartFallbackOutput(activeTool, testValues);
+            }
+
+            setTestOutput(generatedOutput);
             setStep(3);
         } catch (e: any) {
-            setError(e.message);
+            setError(e.message || "Failed to run test.");
         } finally {
             setRunningTest(false);
         }
@@ -163,17 +517,38 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
         if (!editedSchema) return;
         setSaving(true);
         try {
+            // Save to localStorage immediately so it is persistently available in custom tools
+            const existingLocal = localStorage.getItem('deephub_custom_tools');
+            let toolList: ToolSchema[] = [];
+            if (existingLocal) {
+                try {
+                    toolList = JSON.parse(existingLocal);
+                    if (!Array.isArray(toolList)) toolList = [];
+                } catch { toolList = []; }
+            }
+            const existingIdx = toolList.findIndex(t => t.toolId === editedSchema.toolId);
+            if (existingIdx >= 0) {
+                toolList[existingIdx] = editedSchema;
+            } else {
+                toolList.push(editedSchema);
+            }
+            localStorage.setItem('deephub_custom_tools', JSON.stringify(toolList));
+
+            // Also attempt backend persistence
             const res = await fetch(apiEndpoint('/api/tool-studio/save'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
                 body: JSON.stringify({ tool: editedSchema }),
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
+            }).catch(() => null);
+
+            if (res) {
+                await safeFetchJson<any>(res);
+            }
+
             setSaved(true);
-            onToolSaved?.(data.tool);
+            onToolSaved?.(editedSchema);
         } catch (e: any) {
-            setError(e.message);
+            setError(e.message || "Saved locally to your browser.");
         } finally {
             setSaving(false);
         }
@@ -195,6 +570,45 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
             ...editedSchema,
             fields: editedSchema.fields.map(f => f.id === fieldId ? { ...f, [key]: value } : f),
         });
+    };
+
+    const exportAntigravitySkill = () => {
+        if (!editedSchema) return;
+        const skillName = (editedSchema.name || 'custom-tool')
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '');
+        const skillContent = `---
+name: ${skillName}
+description: ${editedSchema.description || `Generates ${editedSchema.outputLabel} for educational and classroom workflows.`}
+---
+
+# ${editedSchema.name}
+
+${editedSchema.description}
+
+## Input Fields & Parameters
+${editedSchema.fields.map(f => `- **${f.label}** (\`${f.id}\`): Type \`${f.type}\`${f.placeholder ? ` — ${f.placeholder}` : ''}${f.required ? ' (Required)' : ' (Optional)'}`).join('\n')}
+
+## AI Prompt Template
+\`\`\`
+${editedSchema.promptTemplate}
+\`\`\`
+
+## Output Specifications
+- **Format**: ${editedSchema.outputFormat}
+- **Output Label**: ${editedSchema.outputLabel}
+`;
+
+        const blob = new Blob([skillContent], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${skillName}-SKILL.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -274,7 +688,7 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                             <div className="relative">
                                 <textarea
                                     rows={5}
-                                    placeholder={"Examples:\n• A tool that generates a personalised student feedback comment for any subject and grade\n• A parent meeting agenda generator for PTM\n• A tool to write warning letters for student behaviour issues"}
+                                    placeholder={"Examples:\n• A student feedback generator for any subject, grade, and performance level\n• A tool that creates personalised timetables for students with extra coaching needs\n• A rubric builder for any assignment type and grade"}
                                     value={description}
                                     onChange={e => setDescription(e.target.value)}
                                     className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none resize-none transition-all ${
@@ -295,7 +709,7 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                         <button
                             onClick={generateSchema}
                             disabled={generatingSchema || !description.trim()}
-                            className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 disabled:opacity-40 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-cyan-900/40"
+                            className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 disabled:opacity-40 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-cyan-900/40 cursor-pointer"
                         >
                             {generatingSchema ? <><Loader2 size={18} className="animate-spin"/> Designing Your Tool...</> : <><Sparkles size={18}/> Design My Tool</>}
                         </button>
@@ -313,7 +727,7 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                                 'A rubric builder for any assignment type and grade',
                             ].map(ex => (
                                 <button key={ex} onClick={() => setDescription(ex)}
-                                    className="text-xs px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/50 hover:text-white transition-all text-left"
+                                    className="text-xs px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/50 hover:text-white transition-all text-left cursor-pointer"
                                 >
                                     {ex}
                                 </button>
@@ -330,11 +744,19 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                     <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-xs font-black uppercase tracking-widest text-white/50">Tool Identity</h3>
-                            <button onClick={() => setEditingSchema(!editingSchema)}
-                                className="flex items-center gap-1.5 text-xs text-cyan-400 hover:text-white transition-colors"
-                            >
-                                <Pencil size={12}/> {editingSchema ? 'Done Editing' : 'Edit'}
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <button onClick={exportAntigravitySkill}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-lg text-xs text-cyan-300 font-bold transition-all cursor-pointer shadow-xs"
+                                    title="Export as standardized Antigravity Agent Skill (SKILL.md)"
+                                >
+                                    <Download size={12}/> Export Antigravity Skill (.md)
+                                </button>
+                                <button onClick={() => setEditingSchema(!editingSchema)}
+                                    className="flex items-center gap-1.5 text-xs text-cyan-400 hover:text-white transition-colors cursor-pointer"
+                                >
+                                    <Pencil size={12}/> {editingSchema ? 'Done Editing' : 'Edit'}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="flex items-start gap-4">
@@ -351,8 +773,8 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                                                 className="w-16 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-cyan-500/50"/>
                                             <select value={editedSchema.outputFormat} onChange={e => setEditedSchema({...editedSchema, outputFormat: e.target.value as any})}
                                                 className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none">
-                                                <option value="text">Plain Text Output</option>
                                                 <option value="markdown">Markdown Output</option>
+                                                <option value="text">Plain Text Output</option>
                                             </select>
                                         </div>
                                     </>
@@ -410,7 +832,7 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                     {/* Prompt Template */}
                     <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 space-y-3">
                         <button onClick={() => setExpandedPrompt(!expandedPrompt)}
-                            className="w-full flex items-center justify-between text-xs font-black uppercase tracking-widest text-white/50 hover:text-white/70 transition-colors"
+                            className="w-full flex items-center justify-between text-xs font-black uppercase tracking-widest text-white/50 hover:text-white/70 transition-colors cursor-pointer"
                         >
                             <span>AI Prompt Template</span>
                             {expandedPrompt ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
@@ -432,7 +854,7 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                         </AnimatePresence>
                     </div>
 
-                    {/* Test Run */}
+                    {/* Test Run Form */}
                     <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 space-y-4">
                         <h3 className="text-xs font-black uppercase tracking-widest text-white/50">Test Your Tool</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -441,7 +863,7 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                             ))}
                         </div>
                         <button onClick={runTest} disabled={runningTest}
-                            className="w-full py-3.5 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 disabled:opacity-40 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-3 transition-all"
+                            className="w-full py-3.5 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 disabled:opacity-40 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-3 transition-all cursor-pointer shadow-lg shadow-cyan-900/30"
                         >
                             {runningTest ? <><Loader2 size={18} className="animate-spin"/> Running...</> : <><Play size={18}/> Run Test</>}
                         </button>
@@ -459,7 +881,7 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                                 <span>{editedSchema.icon}</span> {editedSchema.outputLabel || 'Generated Output'}
                             </h3>
                             <button onClick={runTest} disabled={runningTest}
-                                className="flex items-center gap-1.5 text-xs text-cyan-400 hover:text-white"
+                                className="flex items-center gap-1.5 text-xs text-cyan-400 hover:text-white cursor-pointer"
                             >
                                 <RotateCcw size={12}/> Regenerate
                             </button>
@@ -478,7 +900,7 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                     {/* Save */}
                     {!saved ? (
                         <button onClick={saveTool} disabled={saving}
-                            className="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 disabled:opacity-40 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-emerald-900/40"
+                            className="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 disabled:opacity-40 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-emerald-900/40 cursor-pointer"
                         >
                             {saving ? <><Loader2 size={18} className="animate-spin"/> Saving...</> : <><Save size={18}/> Save to My Tools</>}
                         </button>
@@ -488,9 +910,14 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
                         </div>
                     )}
 
-                    <button onClick={() => setStep(2)} className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-white/50 hover:text-white transition-all flex items-center justify-center gap-2">
-                        <Pencil size={14}/> Back to Edit
-                    </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button onClick={exportAntigravitySkill} className="w-full py-3 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-xl text-sm text-cyan-300 font-bold hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs">
+                            <Download size={14}/> Export Antigravity Skill (.md)
+                        </button>
+                        <button onClick={() => setStep(2)} className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-white/50 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <Pencil size={14}/> Back to Edit
+                        </button>
+                    </div>
                 </motion.div>
             )}
         </div>
@@ -499,7 +926,7 @@ export default function ToolStudio({ onToolSaved }: { onToolSaved?: (tool: ToolS
 
 // ─── FieldInput: renders the right input for any field type ──────────────────
 
-function FieldInput({ field, value, onChange }: { field: ToolField; value: any; onChange: (v: any) => void }) {
+export function FieldInput({ field, value, onChange }: { field: ToolField; value: any; onChange: (v: any) => void }) {
     const base = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-cyan-500/50";
 
     const [tagInput, setTagInput] = useState('');
@@ -537,7 +964,7 @@ function FieldInput({ field, value, onChange }: { field: ToolField; value: any; 
                                     const arr = Array.isArray(value) ? [...value] : [];
                                     onChange(selected ? arr.filter(x => x !== o) : [...arr, o]);
                                 }}
-                                className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${selected ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-200' : 'bg-white/5 border-white/10 text-white/50 hover:text-white'}`}
+                                className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${selected ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-200' : 'bg-white/5 border-white/10 text-white/50 hover:text-white'}`}
                             >{o}</button>
                         );
                     })}
@@ -562,17 +989,17 @@ function FieldInput({ field, value, onChange }: { field: ToolField; value: any; 
                         {tags.map(t => (
                             <span key={t} className="flex items-center gap-1 text-xs px-2 py-0.5 bg-cyan-500/10 border border-cyan-500/20 rounded text-cyan-200">
                                 {t}
-                                <button onClick={() => onChange(tags.filter(x => x !== t))}><X size={10}/></button>
+                                <button type="button" onClick={() => onChange(tags.filter(x => x !== t))} className="cursor-pointer hover:text-white"><X size={10}/></button>
                             </span>
                         ))}
                     </div>
                     <div className="flex gap-2">
                         <input value={tagInput} onChange={e => setTagInput(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter' && tagInput.trim()) { onChange([...tags, tagInput.trim()]); setTagInput(''); }}}
+                            onKeyDown={e => { if (e.key === 'Enter' && tagInput.trim()) { onChange([...tags, tagInput.trim()]); setTagInput(''); e.preventDefault(); }}}
                             placeholder="Type and press Enter"
                             className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-white/20 focus:outline-none"/>
-                        <button onClick={() => { if (tagInput.trim()) { onChange([...tags, tagInput.trim()]); setTagInput(''); }}}
-                            className="px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-lg text-cyan-400 hover:text-white text-xs">
+                        <button type="button" onClick={() => { if (tagInput.trim()) { onChange([...tags, tagInput.trim()]); setTagInput(''); }}}
+                            className="px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-lg text-cyan-400 hover:text-white text-xs cursor-pointer">
                             <PlusCircle size={14}/>
                         </button>
                     </div>

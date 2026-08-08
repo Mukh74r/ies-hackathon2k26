@@ -23,7 +23,7 @@ import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import BrandLogo from '../../../assets/brand-logo-main.svg';
-import { apiEndpoint, getAuthHeaders, callDirectGroqInference, safeFetchJson } from '../../../utils/api';
+import { apiEndpoint, getAuthHeaders, callDirectGroqInference, safeFetchJson, turboBrain, useTurboBrain } from '../../../utils/api';
 import { preprocessLatex } from '../../../utils/math';
 
 const LOADING_MESSAGES = [
@@ -148,6 +148,7 @@ interface Slide {
 }
 
 export default function PPTGenerator() {
+    const { recentMemories: brainMemories, rememberPrompt: cacheInTurboBrain } = useTurboBrain('ppt-generator');
     const [topic, setTopic] = useState('');
     const [grade, setGrade] = useState('');
     const [subject, setSubject] = useState('');
@@ -255,6 +256,7 @@ export default function PPTGenerator() {
             return;
         }
 
+        cacheInTurboBrain(topic, { subject, gradeLevel: grade, board, slideCount });
         setIsGenerating(true);
         setError(null);
         setGeneratedSlides(null);
@@ -539,31 +541,42 @@ Output strictly JSON matching this schema:
     const handleSaveToLibrary = async () => {
         if (!generatedSlides) return;
         setIsSaving(true);
+        const item = {
+            id: `ppt_${Date.now()}`,
+            type: 'ppt-content',
+            title: `Presentation - ${topic || 'Slides'}`,
+            content: JSON.stringify(generatedSlides),
+            timestamp: new Date().toISOString(),
+            metadata: {
+                topic,
+                subject,
+                grade,
+                slideCount,
+                board,
+                activeTheme,
+                timestamp: new Date().toISOString()
+            }
+        };
         try {
+            const local = localStorage.getItem('deephub_library_items');
+            let list = [];
+            if (local) {
+                try { list = JSON.parse(local); if (!Array.isArray(list)) list = []; } catch {}
+            }
+            list.unshift(item);
+            localStorage.setItem('deephub_library_items', JSON.stringify(list));
+
             const { apiEndpoint } = await import("../../../utils/api");
             const response = await fetch(apiEndpoint("/api/library/save"), {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    type: 'ppt-content',
-                    title: topic || `${subject} - Presentation`,
-                    content: JSON.stringify(generatedSlides),
-                    metadata: {
-                        topic,
-                        subject,
-                        grade,
-                        slideCount,
-                        board,
-                        activeTheme,
-                        timestamp: new Date().toISOString()
-                    }
-                })
-            });
-            const data = await response.json();
+                headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+                body: JSON.stringify(item)
+            }).catch(() => null);
 
-            if (data.success) {
-                alert("Saved to library!");
+            if (response) {
+                await safeFetchJson(response);
             }
+            alert("Saved to library!");
         } catch (err) {
             console.error("Save Error:", err);
         } finally {
@@ -605,6 +618,32 @@ Output strictly JSON matching this schema:
                                     placeholder={isRecording ? "Listening..." : "e.g. The Mechanism of Photosynthesis in C3 Plants"}
                                     className={`w-full h-24 bg-white/5 border rounded-xl p-4 text-sm text-white focus:border-amber-500/50 outline-none resize-none transition-all ${isRecording ? 'border-red-500/30 ring-1 ring-red-500/20' : 'border-white/10'}`}
                                 />
+
+                                {/* Turbo Brain Recent Prompts Recall */}
+                                {brainMemories && brainMemories.length > 0 && (
+                                    <div className="pt-1 space-y-1">
+                                        <div className="flex items-center gap-1 text-[10px] text-white/40 font-mono-stamp">
+                                            <span>⚡ Turbo Brain Recall:</span>
+                                        </div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {brainMemories.slice(0, 4).map((m, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setTopic(m.userPrompt);
+                                                        if (m.metadata?.subject) setSubject(m.metadata.subject);
+                                                        if (m.metadata?.gradeLevel) setGrade(m.metadata.gradeLevel);
+                                                    }}
+                                                    className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/25 text-amber-300 hover:bg-amber-500/20 hover:border-amber-400 transition-all truncate max-w-[200px] cursor-pointer"
+                                                    title={m.userPrompt}
+                                                >
+                                                    {m.userPrompt}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
@@ -678,8 +717,8 @@ Output strictly JSON matching this schema:
                     </div>
                 </div>
 
-                <div className="lg:col-span-8 bg-[#0a0c10] border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[700px]">
-                    <div className="bg-white/5 border-b border-white/5 px-8 h-16 flex items-center justify-between">
+                <div className="lg:col-span-8 bg-[#111625] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col min-h-[800px] lg:h-[calc(100vh-140px)] backdrop-blur-md">
+                    <div className="bg-[#0a0e1a]/80 border-b border-white/10 px-6 h-14 flex items-center justify-between sticky top-0 z-20 backdrop-blur-md">
                         <div className="flex items-center gap-4">
                             <span className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-400 flex items-center gap-2">
                                 <Monitor size={14} /> Screen Preview

@@ -8,7 +8,7 @@ import {
     FileText, Upload, Plus, Sparkles, Download, Printer, Settings,
     School, Check, Loader2, FileEdit, Database, GraduationCap, AlertCircle
 } from 'lucide-react';
-import { apiEndpoint, getAuthHeaders, safeFetchJson } from '../../../utils/api';
+import { apiEndpoint, getAuthHeaders, safeFetchJson, turboBrain, useTurboBrain } from '../../../utils/api';
 
 // ── TYPES ─────────────────────────────────────────
 const TEMPLATES = [
@@ -37,6 +37,7 @@ interface DocResult {
 }
 
 export default function DocumentSecretary() {
+    const { recentMemories: brainMemories, rememberPrompt: cacheInTurboBrain } = useTurboBrain('document-secretary');
     const [activeTab, setActiveTab] = useState<'branding' | 'templates' | 'editor'>('branding');
     const [templateType, setTemplateType] = useState<'school' | 'college'>('school');
     const [branding, setBranding] = useState<Branding>({
@@ -61,6 +62,7 @@ export default function DocumentSecretary() {
 
     const handleGenerate = async () => {
         if (!selectedTemplate || !userInput) return;
+        cacheInTurboBrain(userInput, { template: selectedTemplate.id, school: branding.details.name });
         setIsGenerating(true); setError(null);
         try {
             const response = await fetch(apiEndpoint("/api/secretary/generate"), {
@@ -101,14 +103,33 @@ export default function DocumentSecretary() {
     const handleSaveToLibrary = async () => {
         if (!docResult) return;
         setIsSaving(true);
+        const item = {
+            id: `doc_${Date.now()}`,
+            type: 'secretary-doc',
+            title: `${selectedTemplate?.label || 'Document'} - ${docResult.subject || 'Official Communication'}`,
+            content: JSON.stringify(docResult),
+            timestamp: new Date().toISOString(),
+            metadata: { template: selectedTemplate?.id, templateType, timestamp: new Date().toISOString() }
+        };
         try {
+            // Save to localStorage
+            const local = localStorage.getItem('deephub_library_items');
+            let list = [];
+            if (local) {
+                try { list = JSON.parse(local); if (!Array.isArray(list)) list = []; } catch {}
+            }
+            list.unshift(item);
+            localStorage.setItem('deephub_library_items', JSON.stringify(list));
+
             const response = await fetch(apiEndpoint("/api/library/save"), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-                body: JSON.stringify({ type: 'secretary-doc', title: `${selectedTemplate?.label || 'Document'} - ${docResult.subject}`, content: JSON.stringify(docResult), metadata: { template: selectedTemplate?.id, templateType, timestamp: new Date().toISOString() } })
-            });
-            const data = await response.json();
-            if (data.success) alert("Saved to library!");
+                body: JSON.stringify(item)
+            }).catch(() => null);
+            if (response) {
+                await safeFetchJson(response);
+            }
+            alert("Saved to library!");
         } catch (err) { console.error("Save Error:", err); }
         finally { setIsSaving(false); }
     };
@@ -285,6 +306,29 @@ export default function DocumentSecretary() {
                                         <textarea rows={3} value={userInput} onChange={e => setUserInput(e.target.value)}
                                             placeholder="Example: Field trip to Science Museum for Class 10 on Friday, Fee ₹500/-"
                                             className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-xs focus:border-blue-500 transition-all outline-none resize-none leading-relaxed" />
+
+                                        {/* Turbo Brain Recent Prompts Recall */}
+                                        {brainMemories && brainMemories.length > 0 && (
+                                            <div className="pt-1 space-y-1">
+                                                <div className="flex items-center gap-1 text-[10px] text-white/40 font-mono-stamp">
+                                                    <span>⚡ Turbo Brain Recall:</span>
+                                                </div>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {brainMemories.slice(0, 4).map((m, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            type="button"
+                                                            onClick={() => setUserInput(m.userPrompt)}
+                                                            className="text-[10px] px-2 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/25 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400 transition-all truncate max-w-[200px] cursor-pointer"
+                                                            title={m.userPrompt}
+                                                        >
+                                                            {m.userPrompt}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <button onClick={handleGenerate} disabled={isGenerating}
                                             className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-3 transition-all hover:scale-[0.99]">
                                             {isGenerating ? <Loader2 className="animate-spin" size={18} /> : <><Sparkles size={18} /> Generate Draft</>}
@@ -312,51 +356,54 @@ export default function DocumentSecretary() {
                 </div>
 
                 {/* RIGHT PANEL: PREVIEW */}
-                <div className="hidden lg:flex lg:col-span-8 bg-[#0a0c10] border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex-col min-h-0 relative group">
-                    <div className="bg-white/5 border-b border-white/5 px-8 h-16 flex items-center justify-between z-20">
+                <div className="lg:col-span-8 bg-[#111625] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col min-h-[800px] lg:h-[calc(100vh-140px)] relative backdrop-blur-md">
+                    <div className="bg-[#0a0e1a]/80 border-b border-white/10 px-6 h-14 flex items-center justify-between sticky top-0 z-20 backdrop-blur-md">
                         <span className="text-[11px] font-black uppercase tracking-[0.2em] text-blue-400 flex items-center gap-2">
-                            <Printer size={14} /> Preview Mode
+                            <Printer size={14} /> Document Preview
                         </span>
                         {docResult && (
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2.5">
+                                <button
+                                    onClick={() => window.print()}
+                                    className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                                >
+                                    Print / PDF
+                                </button>
                                 <button onClick={handleSaveToLibrary} disabled={isSaving}
-                                    className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white rounded-xl font-bold text-xs hover:bg-white/10 transition-all">
-                                    {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Database size={16} />}
-                                    {isSaving ? 'Saving...' : 'Save'}
+                                    className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
+                                    {isSaving ? <Loader2 size={13} className="animate-spin" /> : <Database size={13} />} Save
                                 </button>
                                 <button onClick={handleExportDOCX}
-                                    className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all hover:scale-[1.05]">
-                                    <Download size={14} /> Export DOCX
+                                    className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-lg shadow-blue-500/20">
+                                    <Download size={13} /> Export DOCX
                                 </button>
                             </div>
                         )}
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-8 lg:p-12 bg-[#525659] custom-scrollbar relative flex justify-center">
-                        <div className="bg-white text-black shadow-2xl min-h-[297mm] w-[210mm] mx-auto origin-top transform scale-[0.55] sm:scale-[0.65] md:scale-[0.75] lg:scale-[0.8] transition-transform"
-                            style={{ marginBottom: '-15%', fontFamily: "'Times New Roman', serif" }}>
+                    <div className="flex-1 overflow-y-auto p-6 bg-[#525659] custom-scrollbar relative flex justify-center">
+                        <div className="bg-white text-black shadow-2xl min-h-[297mm] w-full max-w-[210mm] mx-auto origin-top p-8 rounded-sm"
+                            style={{ fontFamily: "'Times New Roman', serif" }}>
 
                             {/* Letterhead */}
-                            <div style={{ padding: '15mm 20mm 0 20mm' }}>
-                                <div style={{ borderBottom: '3px solid #1d4ed8', paddingBottom: '12px', marginBottom: '16px' }}>
-                                    {branding.type === 'upload' && branding.headerImage ? (
-                                        <img src={branding.headerImage} alt="Header" style={{ maxHeight: '80px', width: '100%', objectFit: 'contain' }} />
-                                    ) : branding.type === 'manual' && branding.details.name ? (
-                                        <div style={{ textAlign: 'center' }}>
-                                            <h1 style={{ fontSize: '22px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', margin: 0, color: '#1d4ed8' }}>{branding.details.name}</h1>
-                                            {branding.details.address && <p style={{ fontSize: '10px', color: '#666', margin: '4px 0' }}>{branding.details.address}</p>}
-                                            {(branding.details.phone || branding.details.email) && (
-                                                <p style={{ fontSize: '10px', color: '#666', margin: '2px 0' }}>
-                                                    {branding.details.phone}{branding.details.phone && branding.details.email ? ' | ' : ''}{branding.details.email}
-                                                </p>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div style={{ textAlign: 'center', color: '#ccc', fontStyle: 'italic', fontSize: '12px', padding: '20px 0' }}>
-                                            Letterhead Area — Set up branding in the left panel
-                                        </div>
-                                    )}
-                                </div>
+                            <div style={{ paddingBottom: '12px', marginBottom: '16px', borderBottom: '3px solid #1d4ed8' }}>
+                                {branding.type === 'upload' && branding.headerImage ? (
+                                    <img src={branding.headerImage} alt="Header" style={{ maxHeight: '80px', width: '100%', objectFit: 'contain' }} />
+                                ) : branding.type === 'manual' && branding.details.name ? (
+                                    <div style={{ textAlign: 'center' }}>
+                                        <h1 style={{ fontSize: '22px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', margin: 0, color: '#1d4ed8' }}>{branding.details.name}</h1>
+                                        {branding.details.address && <p style={{ fontSize: '10px', color: '#666', margin: '4px 0' }}>{branding.details.address}</p>}
+                                        {(branding.details.phone || branding.details.email) && (
+                                            <p style={{ fontSize: '10px', color: '#666', margin: '2px 0' }}>
+                                                {branding.details.phone}{branding.details.phone && branding.details.email ? ' | ' : ''}{branding.details.email}
+                                            </p>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div style={{ textAlign: 'center', color: '#ccc', fontStyle: 'italic', fontSize: '12px', padding: '20px 0' }}>
+                                        Letterhead Area — Set up branding in the left panel
+                                    </div>
+                                )}
                             </div>
 
                             {/* Document Content */}

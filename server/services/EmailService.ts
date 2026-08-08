@@ -9,7 +9,7 @@ const AWS_REGION = process.env.AWS_REGION || 'ap-south-1';
 const sesClient = new SESClient({ region: AWS_REGION });
 const transport = nodemailer.createTransport({
     SES: { ses: sesClient, aws: { SendRawEmailCommand } },
-});
+} as any);
 
 export class EmailService {
     /**

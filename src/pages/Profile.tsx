@@ -15,7 +15,13 @@ import {
     BookOpen,
     Moon,
     Sun,
-    Award
+    Award,
+    CreditCard,
+    Building2,
+    Sparkles,
+    ArrowRight,
+    Zap,
+    CheckCircle2
 } from 'lucide-react';
 import { useLanguage, INDIAN_LANGUAGES } from '../context/LanguageContext';
 import { useAuth, DeepHubUser } from '../context/AuthContext';
@@ -332,6 +338,114 @@ export default function Profile() {
                                 </div>
                             </div>
                             {theme === 'dark' && <span className="text-[10px] font-mono-stamp font-bold text-[var(--primary)] uppercase">Active</span>}
+                        </div>
+                    </div>
+                </section>
+
+                {/* ── Section 5: Institutional Licensing & Platform Subscriptions ── */}
+                <section className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-sm space-y-6">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-4">
+                        <div className="flex items-center gap-2">
+                            <div className="p-2 rounded-lg bg-cyan-500/10 text-cyan-400">
+                                <CreditCard size={18} />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-bold font-display text-[var(--foreground)]">
+                                    Licensing & Subscription Tier
+                                </h3>
+                                <p className="text-xs text-[var(--muted-foreground)]">
+                                    Institutional deployment, faculty seat allocations, and platform blueprints.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => navigate('/pricing')}
+                            className="px-3.5 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-xs font-bold font-mono-stamp flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(0,164,228,0.3)] cursor-pointer"
+                        >
+                            <span>Multi-Campus Form</span>
+                            <ArrowRight size={13} />
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        {/* 1. Free Academic Tier */}
+                        <div className="p-6 rounded-2xl bg-white/[0.02] border border-[var(--border)] flex flex-col justify-between space-y-5">
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-bold uppercase font-mono-stamp text-white/60">Academic Free</span>
+                                    <span className="px-2.5 py-0.5 rounded bg-white/10 text-white/80 text-[10px] font-bold">Standard</span>
+                                </div>
+                                <div className="text-3xl font-bold font-display text-white">₹0 <span className="text-xs font-normal text-white/40">/ forever</span></div>
+                                <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">Essential question generation and Socratic learning tools for individual educators & students.</p>
+                                <ul className="space-y-2 pt-2 text-sm text-white/80">
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={15} className="text-emerald-400 shrink-0" /> <span>5 Question Papers / mo</span></li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={15} className="text-emerald-400 shrink-0" /> <span>Socratic Step Solver</span></li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={15} className="text-emerald-400 shrink-0" /> <span>Turbo Brain (10 Memories)</span></li>
+                                </ul>
+                            </div>
+                            <button
+                                type="button"
+                                disabled
+                                className="w-full py-2.5 rounded-xl bg-white/5 text-white/40 text-xs font-semibold text-center cursor-default"
+                            >
+                                Current Plan
+                            </button>
+                        </div>
+
+                        {/* 2. Educator Pro Tier */}
+                        <div className="p-6 rounded-2xl bg-cyan-500/5 border border-cyan-500/30 flex flex-col justify-between space-y-5 shadow-md relative overflow-hidden">
+                            <div className="absolute top-0 right-0 px-3 py-1 bg-cyan-500 text-black text-[10px] font-bold uppercase font-mono-stamp">
+                                Popular
+                            </div>
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-bold uppercase font-mono-stamp text-cyan-400">Educator Pro</span>
+                                </div>
+                                <div className="text-3xl font-bold font-display text-white">₹88 <span className="text-xs font-normal text-white/40">/ mo</span></div>
+                                <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">Full pedagogical power for individual faculty, department heads, and tutors.</p>
+                                <ul className="space-y-2 pt-2 text-sm text-white/90">
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={15} className="text-cyan-400 shrink-0" /> <span>Unlimited Exam Blueprints</span></li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={15} className="text-cyan-400 shrink-0" /> <span>Native 1-Click Word & PPTX</span></li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={15} className="text-cyan-400 shrink-0" /> <span>Anti-Cheating Quiz Shuffler</span></li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={15} className="text-cyan-400 shrink-0" /> <span>Unlimited Turbo Brain Memory</span></li>
+                                </ul>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => navigate('/pricing')}
+                                className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-bold text-center transition-all cursor-pointer shadow-sm"
+                            >
+                                Upgrade to Pro
+                            </button>
+                        </div>
+
+                        {/* 3. Institutional Multi-Campus Tier */}
+                        <div className="p-6 rounded-2xl bg-gradient-to-b from-blue-500/10 to-indigo-500/10 border border-blue-500/30 flex flex-col justify-between space-y-5 shadow-lg">
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-bold uppercase font-mono-stamp text-blue-400 flex items-center gap-1">
+                                        <Building2 size={14} /> Institutional
+                                    </span>
+                                    <span className="px-2.5 py-0.5 rounded bg-blue-500/20 text-blue-300 text-[10px] font-bold">Enterprise</span>
+                                </div>
+                                <div className="text-3xl font-bold font-display text-white">Custom <span className="text-xs font-normal text-white/40">/ campus SLA</span></div>
+                                <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">Multi-campus school networks, state boards, polytechnics, and university systems.</p>
+                                <ul className="space-y-2 pt-2 text-sm text-white/90">
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={15} className="text-blue-400 shrink-0" /> <span>Canvas & Google Classroom Sync</span></li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={15} className="text-blue-400 shrink-0" /> <span>FERPA / COPPA Dedicated Isolation</span></li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={15} className="text-blue-400 shrink-0" /> <span>Single Sign-On (SAML / Okta)</span></li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 size={15} className="text-blue-400 shrink-0" /> <span>Custom Board Blueprint Architect</span></li>
+                                </ul>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => navigate('/pricing')}
+                                className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-bold text-center transition-all cursor-pointer shadow-md"
+                            >
+                                Deploy Multi-Campus
+                            </button>
                         </div>
                     </div>
                 </section>

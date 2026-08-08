@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { apiEndpoint, getAuthHeaders } from '../../../utils/api';
+import { apiEndpoint, getAuthHeaders, safeFetchJson } from '../../../utils/api';
 import {
     Database,
     Search,
@@ -22,7 +22,7 @@ import { preprocessLatex } from '../../../utils/math';
 
 interface LibraryItem {
     id: string;
-    type: 'question-paper' | 'homework' | 'lesson-plan' | 'ppt-content';
+    type: 'question-paper' | 'homework' | 'lesson-plan' | 'ppt-content' | string;
     title: string;
     content: string;
     timestamp: string;
@@ -48,6 +48,16 @@ export default function Library() {
     const [selectedItem, setSelectedItem] = useState<LibraryItem | null>(null);
 
     useEffect(() => {
+        // Load initial items from localStorage
+        const local = localStorage.getItem('deephub_library_items');
+        if (local) {
+            try {
+                const parsed = JSON.parse(local);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setItems(parsed);
+                }
+            } catch {}
+        }
         fetchLibrary();
     }, []);
 
@@ -57,10 +67,14 @@ export default function Library() {
                 headers: {
                     ...getAuthHeaders()
                 }
-            });
-            const data = await response.json();
-            if (data.success) {
-                setItems(data.library);
+            }).catch(() => null);
+
+            if (response) {
+                const parsed = await safeFetchJson<{ success?: boolean; library?: LibraryItem[] }>(response);
+                if (parsed.ok && parsed.data?.success && Array.isArray(parsed.data.library)) {
+                    setItems(parsed.data.library);
+                    localStorage.setItem('deephub_library_items', JSON.stringify(parsed.data.library));
+                }
             }
         } catch (err) {
             console.error("Library fetch error:", err);
@@ -73,16 +87,22 @@ export default function Library() {
         e.stopPropagation(); // Don't open the modal
         if (!confirm("Are you sure you want to delete this record?")) return;
 
+        const updated = items.filter(item => item.id !== id);
+        setItems(updated);
+        try {
+            localStorage.setItem('deephub_library_items', JSON.stringify(updated));
+        } catch {}
+        if (selectedItem?.id === id) setSelectedItem(null);
+
         try {
             const response = await fetch(apiEndpoint(`/api/library/${id}`), {
                 method: 'DELETE',
                 headers: {
                     ...getAuthHeaders()
                 }
-            });
-            if (response.ok) {
-                setItems(items.filter(item => item.id !== id));
-                if (selectedItem?.id === id) setSelectedItem(null);
+            }).catch(() => null);
+            if (response) {
+                await safeFetchJson(response);
             }
         } catch (err) {
             console.error("Delete error:", err);

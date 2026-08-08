@@ -172,9 +172,9 @@ export default function QuizShuffler() {
                 </div>
 
                 {/* RIGHT PANEL: VERSIONS VIEW */}
-                <div className="lg:col-span-8 bg-[#0a0c10] border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex flex-col h-full min-h-0 relative group">
+                <div className="lg:col-span-8 bg-[#111625] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col min-h-[800px] lg:h-[calc(100vh-140px)] relative backdrop-blur-md">
 
-                    <div className="bg-white/5 border-b border-white/5 px-8 h-16 flex items-center justify-between z-20">
+                    <div className="bg-[#0a0e1a]/80 border-b border-white/10 px-6 h-14 flex items-center justify-between sticky top-0 z-20 backdrop-blur-md">
                         <div className="flex items-center gap-4">
                             <span className="text-[11px] font-black uppercase tracking-[0.2em] text-violet-400 flex items-center gap-2">
                                 <Layout size={14} /> Neural Versions

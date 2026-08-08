@@ -16,11 +16,12 @@ import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import Tesseract from 'tesseract.js';
-import { apiEndpoint, getAuthHeaders, callDirectGroqInference, safeFetchJson } from '../../../utils/api';
+import { apiEndpoint, getAuthHeaders, callDirectGroqInference, safeFetchJson, turboBrain, useTurboBrain } from '../../../utils/api';
 import { preprocessLatex } from '../../../utils/math';
 import NeuralLoader from '../shared/NeuralLoader';
 
 export default function PaperSolver() {
+    const { recentMemories: brainMemories, rememberPrompt: cacheInTurboBrain } = useTurboBrain('paper-solver');
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -101,6 +102,7 @@ export default function PaperSolver() {
 
     const startSolvingProcess = async () => {
         if (!file) return;
+        cacheInTurboBrain(file.name, { fileName: file.name, type: 'paper-solver' });
         setIsSolving(true);
         setIsProcessing(true);
         setError(null);
@@ -199,26 +201,39 @@ export default function PaperSolver() {
         if (!solutions) return;
         setIsSaving(true);
         try {
-            const response = await fetch(apiEndpoint("/api/library/save"), {
+            const item = {
+                id: `sol_${Date.now()}`,
+                type: 'question-paper',
+                title: `Solutions - ${file?.name || 'Academic Paper'}`,
+                content: solutions,
+                timestamp: new Date().toISOString(),
+                metadata: {
+                    fileName: file?.name,
+                    timestamp: new Date().toISOString()
+                }
+            };
+
+            const local = localStorage.getItem('deephub_library_items');
+            let list = [];
+            if (local) {
+                try { list = JSON.parse(local); if (!Array.isArray(list)) list = []; } catch {}
+            }
+            list.unshift(item);
+            localStorage.setItem('deephub_library_items', JSON.stringify(list));
+
+            const response = await fetch(apiEndpoint('/api/library/save'), {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     ...getAuthHeaders()
                 },
-                body: JSON.stringify({
-                    type: 'question-paper',
-                    title: `Solutions - ${file?.name || 'Academic Paper'}`,
-                    content: solutions,
-                    metadata: {
-                        fileName: file?.name,
-                        timestamp: new Date().toISOString()
-                    }
-                })
-            });
-            const data = await response.json();
-            if (data.success) {
-                alert("Saved to library!");
+                body: JSON.stringify(item)
+            }).catch(() => null);
+
+            if (response) {
+                await safeFetchJson(response);
             }
+            alert("Saved to library!");
         } catch (err) {
             console.error("Save Error:", err);
         } finally {
@@ -357,6 +372,26 @@ export default function PaperSolver() {
                             </div>
                         )}
 
+                        {/* Turbo Brain Recent Prompts Recall */}
+                        {brainMemories && brainMemories.length > 0 && (
+                            <div className="pt-1 space-y-1">
+                                <div className="flex items-center gap-1 text-[10px] text-white/40 font-mono-stamp">
+                                    <span>⚡ Turbo Brain Recall:</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                    {brainMemories.slice(0, 3).map((m, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="text-[10px] px-2 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/25 text-rose-300 transition-all truncate max-w-[200px]"
+                                            title={m.userPrompt}
+                                        >
+                                            {m.userPrompt}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         <button
                             onClick={startSolvingProcess}
                             disabled={!file || isSolving || isProcessing}
@@ -375,8 +410,8 @@ export default function PaperSolver() {
                 </div>
 
                 {/* PREVIEW PANEL */}
-                <div className="lg:col-span-8 bg-[#0a0c10] border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex flex-col h-full">
-                    <div className="bg-white/5 border-b border-white/5 px-8 h-16 flex items-center justify-between">
+                <div className="lg:col-span-8 bg-[#111625] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col min-h-[800px] lg:h-[calc(100vh-140px)] backdrop-blur-md">
+                    <div className="bg-[#0a0e1a]/80 border-b border-white/10 px-6 h-14 flex items-center justify-between sticky top-0 z-20 backdrop-blur-md">
                         <span className="text-[11px] font-black uppercase tracking-[0.2em] text-rose-400 flex items-center gap-2">
                             <Brain size={14} /> Neural Solution Lab
                         </span>

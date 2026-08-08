@@ -7,7 +7,7 @@ export const LibraryItemZodSchema = z.object({
   type: z.string(),
   title: z.string(),
   content: z.any(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   tags: z.array(z.string()).optional(),
   createdAt: z.date().optional(),
 });
